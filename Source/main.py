@@ -71,6 +71,7 @@ def main():
             featureDenseFrameTimes.append(time.time() - featureDenseStartTime)
 
             # NATHAN STUFF
+            # Left image only
             displayContours(grayLeftImage)
             displayContours(grayRightImage)
 

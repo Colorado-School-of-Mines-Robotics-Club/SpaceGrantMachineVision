@@ -25,7 +25,7 @@ from boundingBoxes import drawBoundingBoxes
 @jit(nopython=True)
 def isFeatureDense(x, y, iwidth, iheight, kp, width, height, featurePerPixel):
     # check if x and y are inside of the image
-    # determine the top left and bottom right bounding box cordinates for the region
+    # determine the top left and bottom right bounding box cordinates for the regions
     leftBound = x - width / 2
     rightBound = x + width / 2
     if leftBound < 0:
