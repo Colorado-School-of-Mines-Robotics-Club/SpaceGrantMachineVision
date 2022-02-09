@@ -41,6 +41,7 @@ class Hardware:
         dir1 = 1
         #TODO: write the output pins for the directions
 
+
     def read_data(self):
         self.motors[0] = 1
         #TODO: read in all sensor data
