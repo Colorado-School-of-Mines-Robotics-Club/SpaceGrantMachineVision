@@ -24,6 +24,13 @@ class UndistortImageError(Exception):
 class FeatureMatchingError(Exception):
     def __init__(self, message="Error in features.py"):
         self.message = message
+        if "computeMatchingPoints" in self.message:
+            self.message += " -> No matched features present in the matched features"
+        super().__init__(self.message)
+
+class FeatureDrawingError(Exception):
+    def __init__(self, message="Error drawing features in cv2.drawMatches"):
+        self.message = message
         super().__init__(self.message)
 
 # BOUNDING BOX EXCEPTIONS
