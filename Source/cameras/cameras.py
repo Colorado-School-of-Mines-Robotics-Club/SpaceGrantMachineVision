@@ -1,6 +1,5 @@
 # Built in python libs
 import os
-import sys
 import time
 
 # Additional libs
@@ -10,15 +9,17 @@ from numba import jit
 
 # Custom  imports
 try:
-    from logger import Logger
-    import exceptions
+    from logger.logger import Logger
+    import utilities.exceptions
     from cameras.CaptureManager import CaptureManager, createCaptureSourceData
     from cameras.DisplayManager import DisplayManager, createDisplaySourceData
+    from utilities.exceptions import CameraReadError
 except ImportError:
-    from Source.logger import Logger
-    from Source import exceptions
+    from Source.logger.logger import Logger
+    from Source.utilities import exceptions
     from Source.cameras.CaptureManager import CaptureManager, createCaptureSourceData
     from Source.cameras.DisplayManager import DisplayManager, createDisplaySourceData
+    from Source.utilities.exceptions import CameraReadError
 
 # gets the camera frames from the captureManager
 def fetchCameraImages(leftSource, rightSource):
@@ -33,7 +34,7 @@ def getGrayscaleImages(left, right):
 # Takes the images as two arguments: left, right images
 # Has no return value
 @jit(forceobj=True)
-def showCameras(left, right):
+def showCameras(left, right, threadedDisplay=True):
     if (left.shape != right.shape):
         minHeight = min(left.shape[0], right.shape[0])
         minWidth = min(left.shape[1], right.shape[1])
@@ -41,32 +42,43 @@ def showCameras(left, right):
         leftResize = cv2.resize(left, newDim)
         rightResize = cv2.resize(right, newDim)
         displayImg = np.concatenate((leftResize, rightResize), axis=1)
-        # DisplayManager.show("Combined camera output", displayImg)
-        cv2.imshow("Combined camera output", displayImg)
     else:
         displayImg = np.concatenate((left, right), axis=1)
-        # DisplayManager.show("Combined camera output", displayImg)
+
+    if threadedDisplay:
+        DisplayManager.show("Combined camera output", displayImg)
+    else:
         cv2.imshow("Combined camera output", displayImg)
 
 # gets the camera images from the capture manager
 # converts the images to grayscale
 # shows the images
-def fetchAndShowCameras(leftSource, rightSource, show=True):
+def fetchAndShowCameras(leftSource, rightSource, show=True, threadedDisplay=True):
     try:
         left, right = fetchCameraImages(leftSource, rightSource)
+        if left is None:
+            raise CameraReadError(f"Port {leftSource}")
+        if right is None:
+            raise CameraReadError(f"Port {rightSource}")
         grayLeft, grayRight = getGrayscaleImages(left, right)
         if show:
-            showCameras(left, right)
+            showCameras(left, right, threadedDisplay)
         return left, right, grayLeft, grayRight
     except Exception as e:
         raise e
 
 # creates the cameras sources for ThreadedCapture and runs them into CaptureManager
-def initCameras(leftCam, rightCam, leftK, rightK, leftDistC, rightDistC, setExposure=False):
+def initCameras(leftCam, rightCam, setExposure=False):
+    leftK, rightK, leftDistC, rightDistC = loadUndistortionFiles()
     # start CaptureManager for left and right cameras
     left = createCaptureSourceData(leftCam, leftK, leftDistC, setExposure=setExposure)
     right = createCaptureSourceData(rightCam, rightK, rightDistC, setExposure=setExposure)
     CaptureManager.init([left, right])
+    # sleep time for cameras to read in a frame
+    leftImage, rightImage = fetchCameraImages(leftCam, rightCam)
+    while leftImage is None or rightImage is None:
+        time.sleep(.1)
+        leftImage, rightImage = fetchCameraImages(leftCam, rightCam)
 
 # closes the camera sources
 def closeCameras():

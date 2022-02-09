@@ -1,28 +1,22 @@
 # Built in python libs
-import os
-import sys
-import time
 import math
 
 # Additional libs
 import numpy as np
-import cv2
-from numba import jit, njit
+from numba import jit
 
 # Custom  imports
 try:
-    from logger import Logger
-    import exceptions
-    import utility
+    from logger.logger import Logger
+    import utilities.exceptions
     from features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
-    from boundingBoxes import drawBoundingBoxes, combineBoundingBoxes
+    from utilities.boundingBoxes import drawBoundingBoxes, combineBoundingBoxes
     from cameras.DisplayManager import DisplayManager
 except ImportError:
-    from Source.logger import Logger
-    from Source import exceptions
-    from Source import utility
+    from Source.logger.logger import Logger
+    from Source.utilities import exceptions
     from Source.features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
-    from Source.boundingBoxes import drawBoundingBoxes, combineBoundingBoxes
+    from Source.utilities.boundingBoxes import drawBoundingBoxes, combineBoundingBoxes
     from Source.cameras.DisplayManager import DisplayManager
 
 # given a point in x, y cordinates, an image, and an array of keypoints
@@ -80,7 +74,7 @@ def getFeatureDenseBoundingBoxes(imageWidth, imageHeight, pts, horzBins, vertBin
     return boundingBoxes
 
 # takes an image and returns bounding box coordinates
-def findFeatureDenseBoundingBoxes(image, pts, binSize=30.0, featuresPerPixel=0.01, show=False):
+def findFeatureDenseBoundingBoxes(image, pts, binSize=30.0, featuresPerPixel=0.01, show=False, threadedDisplay=True):
     # compute dimensional information
     imageHeight, imageWidth = image.shape[0], image.shape[1]
     horzBins, vertBins = math.ceil(imageWidth / binSize), math.ceil(imageHeight / binSize)
@@ -92,7 +86,7 @@ def findFeatureDenseBoundingBoxes(image, pts, binSize=30.0, featuresPerPixel=0.0
     # simplifiedBoundingBoxes = combineBoundingBoxes(boundingBoxes)
 
     if show:
-        drawBoundingBoxes(image, boundingBoxes, windowName="Feature Dense Bounding Boxes", show=True)
+        drawBoundingBoxes(image, boundingBoxes, windowName="Feature Dense Bounding Boxes", show=True, threadedDisplay=threadedDisplay)
         # drawBoundingBoxes(image, simplifiedBoundingBoxes, windowName="Simplified FeatureDense BB", show=True)
 
     return boundingBoxes
