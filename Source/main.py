@@ -15,7 +15,7 @@ try:
     from cameras.cameras import writeKandDistNPZ, loadUndistortionFiles, fetchAndShowCameras, initCameras, closeCameras
     from cameras.DisplayManager import DisplayManager, createDisplaySourceData
     from visualOdometry.visualodometry import computeDisparity
-    from features import computeMatchingPoints, getPointsFromKeypoints
+    from features.features import computeMatchingPoints, getPointsFromKeypoints
     from objectDetection.featureDensity import findFeatureDenseBoundingBoxes
     from utilities.timing import getAvgTimeArr
     from utilities.arguments import getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag, handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag
@@ -26,7 +26,7 @@ except ImportError:
     from Source.cameras.cameras import writeKandDistNPZ, loadUndistortionFiles, fetchAndShowCameras, initCameras, closeCameras
     from Source.cameras.DisplayManager import DisplayManager, createDisplaySourceData
     from Source.visualOdometry.visualodometry import computeDisparity
-    from Source.features import computeMatchingPoints, getPointsFromKeypoints
+    from Source.features.features import computeMatchingPoints, getPointsFromKeypoints
     from Source.objectDetection.featureDensity import findFeatureDenseBoundingBoxes
     from Source.utilities.timing import getAvgTimeArr
     from Source.utilities.arguments import getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag, handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag
