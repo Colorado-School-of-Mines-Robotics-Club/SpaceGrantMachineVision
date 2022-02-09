@@ -34,7 +34,6 @@ class Hardware:
         #TODO: Write PWM for each motor
 
         #TODO: Write PWM for each servo
-
         #TODO: write PWM for each LED
         self.write_GPIO(self, dir1, dir2,dir3,dir4)
 
