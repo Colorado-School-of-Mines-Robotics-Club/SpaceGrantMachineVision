@@ -8,7 +8,7 @@ class ThreadedCapture:
         Class that continuously gets frames from a VideoCapture object
         with a dedicated thread.
     """
-    def __init__(self, source, K=None, distC=None, setExposure=False, autoExposure=1.0, exposure=100.0):
+    def __init__(self, source: int, K=None, distC=None, setExposure=False, autoExposure=1.0, exposure=100.0):
         # check if the source is a video file
         if os.path.exists(source):
             self.video = True
@@ -85,6 +85,7 @@ class ThreadedCapture:
                 return None
         return self.frame
 
+    # TODO: figure out to how strongly type return value of self for class
     # starts the capture thread
     def start(self):
         thread = Thread(target=self.readFrames, args=())

@@ -1,9 +1,12 @@
+from typing import List, Dict
+import numpy as np
+
 try:
     from cameras.ThreadedCapture import ThreadedCapture
 except ImportError:
     from Source.cameras.ThreadedCapture import ThreadedCapture
 
-def createCaptureSourceData(source, K=None, distC=None, setExposure=False, autoExposure=1.0, exposure=100.0):
+def createCaptureSourceData(source: int, K=None, distC=None, setExposure=False, autoExposure=1.0, exposure=100.0) -> List:
     return [source, K, distC, setExposure, autoExposure, exposure]
 
 class CaptureManager:
@@ -15,19 +18,19 @@ class CaptureManager:
     sources = dict()
     # sources is a list of lists formed where each entry should be created by createSourceData
     @classmethod
-    def init(cls, sources):
+    def init(cls, sources: List):
         # initialize and start all threads
         for src in sources:
             cls.sources[src[0]] = ThreadedCapture(src[0], src[1], src[2], src[3], src[4], src[5]).start()
 
     # gets the frame from a specific source
     @classmethod
-    def getFrame(cls, source):
+    def getFrame(cls, source: int) -> np.ndarray:
         return cls.sources[source].getFrame()
 
     # gets all frames from all sources
     @classmethod
-    def getFrames(cls):
+    def getFrames(cls) -> Dict:
         frames = dict()
         for source, thread in cls.sources.items():
             frames[source] = thread.getFrame()
@@ -35,7 +38,7 @@ class CaptureManager:
 
     # stops a threadedCapture for source
     @classmethod
-    def stopSource(cls, source):
+    def stopSource(cls, source: int):
         cls.sources[source].stop()
 
     # stops all sources

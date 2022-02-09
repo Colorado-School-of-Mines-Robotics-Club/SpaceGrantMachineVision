@@ -13,28 +13,33 @@ try:
     import utilities.exceptions
     from cameras.CaptureManager import CaptureManager, createCaptureSourceData
     from cameras.DisplayManager import DisplayManager, createDisplaySourceData
+    from cameras.ThreadedCapture import ThreadedCapture
     from utilities.exceptions import CameraReadError
 except ImportError:
     from Source.logger.logger import Logger
     from Source.utilities import exceptions
     from Source.cameras.CaptureManager import CaptureManager, createCaptureSourceData
     from Source.cameras.DisplayManager import DisplayManager, createDisplaySourceData
+    from Source.cameras.ThreadedCapture import ThreadedCapture
     from Source.utilities.exceptions import CameraReadError
 
+
 # gets the camera frames from the captureManager
-def fetchCameraImages(leftSource, rightSource):
+def fetchCameraImages(leftSource: ThreadedCapture, rightSource: ThreadedCapture) -> (np.ndarray, np.ndarray):
     return CaptureManager.getFrame(leftSource), CaptureManager.getFrame(rightSource)
+
 
 # makes grayscale images of the bgr_images returned by readCameras
 # @jit(forceobj=True)
-def getGrayscaleImages(left, right):
+def getGrayscaleImages(left: np.ndarray, right: np.ndarray) -> (np.ndarray, np.ndarray):
     return cv2.cvtColor(left, cv2.COLOR_BGR2GRAY), cv2.cvtColor(right, cv2.COLOR_BGR2GRAY)
+
 
 # Function makes a window which displays both camera feeds next to each other
 # Takes the images as two arguments: left, right images
 # Has no return value
 @jit(forceobj=True)
-def showCameras(left, right, threadedDisplay=True):
+def showCameras(left: np.ndarray, right: np.ndarray, threadedDisplay=True):
     if (left.shape != right.shape):
         minHeight = min(left.shape[0], right.shape[0])
         minWidth = min(left.shape[1], right.shape[1])
@@ -50,10 +55,12 @@ def showCameras(left, right, threadedDisplay=True):
     else:
         cv2.imshow("Combined camera output", displayImg)
 
+
 # gets the camera images from the capture manager
 # converts the images to grayscale
 # shows the images
-def fetchAndShowCameras(leftSource, rightSource, show=True, threadedDisplay=True):
+def fetchAndShowCameras(leftSource: ThreadedCapture, rightSource: ThreadedCapture, show=True, threadedDisplay=True) ->\
+        (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     try:
         left, right = fetchCameraImages(leftSource, rightSource)
         if left is None:
@@ -67,8 +74,9 @@ def fetchAndShowCameras(leftSource, rightSource, show=True, threadedDisplay=True
     except Exception as e:
         raise e
 
+
 # creates the cameras sources for ThreadedCapture and runs them into CaptureManager
-def initCameras(leftCam, rightCam, setExposure=False):
+def initCameras(leftCam: int, rightCam: int, setExposure=False):
     leftK, rightK, leftDistC, rightDistC = loadUndistortionFiles()
     # start CaptureManager for left and right cameras
     left = createCaptureSourceData(leftCam, leftK, leftDistC, setExposure=setExposure)
@@ -80,12 +88,14 @@ def initCameras(leftCam, rightCam, setExposure=False):
         time.sleep(.1)
         leftImage, rightImage = fetchCameraImages(leftCam, rightCam)
 
+
 # closes the camera sources
 def closeCameras():
     CaptureManager.stopSources()
 
+
 # loads all files from data that the robot needs
-def loadUndistortionFiles():
+def loadUndistortionFiles() -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     # one time file loading for the camera intrinsic matrices and undistortion coeff
     calibrationPath = "Data/Calibration/"
     if not os.path.isdir(calibrationPath):
@@ -97,9 +107,10 @@ def loadUndistortionFiles():
 
     return leftK, rightK, leftDistC, rightDistC
 
+
 # Function to write K matrix and dist coeffs to npz files
 # K matrix is a 3x3 and dist coeffs is of length 4
-def writeKandDistNPZ(lk, rk, ld, rd):
+def writeKandDistNPZ(lk: np.ndarray, rk: np.ndarray, ld: np.ndarray, rd: np.ndarray):
     # Gets the path to the Calibration folder in data for any computer
     calibrationPath = "Data/Calibration/"
     if not os.path.isdir(calibrationPath):
