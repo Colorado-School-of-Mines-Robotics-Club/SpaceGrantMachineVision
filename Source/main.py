@@ -106,13 +106,11 @@ def main():
                 if keyPressed == 27:
                     raise exceptions.KeyboardInterrupt("ESC")  # Quit on ESC
         except exceptions.KeyboardInterrupt as e:  # Kills the loop if a keyboardInterrupt occurs
-            Logger.log("User killed loop with: " + e.getKey())
+            Logger.log(f"User killed loop with: {e.getKey()}")
             break
         except Exception as e:
             # Possibly instead of restarting, we might want to look into
-            Logger.log(
-                str(e) + " -> Occured in primary operation loop of program. Failed iterations in a row: {}".format(
-                    consecutiveErrors))
+            Logger.log(f"{str(e)} -> Occured in primary operation loop of program. Failed iterations in a row: {consecutiveErrors}")
             consecutiveErrors += 1
             if (consecutiveErrors > errorTolerance):
                 Logger.log("RESTARTING PRIMARY CONTROL LOOP")
@@ -122,21 +120,15 @@ def main():
                 iterationTimes.append(time.perf_counter() - iterationStartTime)
             iterationCounter += 1
         else:
-            iterNum = "#{} Total Iterations: ".format(numTotalIterations + 1)
-            iterTimeStr = "Avg iteration: {} {}".format(getAvgTimeArr(iterationTimes, iterationCounter), "ms")
-            cameraTimeStr = " => Avg frame: {} {}".format(getAvgTimeArr(cameraFTs, iterationCounter), 'ms')
-            featureTimeStr = ", Avg features: {} {}".format(getAvgTimeArr(featureFTs, iterationCounter), 'ms')
-            objectDectTimeStr = ", Avg feature density: {} {}".format(getAvgTimeArr(objectDectFTs,
-                                                                                    iterationCounter), 'ms')
-            disparityTimeStr = ", Avg disparity map: {} {}".format(getAvgTimeArr(disparityFTs,
-                                                                                 iterationCounter), 'ms')
+            iterNum = f"#{numTotalIterations + 1} Total Iterations: "
+            iterTimeStr = f"Avg iteration: {getAvgTimeArr(iterationTimes, iterationCounter)} ms"
+            cameraTimeStr = f" => Avg frame: {getAvgTimeArr(cameraFTs, iterationCounter)} ms"
+            featureTimeStr = f", Avg features: {getAvgTimeArr(featureFTs, iterationCounter)} ms"
+            objectDectTimeStr = f", Avg feature density: {getAvgTimeArr(objectDectFTs, iterationCounter)} ms"
+            disparityTimeStr = f", Avg disparity map: {getAvgTimeArr(disparityFTs, iterationCounter)} ms"
             Logger.log(iterNum + iterTimeStr + cameraTimeStr + featureTimeStr + objectDectTimeStr + disparityTimeStr)
             iterationCounter = 0
-            iterationTimes = []
-            cameraFTs = []
-            featureFTs = []
-            objectDectFTs = []
-            disparityFTs = []
+            iterationTimes, cameraFTs, featureFTs, objectDectFTs, disparityFTs = list(), list(), list(), list(), list()
         numTotalIterations += 1
 
 # denotes program entered in this file, the main thread
