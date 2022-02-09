@@ -46,6 +46,7 @@ class Hardware:
         #TODO: read in all sensor data
         #TODO: Split data reading functions into individual functions so they can be threaded
 
+
     def get_data(self):
         return self.motors
         #TODO: return all data in a reasonable format (Maybe convert accelerometer data to velocity ect)
