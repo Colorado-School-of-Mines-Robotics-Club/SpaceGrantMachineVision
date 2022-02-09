@@ -14,10 +14,12 @@ class CameraReadError(Exception):
         self.message = message
         super().__init__(self.message + str(camera))
 
+
 class UndistortImageError(Exception):
     def __init__(self, message="Error in undistortImages in cameras.py"):
         self.message = message
         super().__init__(self.message)
+
 
 # FEATURE EXCEPTIONS
 class FeatureMatchingError(Exception):
@@ -27,25 +29,29 @@ class FeatureMatchingError(Exception):
             self.message += " -> No matched features present in the matched features"
         super().__init__(self.message)
 
+
 class FeatureDrawingError(Exception):
     def __init__(self, message="Error drawing features in cv2.drawMatches"):
         self.message = message
         super().__init__(self.message)
 
+
 # BOUNDING BOX EXCEPTIONS
 class ConnectednessError(Exception):
-    def __init__(self, input, message="Invalid connectedness option: "):
+    def __init__(self, connectedness, message="Invalid connectedness option: "):
         self.message = message
-        super().__init__(self.message + str(input))
+        super().__init__(self.message + str(connectedness))
+
 
 # GENERAL EXCEPTIONS
 # Raise/Raised when keyword interrupt occurs
 # Used to restart control flow loop of robot
 # Might be redunant?? OpenCV could have a matching interrupt we could have stolen, but this is made already
-class KeyboardInterrupt(Exception):
+class CustomKeyboardInterrupt(Exception):
     def __init__(self, key, message="Restarting control loop of program: "):
         self.key = key
         self.message = message
         super().__init__(self.message + str(key))
+
     def getKey(self):
         return self.key
