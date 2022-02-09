@@ -1,7 +1,5 @@
 class Hardware:
 
-
-
     def __init__(self,address):
         try:
             import RPi.GPIO
