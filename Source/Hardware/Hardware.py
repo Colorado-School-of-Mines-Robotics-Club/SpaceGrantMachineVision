@@ -45,6 +45,7 @@ class Hardware:
     def read_data(self):
         self.motors[0] = 1
         #TODO: read in all sensor data
+        #TODO: Split data reading functions into individual functions so they can be threaded
 
     def get_data(self):
         return self.motors
