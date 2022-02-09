@@ -2,6 +2,7 @@ from threading import Thread
 from collections import deque
 import cv2
 import time
+import numpy as np
 
 class ThreadedDisplay:
     """
@@ -16,6 +17,7 @@ class ThreadedDisplay:
             self.queue.append(frame)
         self.delay = 1.0 / fps
 
+    # TODO: figure out to how strongly type return value of self for class
     def start(self):
         thread = Thread(target=self.show, args=())
         thread.setDaemon(True)
@@ -34,7 +36,7 @@ class ThreadedDisplay:
             time.sleep(self.delay)
         cv2.destroyWindow(self.windowName)
 
-    def update(self, newFrame):
+    def update(self, newFrame: np.ndarray):
         self.queue.append(newFrame)
 
     def stop(self):
