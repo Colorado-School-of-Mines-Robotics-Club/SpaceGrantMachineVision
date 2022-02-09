@@ -99,6 +99,9 @@ class Logger:
     @classmethod
     def runLogThread(cls, buffer: Queue):
         """Function used by the logger thread
+
+        Args:
+            bugger (Queue): queue for putting the messages when using .log method
         """
         cls.buffer = buffer
         while True:
