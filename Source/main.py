@@ -158,7 +158,7 @@ if __name__ == "__main__":
     iterationsToAverage = 9  # use n+1 to calculate true number averaged
 
     # defining opencv objects
-    orb = cv2.ORB_create(nfeatures=1000)  # orb feature detector object
+    orb = cv2.ORB_create(nfeatures=2000)  # orb feature detector object
     matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)  # matcher object
     # stereo object
     stereo = cv2.StereoSGBM_create(minDisparity=5, numDisparities=32, blockSize=3, P1=128, P2=512, disp12MaxDiff=0,
