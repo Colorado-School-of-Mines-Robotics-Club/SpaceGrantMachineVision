@@ -6,7 +6,6 @@
 
 
 # CAMERA EXCEPTIONS
-
 # Raise/Raised when image is not acquired upon camera read, takes the camera number or name as parameter.
 # Message is a default parameter, but can have custom message to denote context
 class CameraReadError(Exception):
