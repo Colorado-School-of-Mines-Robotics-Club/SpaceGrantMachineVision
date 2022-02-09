@@ -12,7 +12,7 @@ try:
     from cameras.DisplayManager import DisplayManager
 except ImportError:
     from Source.logger.logger import Logger
-    from Source import exceptions
+    from Source.utilities import exceptions
     from Source.cameras.DisplayManager import DisplayManager
 
 # function that given to images computes their features

@@ -9,13 +9,13 @@ from numba import jit
 try:
     from logger.logger import Logger
     import utilities.exceptions
-    from features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
+    from features.features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
     from utilities.boundingBoxes import drawBoundingBoxes, combineBoundingBoxes
     from cameras.DisplayManager import DisplayManager
 except ImportError:
     from Source.logger.logger import Logger
     from Source.utilities import exceptions
-    from Source.features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
+    from Source.features.features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
     from Source.utilities.boundingBoxes import drawBoundingBoxes, combineBoundingBoxes
     from Source.cameras.DisplayManager import DisplayManager
 
