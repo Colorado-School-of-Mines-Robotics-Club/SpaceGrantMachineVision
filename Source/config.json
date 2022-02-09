@@ -1,1 +1,33 @@
-
+{
+  "iteration_constants": {
+    "errorTolerance": 2,
+    "iterationsToAverage": 9
+  },
+  "camera_ports": {
+    "leftPort" : 0,
+    "rightPort" : 1
+  },
+  "orb_params": {
+    "nfeatures": 2000,
+    "scaleFactor": 1.2,
+    "nlevels": 8,
+    "edgeThreshold": 31,
+    "firstLevel": 0,
+    "WTA_K": 2,
+    "scoreType": 0,
+    "patchSize": 31,
+    "fastThreshold": 20
+  },
+  "sgbm_params": {
+    "minDisparity": 0,
+    "numDisparities": 112,
+    "blockSize": 3,
+    "P1": 27,
+    "P2": 675,
+    "disp12MaxDiff": 50,
+    "preFilterCap": 0,
+    "uniquenessRatio": 10,
+    "speckleWindowSize": 0,
+    "speckleRange": 4
+  }
+}

@@ -25,7 +25,7 @@ except ImportError:
 
 
 # gets the camera frames from the captureManager
-def fetchCameraImages(leftSource: ThreadedCapture, rightSource: ThreadedCapture) -> (np.ndarray, np.ndarray):
+def fetchCameraImages(leftSource: int, rightSource: int) -> (np.ndarray, np.ndarray):
     return CaptureManager.getFrame(leftSource), CaptureManager.getFrame(rightSource)
 
 
