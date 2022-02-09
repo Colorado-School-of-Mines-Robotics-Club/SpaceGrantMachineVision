@@ -2,7 +2,14 @@ from datetime import datetime
 from time import sleep
 from multiprocessing import Queue, Process
 
+try:
+    from utilities import exceptions
+except ImportError:
+    from Source.utilities import exceptions
+
+
 class Logger:
+    logThread = None
     shouldThreadJoin = False
     
     buffer = Queue()
@@ -12,7 +19,7 @@ class Logger:
     filepath = ""
     
     @classmethod
-    def setLogToConsole(cls, enable):
+    def setLogToConsole(cls, enable: bool):
         """ Tells the Logger whether to print to the console
 
         Args:
@@ -21,7 +28,7 @@ class Logger:
         cls.buffer.put(("logToConsole", enable))
     
     @classmethod
-    def openFile(cls, filepath):
+    def openFile(cls, filepath: str):
         """ Confirms that the file can be opened and prints an opening message
         
         Args:
@@ -55,11 +62,12 @@ class Logger:
                 return
     
     @classmethod
-    def log(cls, message, toFile=True):
-        """ Adds the message to the buffer, then the logger thread logs the provided string to the console and/or file as configured
+    def log(cls, message):
+        """ Adds the message to the buffer, then the logger thread logs the provided string to the console and/or file
+            as configured
 
         Args:
-            message (str): The message to be output to the console and/or file
+            message (str/Exception): The message to be output to the console and/or file
         """
         # enables .log to handle Exception types directly
         if isinstance(message, Exception):
@@ -70,13 +78,14 @@ class Logger:
             cls.buffer.put("ERROR: Cannot log message of type " + str(type(message)))
     
     @classmethod
-    def init(cls, filepath = ""):
+    def init(cls, filepath=""):
         """ Start the logger thread, will log to file if specified
         """
         cls.buffer = Queue()
         cls.buffer.put(("shouldThreadJoin", False))
+        cls.filepath = filepath
         Logger.openFile(filepath)
-        cls.logThread = Process(target=Logger.runLogThread, args=(cls.buffer, filepath,), daemon=True)
+        cls.logThread = Process(target=Logger.runLogThread, args=(cls.buffer,), daemon=True)
         cls.logThread.start()
         return
     
@@ -88,8 +97,11 @@ class Logger:
         cls.logThread.join()
     
     @classmethod
-    def runLogThread(cls, buffer, filepath = ""):
+    def runLogThread(cls, buffer: Queue):
         """Function used by the logger thread
+
+        Args:
+            bugger (Queue): queue for putting the messages when using .log method
         """
         cls.buffer = buffer
         while True:
@@ -99,7 +111,7 @@ class Logger:
                     finalMessage = "[" + datetime.now().strftime("%H:%M:%S") + "] " + val + "\n"
                     if cls.logToConsole:
                         print(finalMessage, end="")
-                    if cls.logToFile:# and toFile:
+                    if cls.logToFile:  # and toFile:
                         try:
                             file = open(cls.filepath, "a")
                             file.write(finalMessage)
@@ -110,12 +122,16 @@ class Logger:
                     try:
                         logSetting = True
                         if val[0] == "logToConsole":
+                            assert isinstance(val[1], bool)
                             cls.logToConsole = val[1]
                         elif val[0] == "logToFile":
+                            assert isinstance(val[1], bool)
                             cls.logToFile = val[1]
                         elif val[0] == "filepath":
+                            assert isinstance(val[1], str)
                             cls.filepath = val[1]
                         elif val[0] == "shouldThreadJoin":
+                            assert isinstance(val[1], bool)
                             cls.shouldThreadJoin = val[1]
                             logSetting = False
                         else:
@@ -123,7 +139,7 @@ class Logger:
                             logSetting = False
                         if logSetting:
                             cls.buffer.put("Logger setting <" + val[0] + "> is now <" + str(val[1]) + ">")
-                    except:
+                    except AssertionError:
                         cls.buffer.put("Unknown setting <" + str(val[0]) + "> with value <" + str(val[1]))
                 else:
                     cls.buffer.put("Invalid logger command of type", type(val))

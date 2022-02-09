@@ -1,3 +1,5 @@
+from typing import List, Dict
+import numpy as np
 import cv2
 
 try:
@@ -5,7 +7,7 @@ try:
 except ImportError:
     from Source.cameras.ThreadedDisplay import ThreadedDisplay
 
-def createDisplaySourceData(windowName="Output", frame=None):
+def createDisplaySourceData(windowName="Output", frame=None) -> List:
     return [windowName, frame]
 
 class DisplayManager:
@@ -21,14 +23,14 @@ class DisplayManager:
 
     # sources is a list of lists formed where each entry should be created by createSourceData
     @classmethod
-    def showGroup(cls, displays):
+    def showGroup(cls, displays: List):
         # initialize and start all threads
         for display in displays:
             cls.displays[display[0]] = ThreadedDisplay(display[0], display[1]).start()
 
     # gets the frame from a specific source
     @classmethod
-    def show(cls, windowName, frame):
+    def show(cls, windowName: str, frame: np.ndarray):
         if windowName in cls.displays:
             cls.displays[windowName].update(frame)
         else:
@@ -36,7 +38,7 @@ class DisplayManager:
 
     # stops a threadedDisplay from window name
     @classmethod
-    def stopDisplay(cls, windowName):
+    def stopDisplay(cls, windowName: str):
         cls.displays[windowName].stop()
         try:
             cv2.destroyWindow(windowName)
