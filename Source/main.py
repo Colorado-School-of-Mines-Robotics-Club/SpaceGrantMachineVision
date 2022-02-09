@@ -31,6 +31,8 @@ except ImportError:
     from Source.utilities.timing import getAvgTimeArr
     from Source.utilities.arguments import getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag, handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag
 
+
+
 # Primary function where our main control flow will happen
 # Contains a while true loop for continous iteration
 def main():
@@ -190,12 +192,17 @@ if __name__ == "__main__":
         time.sleep(1)
         keyPressed = cv2.waitKey(1) & 0xFF
         if keyPressed == 27:
-            Logger.log("Program shutdown...")
+            Logger.log("Starting Program shutdown...")
             break
 
+    Logger.log("    Closing cameras...")
     closeCameras()
+    Logger.log("    Closing video writers...")
     handleRecordFlagClose(leftWriter, rightWriter)
+    Logger.log("    Closing displays through DisplayManager...")
     DisplayManager.stopDisplays()
+    Logger.log("    Closing main process displays...")
     cv2.destroyAllWindows()
+    Logger.log("    Shutting down logger...")
     Logger.shutdown()  # Shuts down the logging system and prints a closing message to the file
     sys.exit(0)

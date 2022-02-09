@@ -1,7 +1,13 @@
+import time
 from threading import Thread
 from collections import deque
 import cv2
 import os
+
+try:
+    from logger.logger import Logger
+except ImportError:
+    from Source.logger.logger import Logger
 
 class ThreadedCapture:
     """
@@ -35,14 +41,14 @@ class ThreadedCapture:
         # create the cv2 video capture to acquire either the recorded video or webcam
         try:
             self.capture = cv2.VideoCapture(source)
-        except:
+        except Exception:
             raise Exception("Error defining cv2.videoCapture object for source: {}".format(self.source))
         # set exposures if option set
         try:
             if self.setExposure:
                 self.capture.set(cv2.CAP_PROP_AUTO_EXPOSURE, autoExposure)
                 self.capture.set(cv2.CAP_PROP_EXPOSURE, exposure)
-        except:
+        except Exception:
             raise Exception("Error settings exposure for video source: {}".format(self.source))
         # create undistortion K matrix
         try:
@@ -59,7 +65,10 @@ class ThreadedCapture:
         self.success, frame = self.capture.read()
         if not self.success:
             self.stopped = True
+            Logger.log(f"Failed to acquire frame from: {self.source}")
             return
+        # else:
+        #     Logger.log(f"Acquired frame from: {self.source}")
         if self.newK is not None:
             frame = cv2.undistort(frame, self.K, self.distC, None, self.newK)
             frame = frame[self.y:self.y+self.h, self.x:self.x+self.w]
