@@ -7,7 +7,7 @@ import os
 try:
     from logger.logger import Logger
 except ImportError:
-    from Source.logger.logger import Logger
+    from Source.logger.Logger import Logger
 
 class ThreadedCapture:
     """
@@ -18,7 +18,7 @@ class ThreadedCapture:
         # check if the source is a video file
         if os.path.exists(source):
             self.video = True
-            self.frameQ = deque(maxlen=5)
+            self.frameQ = deque()
         else:
             self.video = False
             self.frameQ = None

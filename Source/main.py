@@ -9,7 +9,7 @@ import cv2
 
 # Custom imports
 try:
-    from logger.logger import Logger
+    from logger.Logger import Logger
     from logger.loggingCalls import logArguments, logSystemInfo
     from utilities import exceptions
     from cameras.cameras import writeKandDistNPZ, loadUndistortionFiles, fetchAndShowCameras, initCameras, closeCameras
@@ -21,7 +21,7 @@ try:
     from utilities.arguments import getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag, handleVideoFlag, \
         handleRecordFlagClose, handleThreadedDisplayFlag
 except ImportError:
-    from Source.logger.logger import Logger
+    from Source.logger.Logger import Logger
     from Source.logger.loggingCalls import logArguments, logSystemInfo
     from Source.utilities import exceptions
     from Source.cameras.cameras import writeKandDistNPZ, loadUndistortionFiles, fetchAndShowCameras, initCameras, \

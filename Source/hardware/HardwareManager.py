@@ -1,4 +1,4 @@
-class Hardware:
+class HardwareManager:
 
 
     def __init__(self,address):
