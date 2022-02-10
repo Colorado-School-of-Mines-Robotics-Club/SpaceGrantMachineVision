@@ -1,6 +1,7 @@
 from datetime import datetime
 from time import sleep
 from multiprocessing import Queue, Process
+import signal
 
 try:
     from utilities import exceptions
@@ -94,7 +95,20 @@ class Logger:
         """Stops the logger thread
         """
         cls.buffer.put(("shouldThreadJoin", True))
-        cls.logThread.join()
+        if cls.logThread.is_alive():
+            cls.logThread.join()
+
+    @classmethod
+    def handle_sigint_signal(cls, sig, frame):
+        cls.shouldThreadJoin = True
+        cls.buffer.put("Logger received SIGINT signal!")
+        return
+
+    @classmethod
+    def handle_sigterm_signal(cls, sig, frame):
+        cls.shouldThreadJoin = True
+        cls.buffer.put("Logger received SIGTERM signal!")
+        return
     
     @classmethod
     def runLogThread(cls, buffer: Queue):
@@ -104,6 +118,10 @@ class Logger:
             bugger (Queue): queue for putting the messages when using .log method
         """
         cls.buffer = buffer
+
+        signal.signal(signal.SIGINT, Logger.handle_sigint_signal)
+        signal.signal(signal.SIGTERM, Logger.handle_sigterm_signal)
+
         while True:
             while not cls.buffer.empty():
                 val = cls.buffer.get()
@@ -144,7 +162,7 @@ class Logger:
                 else:
                     cls.buffer.put("Invalid logger command of type", type(val))
             
-            if cls.shouldThreadJoin:
+            if cls.shouldThreadJoin and cls.buffer.empty():
                 break
             
             sleep(0.1)

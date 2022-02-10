@@ -113,6 +113,8 @@ def main():
         except exceptions.CustomKeyboardInterrupt as e:  # Kills the loop if a keyboardInterrupt occurs
             Logger.log(f"User killed loop with: {e.getKey()}")
             break
+        except KeyboardInterrupt as e:
+            raise e
         except Exception as e:
             # Possibly instead of restarting, we might want to look into
             Logger.log(
@@ -200,14 +202,19 @@ if __name__ == "__main__":
     # being primary loop
     Logger.log("Program starting...")
     while True:
-        Logger.log("Starting loop...")
-        main()
-        Logger.log("Shutdown loop...")
-        # sleep and then check for keyboardInterupt will fully kill program
-        time.sleep(1)
-        keyPressed = cv2.waitKey(1) & 0xFF
-        if keyPressed == 27:
-            Logger.log("Starting Program shutdown...")
+        try:
+            Logger.log("Starting loop...")
+            main()
+            Logger.log("Shutdown loop...")
+            # sleep and then check for keyboardInterupt will fully kill program
+            time.sleep(1)
+            keyPressed = cv2.waitKey(1) & 0xFF
+            if keyPressed == 27:
+                Logger.log("Starting Program shutdown...")
+                break
+        except KeyboardInterrupt:
+            Logger.log("Keyboard Interrupt handled in main")
+            print("Keyboard Interrupt handled in main")
             break
 
     Logger.log("    Closing cameras...")
