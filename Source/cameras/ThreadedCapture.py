@@ -18,7 +18,7 @@ class ThreadedCapture:
         # check if the source is a video file
         if os.path.exists(source):
             self.video = True
-            self.frameQ = deque()
+            self.frameQ = deque(maxlen=5)
         else:
             self.video = False
             self.frameQ = None
