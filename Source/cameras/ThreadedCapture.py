@@ -2,6 +2,7 @@ from threading import Thread
 from collections import deque
 import cv2
 import os
+import time
 
 class ThreadedCapture:
     """
@@ -35,6 +36,8 @@ class ThreadedCapture:
         # create the cv2 video capture to acquire either the recorded video or webcam
         try:
             self.capture = cv2.VideoCapture(source)
+            while not self.capture.isOpened():
+                time.sleep(0.1)
         except:
             raise Exception("Error defining cv2.videoCapture object for source: {}".format(self.source))
         # set exposures if option set
