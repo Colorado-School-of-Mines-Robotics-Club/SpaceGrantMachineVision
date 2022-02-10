@@ -7,14 +7,17 @@ from typing import Dict
 # Additional libs
 import cv2
 import numpy as np
+import platform
 
 # Custom imports
 try:
     from logger.logger import Logger
     from cameras.cameras import fetchCameraImages
+    from utilities.Config import Config
 except ImportError:
     from Source.logger.Logger import Logger
     from Source.cameras.cameras import fetchCameraImages
+    from Source.utilities.Config import Config
 
 def getArguments() -> Namespace:
     parser = ArgumentParser()
@@ -36,6 +39,9 @@ def getArgDict() -> Dict:
     argDict = dict()
     argDict['headless'] = True if args.headless else False
     argDict['threadeddisplay'] = True if args.threadeddisplay else False
+    uname = platform.uname()
+    if uname.system != "Windows" or "Windows" not in uname.system:
+        argDict['threadeddisplay'] = False
     argDict['record'] = True if args.record else False
     argDict['clearlog'] = True if args.clearlog else False
     # finds the video directory
@@ -59,7 +65,8 @@ def handleRecordFlag(RECORD: bool, leftCam: int, rightCam: int) -> (cv2.VideoWri
     leftWriter = None
     rightWriter = None
     if RECORD:
-        videoPath = "Data/Cameras/RawOutput/"
+        Config.init()
+        videoPath = Config.getFilepathsDict()['videoPath']
         while not os.path.isdir(videoPath):
             videoPath = "../" + videoPath
         leftImage, rightImage = fetchCameraImages(leftCam, rightCam)
@@ -83,11 +90,11 @@ def handleClearLogFlag(CLEAR_LOG: bool, logFile="log.log"):
             f.truncate(0)
             f.seek(0)
 
-def handleVideoFlag(video: str) -> (str, str):
+def handleVideoFlag(video: str, leftPort: int, rightPort: int) -> (str, str):
     # loading data for cameras and starting the camera process
     if video is None:
-        leftCam = cv2.CAP_DSHOW + 0  # cv2.CAP_DSHOW changes internal api stuff for opencv
-        rightCam = cv2.CAP_DSHOW + 1  # add/remove cv2.CAP_DSHOW as needed for your system
+        leftCam = cv2.CAP_DSHOW + leftPort  # cv2.CAP_DSHOW changes internal api stuff for opencv
+        rightCam = cv2.CAP_DSHOW + rightPort  # add/remove cv2.CAP_DSHOW as needed for your system
     else:
         leftCam = video + "stereo_left.avi"
         rightCam = video + "stereo_right.avi"

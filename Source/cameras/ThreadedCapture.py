@@ -14,11 +14,16 @@ class ThreadedCapture:
         Class that continuously gets frames from a VideoCapture object
         with a dedicated thread.
     """
-    def __init__(self, source: int, K=None, distC=None, setExposure=False, autoExposure=1.0, exposure=100.0):
+    def __init__(self, source, K=None, distC=None, setExposure=False, autoExposure=1.0, exposure=100.0, logger=None):
+        if logger is not None:
+            self.logger = logger
         # check if the source is a video file
-        if os.path.exists(source):
-            self.video = True
-            self.frameQ = deque()
+        if isinstance(source, str):
+            if os.path.exists(source):
+                self.video = True
+                self.frameQ = deque()
+            else:
+                raise FileNotFoundError(f"Could not find file for source:{source}")
         else:
             self.video = False
             self.frameQ = None
@@ -59,7 +64,7 @@ class ThreadedCapture:
                 h, w = frame.shape[:2]
                 self.newK, self.roi = cv2.getOptimalNewCameraMatrix(self.K, self.distC, (w,h), 1, (w,h))
                 self.x, self.y, self.w, self.h = self.roi
-        except:
+        except Exception:
             raise Exception("Error computing new K matrix for video source: {}".format(self.source))
 
     # reads the most recent image from the camera and saves it to self.frame
@@ -67,10 +72,7 @@ class ThreadedCapture:
         self.success, frame = self.capture.read()
         if not self.success:
             self.stopped = True
-            Logger.log(f"Failed to acquire frame from: {self.source}")
             return
-        # else:
-        #     Logger.log(f"Acquired frame from: {self.source}")
         if self.newK is not None:
             frame = cv2.undistort(frame, self.K, self.distC, None, self.newK)
             frame = frame[self.y:self.y+self.h, self.x:self.x+self.w]
@@ -85,6 +87,7 @@ class ThreadedCapture:
                 self.stop()
             else:
                 self.readCapture()
+                Logger.log(f"  {self.source}: Queued frame") if self.frameQ else Logger.log(f"  {self.source}: Updated frame")
         self.capture.release()
 
     # returns the current frame
@@ -92,7 +95,7 @@ class ThreadedCapture:
         if self.frameQ is not None:
             try:
                 return self.frameQ.popleft()
-            except Exception:
+            except IndexError:
                 return None
         return self.frame
 

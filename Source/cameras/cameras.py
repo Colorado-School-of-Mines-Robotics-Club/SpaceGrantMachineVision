@@ -15,6 +15,7 @@ try:
     from cameras.DisplayManager import DisplayManager, createDisplaySourceData
     from cameras.ThreadedCapture import ThreadedCapture
     from utilities.exceptions import CameraReadError
+    from utilities.Config import Config
 except ImportError:
     from Source.logger.Logger import Logger
     from Source.utilities import exceptions
@@ -22,6 +23,7 @@ except ImportError:
     from Source.cameras.DisplayManager import DisplayManager, createDisplaySourceData
     from Source.cameras.ThreadedCapture import ThreadedCapture
     from Source.utilities.exceptions import CameraReadError
+    from Source.utilities.Config import Config
 
 
 # gets the camera frames from the captureManager
@@ -59,7 +61,7 @@ def showCameras(left: np.ndarray, right: np.ndarray, threadedDisplay=True):
 # gets the camera images from the capture manager
 # converts the images to grayscale
 # shows the images
-def fetchAndShowCameras(leftSource: ThreadedCapture, rightSource: ThreadedCapture, show=True, threadedDisplay=True) ->\
+def fetchAndShowCameras(leftSource: int, rightSource: int, show=True, threadedDisplay=True) ->\
         (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     try:
         left, right = fetchCameraImages(leftSource, rightSource)
@@ -97,7 +99,8 @@ def closeCameras():
 # loads all files from data that the robot needs
 def loadUndistortionFiles() -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     # one time file loading for the camera intrinsic matrices and undistortion coeff
-    calibrationPath = "Data/Calibration/"
+    Config.init()
+    calibrationPath = Config.getFilepathsDict()["calibrationPath"]
     if not os.path.isdir(calibrationPath):
         calibrationPath = "../" + calibrationPath
     leftK = np.load(calibrationPath + "leftK.npy")
@@ -112,7 +115,7 @@ def loadUndistortionFiles() -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
 # K matrix is a 3x3 and dist coeffs is of length 4
 def writeKandDistNPZ(lk: np.ndarray, rk: np.ndarray, ld: np.ndarray, rd: np.ndarray):
     # Gets the path to the Calibration folder in data for any computer
-    calibrationPath = "Data/Calibration/"
+    calibrationPath = Config.getFilepathsDict()['calibrationPath']
     if not os.path.isdir(calibrationPath):
         calibrationPath = "../" + calibrationPath + "/"
     # saves the np.arrays inputed to their respective files
