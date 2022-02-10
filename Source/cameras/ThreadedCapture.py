@@ -4,6 +4,11 @@ import cv2
 import os
 import time
 
+try:
+    from logger.logger import Logger
+except ImportError:
+    from Source.logger.Logger import Logger
+
 class ThreadedCapture:
     """
         Class that continuously gets frames from a VideoCapture object
@@ -38,14 +43,14 @@ class ThreadedCapture:
             self.capture = cv2.VideoCapture(source)
             while not self.capture.isOpened():
                 time.sleep(0.1)
-        except:
+        except Exception:
             raise Exception("Error defining cv2.videoCapture object for source: {}".format(self.source))
         # set exposures if option set
         try:
             if self.setExposure:
                 self.capture.set(cv2.CAP_PROP_AUTO_EXPOSURE, autoExposure)
                 self.capture.set(cv2.CAP_PROP_EXPOSURE, exposure)
-        except:
+        except Exception:
             raise Exception("Error settings exposure for video source: {}".format(self.source))
         # create undistortion K matrix
         try:
@@ -62,7 +67,10 @@ class ThreadedCapture:
         self.success, frame = self.capture.read()
         if not self.success:
             self.stopped = True
+            Logger.log(f"Failed to acquire frame from: {self.source}")
             return
+        # else:
+        #     Logger.log(f"Acquired frame from: {self.source}")
         if self.newK is not None:
             frame = cv2.undistort(frame, self.K, self.distC, None, self.newK)
             frame = frame[self.y:self.y+self.h, self.x:self.x+self.w]

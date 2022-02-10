@@ -9,7 +9,7 @@ import cv2
 
 # Custom imports
 try:
-    from logger.logger import Logger
+    from logger.Logger import Logger
     from logger.loggingCalls import logArguments, logSystemInfo
     from utilities import exceptions
     from cameras.cameras import writeKandDistNPZ, loadUndistortionFiles, fetchAndShowCameras, initCameras, closeCameras
@@ -21,7 +21,7 @@ try:
     from utilities.arguments import getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag, handleVideoFlag, \
         handleRecordFlagClose, handleThreadedDisplayFlag
 except ImportError:
-    from Source.logger.logger import Logger
+    from Source.logger.Logger import Logger
     from Source.logger.loggingCalls import logArguments, logSystemInfo
     from Source.utilities import exceptions
     from Source.cameras.cameras import writeKandDistNPZ, loadUndistortionFiles, fetchAndShowCameras, initCameras, \
@@ -33,6 +33,8 @@ except ImportError:
     from Source.utilities.timing import getAvgTimeArr
     from Source.utilities.arguments import getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag, \
         handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag
+
+
 
 
 # Primary function where our main control flow will happen
@@ -86,7 +88,7 @@ def main():
 
             disparityStartTime = time.perf_counter()
             # this disparity map calculation should maybe get removed since we ??only?? care about the depth values
-            disparityMap = computeDisparity(stereo, grayLeftImage, grayRightImage, show=not HEADLESS)
+            disparityMap = computeDisparity(stereo, grayLeftImage, grayRightImage, show=not HEADLESS, threadedDisplay=THREADED_DISPLAY)
             disparityFTs.append(time.perf_counter() - disparityStartTime)
 
             # all additional functionality should be present within the === comments
@@ -159,7 +161,7 @@ if __name__ == "__main__":
     iterationsToAverage = 9  # use n+1 to calculate true number averaged
 
     # defining opencv objects
-    orb = cv2.ORB_create(nfeatures=2000)  # orb feature detector object
+    orb = cv2.ORB_create(nfeatures=1000)  # orb feature detector object
     matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)  # matcher object
     # stereo object
     stereo = cv2.StereoSGBM_create(minDisparity=5, numDisparities=32, blockSize=3, P1=128, P2=512, disp12MaxDiff=0,
@@ -186,12 +188,17 @@ if __name__ == "__main__":
         time.sleep(1)
         keyPressed = cv2.waitKey(1) & 0xFF
         if keyPressed == 27:
-            Logger.log("Program shutdown...")
+            Logger.log("Starting Program shutdown...")
             break
 
+    Logger.log("    Closing cameras...")
     closeCameras()
+    Logger.log("    Closing video writers...")
     handleRecordFlagClose(leftWriter, rightWriter)
+    Logger.log("    Closing displays through DisplayManager...")
     DisplayManager.stopDisplays()
+    Logger.log("    Closing main process displays...")
     cv2.destroyAllWindows()
+    Logger.log("    Shutting down logger...")
     Logger.shutdown()  # Shuts down the logging system and prints a closing message to the file
     sys.exit(0)

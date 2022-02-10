@@ -18,7 +18,7 @@ try:
     from boundingBoxes import drawBoundingBoxes
     from featureDensity import findFeatureDenseBoundingBoxes
 except ImportError:
-    from Source.logger.logger import Logger
+    from Source.logger.Logger import Logger
     from Source.utilities import exceptions, boundingBoxes
     from Source.features.features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
     from Source.objectDetection.featureDensity import findFeatureDenseBoundingBoxes

@@ -12,7 +12,7 @@ try:
     from utilities import exceptions
     from cameras.DisplayManager import DisplayManager
 except ImportError:
-    from Source.logger.logger import Logger
+    from Source.logger.Logger import Logger
     from Source.utilities import exceptions
     from Source.cameras.DisplayManager import DisplayManager
 

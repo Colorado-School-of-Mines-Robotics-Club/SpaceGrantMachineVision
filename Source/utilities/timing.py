@@ -7,7 +7,7 @@ from typing import List
 try:
     from logger.logger import Logger
 except ImportError:
-    from Source.logger.logger import Logger
+    from Source.logger.Logger import Logger
 
 
 # takes an array of times and returns the average over a size

@@ -16,7 +16,7 @@ try:
     from cameras.ThreadedCapture import ThreadedCapture
     from utilities.exceptions import CameraReadError
 except ImportError:
-    from Source.logger.logger import Logger
+    from Source.logger.Logger import Logger
     from Source.utilities import exceptions
     from Source.cameras.CaptureManager import CaptureManager, createCaptureSourceData
     from Source.cameras.DisplayManager import DisplayManager, createDisplaySourceData
