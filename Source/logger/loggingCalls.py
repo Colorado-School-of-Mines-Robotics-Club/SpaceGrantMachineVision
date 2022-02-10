@@ -7,10 +7,11 @@ import platform
 
 # Custom imports
 try:
+    from utilities.Config import Config
     from Logger.logger import Logger
 except ImportError:
     from Source.logger.Logger import Logger
-
+    from Source.utilities.Config import Config
 
 def logSystemInfo(logger: Type[Logger]):
     # Log system information
@@ -29,3 +30,17 @@ def logArguments(logger: Type[Logger], args: Dict):
     logger.log("ARGUMENTS:")
     for arg, val in args.items():
         logger.log(f"    {arg}: {val}")
+
+
+def logConfiguration(logger: Type[Logger], config=None, spacing="    ", first=True):
+    if config is None:
+        Config.init()
+        config = Config.getConfig()
+    if first:
+        logger.log("CONFIGURATION")
+    for key, val in config.items():
+        if isinstance(val, dict):
+            logger.log(f"{spacing}{key}")
+            logConfiguration(logger, config=val, spacing=2*spacing, first=False)
+        else:
+            logger.log(f"{spacing}{key}: {val}")

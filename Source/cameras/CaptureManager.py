@@ -3,11 +3,14 @@ import numpy as np
 
 try:
     from cameras.ThreadedCapture import ThreadedCapture
+    from logger.Logger import Logger
 except ImportError:
     from Source.cameras.ThreadedCapture import ThreadedCapture
+    from Source.logger.Logger import Logger
 
-def createCaptureSourceData(source: int, K=None, distC=None, setExposure=False, autoExposure=1.0, exposure=100.0) -> List:
-    return [source, K, distC, setExposure, autoExposure, exposure]
+def createCaptureSourceData(source: int, K=None, distC=None, setExposure=False, autoExposure=1.0, exposure=100.0,
+                            logger=None) -> List:
+    return [source, K, distC, setExposure, autoExposure, exposure, logger]
 
 class CaptureManager:
     """
@@ -21,7 +24,7 @@ class CaptureManager:
     def init(cls, sources: List):
         # initialize and start all threads
         for src in sources:
-            cls.sources[src[0]] = ThreadedCapture(src[0], src[1], src[2], src[3], src[4], src[5]).start()
+            cls.sources[src[0]] = ThreadedCapture(src[0], src[1], src[2], src[3], src[4], src[5], src[6]).start()
 
     # gets the frame from a specific source
     @classmethod

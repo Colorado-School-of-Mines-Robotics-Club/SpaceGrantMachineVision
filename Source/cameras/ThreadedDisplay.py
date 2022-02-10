@@ -12,7 +12,7 @@ class ThreadedDisplay:
     def __init__(self, windowName="Output", frame=None, fps=24.0):
         self.windowName = windowName
         self.stopped = False
-        self.queue = deque(maxlen=10)
+        self.queue = deque()
         if frame is not None:
             self.queue.append(frame)
         self.delay = 1.0 / fps

@@ -10,7 +10,7 @@ import cv2
 # Custom imports
 try:
     from logger.Logger import Logger
-    from logger.loggingCalls import logArguments, logSystemInfo
+    from logger.loggingCalls import logArguments, logSystemInfo, logConfiguration
     from utilities import exceptions
     from cameras.cameras import writeKandDistNPZ, loadUndistortionFiles, fetchAndShowCameras, initCameras, closeCameras
     from cameras.DisplayManager import DisplayManager, createDisplaySourceData
@@ -20,9 +20,10 @@ try:
     from utilities.timing import getAvgTimeArr
     from utilities.arguments import getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag, handleVideoFlag, \
         handleRecordFlagClose, handleThreadedDisplayFlag
+    from utilities.Config import Config
 except ImportError:
     from Source.logger.Logger import Logger
-    from Source.logger.loggingCalls import logArguments, logSystemInfo
+    from Source.logger.loggingCalls import logArguments, logSystemInfo, logConfiguration
     from Source.utilities import exceptions
     from Source.cameras.cameras import writeKandDistNPZ, loadUndistortionFiles, fetchAndShowCameras, initCameras, \
         closeCameras
@@ -33,8 +34,7 @@ except ImportError:
     from Source.utilities.timing import getAvgTimeArr
     from Source.utilities.arguments import getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag, \
         handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag
-
-
+    from Source.utilities.Config import Config
 
 
 # Primary function where our main control flow will happen
@@ -48,6 +48,7 @@ def main():
     disparityMap = None
     while True:
         iterationStartTime = time.perf_counter()
+        Logger.log(f"#{numTotalIterations}: Started @ {iterationStartTime}")
         try:
             # need to save previous images (if they exist) for visual odometry
             prevLeftImage, prevRightImage = leftImage, rightImage
@@ -139,6 +140,14 @@ def main():
 
 # denotes program entered in this file, the main thread
 if __name__ == "__main__":
+    # load the configuration file
+    Config.init()
+    iterationConstants = Config.getIterationConstantsDict()
+    cameraPorts = Config.getCameraPortsDict()
+    orbParams = Config.getOrbParamsDict()
+    sgbmParams = Config.getSBGMParamsDict()
+    hardwarePorts = Config.getHardwarePortsDict()
+
     # get dictionary with args
     argDict = getArgDict()
     # sets global flags from boolean arguments
@@ -154,23 +163,33 @@ if __name__ == "__main__":
     logSystemInfo(Logger)
     # log all arguments
     logArguments(Logger, argDict)
+    # log all configuration details
+    logConfiguration(Logger)
 
     # Global constants for any hyper parameters for the code or physical constants
     # Define any global constants
-    errorTolerance = 2  # defines the amount of skipped/incomplete iterations before the loop is restarted
-    iterationsToAverage = 9  # use n+1 to calculate true number averaged
+    # defines the amount of skipped/incomplete iterations before the loop is restarted
+    errorTolerance = iterationConstants['errorTolerance']
+    iterationsToAverage = iterationConstants['iterationsToAverage']  # use n+1 to calculate true number averaged
 
     # defining opencv objects
-    orb = cv2.ORB_create(nfeatures=1000)  # orb feature detector object
+    # orb feature detector object
+    orb = cv2.ORB_create(nfeatures=orbParams['nfeatures'], scaleFactor=orbParams['scaleFactor'],
+                         nlevels=orbParams['nlevels'], edgeThreshold=orbParams['edgeThreshold'],
+                         firstLevel=orbParams['firstLevel'], patchSize=orbParams['patchSize'])
     matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)  # matcher object
     # stereo object
-    stereo = cv2.StereoSGBM_create(minDisparity=5, numDisparities=32, blockSize=3, P1=128, P2=512, disp12MaxDiff=0,
-                                   preFilterCap=0, uniquenessRatio=5, speckleWindowSize=50, speckleRange=1)
+    stereo = cv2.StereoSGBM_create(minDisparity=sgbmParams['minDisparity'], numDisparities=sgbmParams['numDisparities'],
+                                   blockSize=sgbmParams['blockSize'], P1=sgbmParams['P1'], P2=sgbmParams['P2'],
+                                   disp12MaxDiff=sgbmParams['disp12MaxDiff'], preFilterCap=sgbmParams['preFilterCap'],
+                                   uniquenessRatio=sgbmParams['uniquenessRatio'],
+                                   speckleWindowSize=sgbmParams['speckleWindowSize'],
+                                   speckleRange=sgbmParams['speckleRange'])
 
     # inits the DisplayManager
     DisplayManager.init()
 
-    leftCam, rightCam = handleVideoFlag(argDict['video'])
+    leftCam, rightCam = handleVideoFlag(argDict['video'], cameraPorts['leftPort'], cameraPorts['rightPort'])
 
     initCameras(leftCam, rightCam, setExposure=False)
 
