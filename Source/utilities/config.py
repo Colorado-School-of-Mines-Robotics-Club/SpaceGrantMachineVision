@@ -21,3 +21,7 @@ def readConfigFile(file="config.json") -> Dict:
             return json.load(f)
     except FileNotFoundError:
         raise FileNotFoundError(f"Couldn't open {file}")
+
+
+def getORB_params(configDict: Dict) -> Dict:
+    return configDict['orb_params']
