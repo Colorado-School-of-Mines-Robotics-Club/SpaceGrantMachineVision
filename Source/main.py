@@ -88,7 +88,7 @@ def main():
 
             disparityStartTime = time.perf_counter()
             # this disparity map calculation should maybe get removed since we ??only?? care about the depth values
-            disparityMap = computeDisparity(stereo, grayLeftImage, grayRightImage, show=not HEADLESS)
+            disparityMap = computeDisparity(stereo, grayLeftImage, grayRightImage, show=not HEADLESS, threadedDisplay=THREADED_DISPLAY)
             disparityFTs.append(time.perf_counter() - disparityStartTime)
 
             # all additional functionality should be present within the === comments
