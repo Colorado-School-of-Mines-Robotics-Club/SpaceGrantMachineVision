@@ -2,10 +2,7 @@ from typing import List, Dict
 import numpy as np
 import cv2
 
-try:
-    from cameras.ThreadedDisplay import ThreadedDisplay
-except ImportError:
-    from Source.cameras.ThreadedDisplay import ThreadedDisplay
+from .ThreadedDisplay import ThreadedDisplay
 
 def createDisplaySourceData(windowName="Output", frame=None) -> List:
     return [windowName, frame]

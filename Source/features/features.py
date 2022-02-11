@@ -7,14 +7,9 @@ import cv2
 from numba import jit
 
 # Custom  imports
-try:
-    from logger.logger import Logger
-    from utilities import exceptions
-    from cameras.DisplayManager import DisplayManager
-except ImportError:
-    from Source.logger.Logger import Logger
-    from Source.utilities import exceptions
-    from Source.cameras.DisplayManager import DisplayManager
+from Source.logger.Logger import Logger
+from Source.utilities import exceptions
+from Source.cameras.DisplayManager import DisplayManager
 
 
 # function that given to images computes their features

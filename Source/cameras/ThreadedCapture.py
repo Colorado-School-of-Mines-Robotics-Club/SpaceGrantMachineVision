@@ -4,10 +4,7 @@ import cv2
 import os
 import time
 
-try:
-    from logger.logger import Logger
-except ImportError:
-    from Source.logger.Logger import Logger
+from Source.logger.Logger import Logger
 
 class ThreadedCapture:
     """
