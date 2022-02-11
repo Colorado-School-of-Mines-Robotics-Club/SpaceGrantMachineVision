@@ -8,5 +8,5 @@ import cv2
 import numpy as np
 
 # Custom imports
-from Source.logger.logger import Logger
+from Source.logger.Logger import Logger
 from Source.utilities.Config import Config
