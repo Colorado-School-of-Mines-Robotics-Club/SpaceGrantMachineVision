@@ -9,10 +9,7 @@ import cv2
 import numpy as np
 
 # Custom imports
-try:
-    from logger.logger import Logger
-except ImportError:
-    from Source.logger.Logger import Logger
+from Source.logger.Logger import Logger
 
 
 class Config:

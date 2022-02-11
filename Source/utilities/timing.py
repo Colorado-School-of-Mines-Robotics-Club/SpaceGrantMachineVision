@@ -4,10 +4,7 @@ from typing import List
 # Additional libs
 
 # Custom imports
-try:
-    from logger.logger import Logger
-except ImportError:
-    from Source.logger.Logger import Logger
+from Source.logger.Logger import Logger
 
 
 # takes an array of times and returns the average over a size

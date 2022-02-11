@@ -1,9 +1,7 @@
-from datetime import datetime
-from time import sleep
-from multiprocessing import Queue, Process
 import signal
-
-from Source.utilities import exceptions
+from datetime import datetime
+from multiprocessing import Queue, Process
+from time import sleep
 
 
 class Logger:
