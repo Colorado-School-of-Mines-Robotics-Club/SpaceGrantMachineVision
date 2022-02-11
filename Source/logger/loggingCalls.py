@@ -6,12 +6,8 @@ from typing import Dict, Type
 import platform
 
 # Custom imports
-try:
-    from utilities.Config import Config
-    from Logger.logger import Logger
-except ImportError:
-    from Source.logger.Logger import Logger
-    from Source.utilities.Config import Config
+from Source.utilities.Config import Config
+from .Logger import Logger
 
 def logSystemInfo(logger: Type[Logger]):
     # Log system information

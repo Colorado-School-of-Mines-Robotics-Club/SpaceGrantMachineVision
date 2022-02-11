@@ -3,10 +3,7 @@ from time import sleep
 from multiprocessing import Queue, Process
 import signal
 
-try:
-    from utilities import exceptions
-except ImportError:
-    from Source.utilities import exceptions
+from Source.utilities import exceptions
 
 
 class Logger:
