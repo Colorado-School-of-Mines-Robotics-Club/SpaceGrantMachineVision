@@ -13,13 +13,17 @@ import argparse
 try:
     from logger import Logger
     import exceptions
+    from objectDetection import contourDetection
+    import boundingBoxes
     from cameras.cameras import writeKandDistNPZ, loadUndistortionFiles, fetchAndShowCameras, initCameras, closeCameras, fetchCameraImages
     from cameras.DisplayManager import DisplayManager, createDisplaySourceData
     from visualOdometry.visualodometry import computeDisparity
     from features import computeMatchingPoints, getPointsFromKeypoints
     from objectDetection.featureDensity import findFeatureDenseBoundingBoxes
     from utility import getAvgTimeArr
+
 except ImportError:
+    from Source.cameras import nathanTesting
     from Source.logger import Logger
     from Source import exceptions
     from Source.cameras.cameras import writeKandDistNPZ, loadUndistortionFiles, fetchAndShowCameras, initCameras, closeCameras
@@ -84,6 +88,15 @@ def main():
             disparityMap = computeDisparity(stereo, grayLeftImage, grayRightImage, show=not HEADLESS)
             disparityFrameTimes.append(time.perf_counter() - disparityStartTime)
 
+
+            nathanTesting.displayContours(rightImage)
+            _, _, contourBoxes, _ = nathanTesting.mabbec(nathanTesting.displayContours(rightImage, show=False))
+            DisplayManager.show("Right Image", rightImage)
+            # for (x, y, w, h) in contourBoxes:
+            #     cv2.rectangle(rightImage, (x, y), (x + w, y + h), color=(0, 255, 0), thickness=2)
+
+            npContourBoxes = boundingBoxes.cv2npContourBoxes(contourBoxes)
+            boundingBoxes.drawBoundingBoxes(rightImage, npContourBoxes)
             # all additional functionality should be present within the === comments
             # additional data that needs to be stored for each iteration should be handled above
             #===========================================================================================================
