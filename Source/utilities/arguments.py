@@ -90,11 +90,14 @@ def handleClearLogFlag(CLEAR_LOG: bool, logFile="log.log"):
             f.truncate(0)
             f.seek(0)
 
-def handleVideoFlag(video: str, leftPort: int, rightPort: int) -> (str, str):
+def handleVideoFlag(video: str, use_cap_dshow: bool, leftPort: int, rightPort: int) -> (str, str):
     # loading data for cameras and starting the camera process
     if video is None:
-        leftCam = cv2.CAP_DSHOW + leftPort  # cv2.CAP_DSHOW changes internal api stuff for opencv
-        rightCam = cv2.CAP_DSHOW + rightPort  # add/remove cv2.CAP_DSHOW as needed for your system
+        leftCam = leftPort
+        rightCam = rightPort
+        if use_cap_dshow:  # cv2.CAP_DSHOW changes internal api stuff for opencv
+            leftCam += cv2.CAP_DSHOW
+            rightCam += cv2.CAP_DSHOW
     else:
         leftCam = video + "stereo_left.avi"
         rightCam = video + "stereo_right.avi"

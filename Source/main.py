@@ -191,7 +191,7 @@ if __name__ == "__main__":
     # inits the DisplayManager
     DisplayManager.init()
 
-    leftCam, rightCam = handleVideoFlag(argDict['video'], cameraPorts['leftPort'], cameraPorts['rightPort'])
+    leftCam, rightCam = handleVideoFlag(argDict['video'], cameraPorts['use_cap_dshow'], cameraPorts['leftPort'], cameraPorts['rightPort'])
 
     initCameras(leftCam, rightCam, setExposure=False)
 

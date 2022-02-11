@@ -37,7 +37,7 @@ def logConfiguration(logger: Type[Logger], config=None, spacing="    ", first=Tr
         Config.init()
         config = Config.getConfig()
     if first:
-        logger.log("CONFIGURATION")
+        logger.log("CONFIGURATION:")
     for key, val in config.items():
         if isinstance(val, dict):
             logger.log(f"{spacing}{key}")
