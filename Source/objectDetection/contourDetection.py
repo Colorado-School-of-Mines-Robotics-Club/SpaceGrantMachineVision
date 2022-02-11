@@ -1,6 +1,7 @@
 # Additional libs
 import numpy as np
 import cv2
+from Source.cameras.DisplayManager import DisplayManager
 
 def displayContours(image, show=True, threadedDisplay=False):
     blank = np.zeros(image.shape, dtype='uint8')
@@ -9,7 +10,10 @@ def displayContours(image, show=True, threadedDisplay=False):
     contours, hierarchies = cv2.findContours(canny, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     cv2.drawContours(blank, contours, -1, (0, 255, 0), 1)
     if show == True:
-        cv2.imshow("contours drawn", blank)
+        if threadedDisplay:
+            DisplayManager.show("contours drawn", blank)
+        else:
+            cv2.imshow("contours drawn", blank)
     return contours
 
 # function to get moments, areas, bounding boxes, and enclosing circles given some contours

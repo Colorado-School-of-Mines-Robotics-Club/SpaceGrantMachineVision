@@ -88,9 +88,8 @@ def main():
             disparityMap = computeDisparity(stereo, grayLeftImage, grayRightImage, show=not HEADLESS)
             disparityFrameTimes.append(time.perf_counter() - disparityStartTime)
 
-
-            contourDetection.displayContours(rightImage)
-            _, _, contourBoxes, _ = contourDetection.mabbec(contourDetection.displayContours(rightImage, show=False))
+            contourDetection.displayContours(rightImage, threadedDisplay=THREADED_DISPLAY)
+            _, _, contourBoxes, _ = contourDetection.mabbec(contourDetection.displayContours(rightImage, show=False, threadedDisplay=THREADED_DISPLAY))
             if THREADED_DISPLAY:
                 DisplayManager.show("Right Image", rightImage)
             else:
