@@ -8,34 +8,13 @@ import numpy as np
 import cv2
 
 # Custom imports
-try:
-    from logger.Logger import Logger
-    from logger.loggingCalls import logArguments, logSystemInfo, logConfiguration
-    from utilities import exceptions
-    from cameras.cameras import writeKandDistNPZ, loadUndistortionFiles, fetchAndShowCameras, initCameras, closeCameras
-    from cameras.DisplayManager import DisplayManager, createDisplaySourceData
-    from visualOdometry.visualodometry import computeDisparity
-    from features.features import computeMatchingPoints, getPointsFromKeypoints
-    from objectDetection.featureDensity import findFeatureDenseBoundingBoxes
-    from utilities.timing import getAvgTimeArr
-    from utilities.arguments import getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag, handleVideoFlag, \
-        handleRecordFlagClose, handleThreadedDisplayFlag
-    from utilities.Config import Config
-except ImportError:
-    from Source.logger.Logger import Logger
-    from Source.logger.loggingCalls import logArguments, logSystemInfo, logConfiguration
-    from Source.utilities import exceptions
-    from Source.cameras.cameras import writeKandDistNPZ, loadUndistortionFiles, fetchAndShowCameras, initCameras, \
-        closeCameras
-    from Source.cameras.DisplayManager import DisplayManager, createDisplaySourceData
-    from Source.visualOdometry.visualodometry import computeDisparity
-    from Source.features.features import computeMatchingPoints, getPointsFromKeypoints
-    from Source.objectDetection.featureDensity import findFeatureDenseBoundingBoxes
-    from Source.utilities.timing import getAvgTimeArr
-    from Source.utilities.arguments import getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag, \
-        handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag
-    from Source.utilities.Config import Config
-
+from logger import Logger, logArguments, logSystemInfo, logConfiguration
+from cameras import fetchAndShowCameras, initCameras, closeCameras, DisplayManager
+from visualOdometry import computeDisparity
+from features import computeMatchingPoints, getPointsFromKeypoints
+from objectDetection import findFeatureDenseBoundingBoxes
+from utilities import getAvgTimeArr, getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag, handleVideoFlag, \
+     handleRecordFlagClose, handleThreadedDisplayFlag, Config, exceptions
 
 # Primary function where our main control flow will happen
 # Contains a while true loop for continous iteration

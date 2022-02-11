@@ -10,14 +10,9 @@ import numpy as np
 import platform
 
 # Custom imports
-try:
-    from logger.logger import Logger
-    from cameras.cameras import fetchCameraImages
-    from utilities.Config import Config
-except ImportError:
-    from Source.logger.Logger import Logger
-    from Source.cameras.cameras import fetchCameraImages
-    from Source.utilities.Config import Config
+from Source.logger.Logger import Logger
+from Source.cameras.cameras import fetchCameraImages
+from Source.utilities.Config import Config
 
 def getArguments() -> Namespace:
     parser = ArgumentParser()
