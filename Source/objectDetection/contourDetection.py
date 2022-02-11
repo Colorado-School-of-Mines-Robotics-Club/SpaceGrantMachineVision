@@ -2,7 +2,7 @@
 import numpy as np
 import cv2
 
-def displayContours(image, show=True):
+def displayContours(image, show=True, threadedDisplay=False):
     blank = np.zeros(image.shape, dtype='uint8')
     _, blur, thresh = preProcessImage(image)
     canny = cv2.Canny(blur, 125, 175)
@@ -25,6 +25,6 @@ def mabbec(contours):
 # function given an image, convert to grayscale and perform blurring, and thresholding
 def preProcessImage(image, gaussianKernelSize=(9,9), show=False):
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    blurred_image = cv2.GaussianBlur(gray_image, (9,9), 2)
+    blurred_image = cv2.GaussianBlur(gray_image, gaussianKernelSize, 2)
     _, thresholded_image = cv2.threshold(blurred_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     return gray_image, blurred_image, thresholded_image

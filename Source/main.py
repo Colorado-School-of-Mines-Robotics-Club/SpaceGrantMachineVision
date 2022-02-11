@@ -23,7 +23,7 @@ try:
     from utility import getAvgTimeArr
 
 except ImportError:
-    from Source.cameras import nathanTesting
+    from Source.objectDetection import contourDetection
     from Source.logger import Logger
     from Source import exceptions
     from Source.cameras.cameras import writeKandDistNPZ, loadUndistortionFiles, fetchAndShowCameras, initCameras, closeCameras
@@ -89,9 +89,12 @@ def main():
             disparityFrameTimes.append(time.perf_counter() - disparityStartTime)
 
 
-            nathanTesting.displayContours(rightImage)
-            _, _, contourBoxes, _ = nathanTesting.mabbec(nathanTesting.displayContours(rightImage, show=False))
-            DisplayManager.show("Right Image", rightImage)
+            contourDetection.displayContours(rightImage)
+            _, _, contourBoxes, _ = contourDetection.mabbec(contourDetection.displayContours(rightImage, show=False))
+            if THREADED_DISPLAY:
+                DisplayManager.show("Right Image", rightImage)
+            else:
+                cv2.imshow("Right Image", rightImage)
             # for (x, y, w, h) in contourBoxes:
             #     cv2.rectangle(rightImage, (x, y), (x + w, y + h), color=(0, 255, 0), thickness=2)
 
