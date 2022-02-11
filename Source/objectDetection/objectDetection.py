@@ -10,18 +10,11 @@ import cv2
 from numba import jit, njit
 
 # Custom  imports
-try:
-    from logger import Logger
-    import exceptions
-    import utility
-    from features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
-    from boundingBoxes import drawBoundingBoxes
-    from featureDensity import findFeatureDenseBoundingBoxes
-except ImportError:
-    from Source.logger.Logger import Logger
-    from Source.utilities import exceptions, boundingBoxes
-    from Source.features.features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
-    from Source.objectDetection.featureDensity import findFeatureDenseBoundingBoxes
+from Source.logger.Logger import Logger
+from Source.utilities import exceptions
+from Source.utilities.boundingBoxes import drawBoundingBoxes
+from Source.features.features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
+from .featureDensity import findFeatureDenseBoundingBoxes
 
 
 def detectHorizonLine(image, show=False):

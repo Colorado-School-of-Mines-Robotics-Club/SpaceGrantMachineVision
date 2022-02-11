@@ -7,18 +7,11 @@ import numpy as np
 from numba import jit
 
 # Custom  imports
-try:
-    from logger.logger import Logger
-    import utilities.exceptions
-    from features.features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
-    from utilities.boundingBoxes import drawBoundingBoxes, combineBoundingBoxes
-    from cameras.DisplayManager import DisplayManager
-except ImportError:
-    from Source.logger.Logger import Logger
-    from Source.utilities import exceptions
-    from Source.features.features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
-    from Source.utilities.boundingBoxes import drawBoundingBoxes, combineBoundingBoxes
-    from Source.cameras.DisplayManager import DisplayManager
+from Source.logger.Logger import Logger
+import Source.utilities.exceptions
+from Source.features.features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
+from Source.utilities.boundingBoxes import drawBoundingBoxes, combineBoundingBoxes
+from Source.cameras.DisplayManager import DisplayManager
 
 
 # given a point in x, y cordinates, an image, and an array of keypoints
