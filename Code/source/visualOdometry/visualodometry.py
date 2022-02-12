@@ -7,7 +7,7 @@ import cv2
 from numba import jit
 
 # Custom  imports
-from Code.source.cameras import DisplayManager
+from source.cameras import DisplayManager
 
 # compute the disparity map of the two grayscale images given
 # takes a stereo matcher object and two grayscale images

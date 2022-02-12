@@ -2,7 +2,7 @@ from typing import List, Dict
 import numpy as np
 
 from .ThreadedCapture import ThreadedCapture
-from Code.source.logger.Logger import Logger
+from source.logger.Logger import Logger
 
 def createCaptureSourceData(source: int, K=None, distC=None, setExposure=False, autoExposure=1.0, exposure=100.0,
                             logger=None) -> List:

@@ -10,10 +10,10 @@ import cv2
 from numba import jit, njit
 
 # Custom  imports
-from Code.source.logger.Logger import Logger
-from Code.source.utilities import exceptions
-from Code.source.utilities.boundingBoxes import drawBoundingBoxes
-from Code.source.features.features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
+from source.logger.Logger import Logger
+from source.utilities import exceptions
+from source.utilities.boundingBoxes import drawBoundingBoxes
+from source.features.features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
 from .featureDensity import findFeatureDenseBoundingBoxes
 
 

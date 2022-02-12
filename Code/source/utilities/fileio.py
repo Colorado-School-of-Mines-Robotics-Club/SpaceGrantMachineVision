@@ -6,7 +6,7 @@ from typing import List
 import cv2
 
 # Custom imports
-from Code.source.logger.Logger import Logger
+from source.logger.Logger import Logger
 
 
 # read all images in given folder, if recurse is true will also get all images in sub_folders of the given folder

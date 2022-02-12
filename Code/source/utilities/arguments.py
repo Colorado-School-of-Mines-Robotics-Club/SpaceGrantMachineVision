@@ -10,8 +10,8 @@ import numpy as np
 import platform
 
 # Custom imports
-from Code.source.logger.Logger import Logger
-from Code.source.cameras import fetchCameraImages
+from source.logger.Logger import Logger
+from source.cameras import fetchCameraImages
 from .Config import Config
 
 def getArguments() -> Namespace:
