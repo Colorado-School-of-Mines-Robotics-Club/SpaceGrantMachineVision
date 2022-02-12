@@ -7,4 +7,5 @@ Install all packages with `pip3 install -r ./requirements.txt`. NOTE: On Linux p
 
 ### Usage:
 
-The code can be run with `python3 ./Source/main.py`.  
+The code can be run with `python3 ./Code/main.py` if in the primary directory, or if cwd is Code: `python3 main.py`
+It should be noted that if `python3` does not work use `python`
