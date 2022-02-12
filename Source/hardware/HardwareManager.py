@@ -3,7 +3,7 @@ class HardwareManager:
 
     def __init__(self,address):
         try:
-            import RPi.GPIO
+            import RPi.GPIO as GPIO
             self.GPIO_fail = False
         except ImportError:
             self.GPIO_fail = True
@@ -25,12 +25,13 @@ class HardwareManager:
         self.curr_gyro = [0, 0, 0]
         self.past_gyro = [0, 0, 0]
 
-        self.motor_pins = [0, 0, 0, 0, 0, 0, 0, 0]
-        self.servo_pins = [0, 0, 0, 0, 0, 0, 0, 0]
+        self.motor_pins = [[11, 13], [15, 36], [38, 12], [16, 18]]
+        self.servo_pins = [19, 21, 23, 37, 22, 24, 26, 32]
+        self.dir_pins = [29, 31, 33, 35]
 
-    def process_encoders(self):
+    def process_encoders(self, curr):
 
-        self.motors = [enc1A, enc2A, enc3A, enc4A] #process encoder data on rising/falling edge
+         #process encoder data on rising/falling edge
 
     def write_pwm(self, motor1, motor2, motor3, motor4, sus1, sus2, sus3, sus4, wheel1, wheel2, wheel3, wheel4, dir1,
                   dir2, dir3, dir4, rgb):
@@ -46,22 +47,22 @@ class HardwareManager:
 
     def read_motor(self):
         while True:
-            self.curr_encoders[0][0] = GPIO.input(self.motor_pins[0,0])
-            self.curr_encoders[0][1] = GPIO.input(self.motor_pins[0,1])
-            self.curr_encoders[1][0] = GPIO.input(self.motor_pins[1,0])
-            self.curr_encoders[1][1] = GPIO.input(self.motor_pins[1,1])
-            self.curr_encoders[2][0] = GPIO.input(self.motor_pins[2,0])
-            self.curr_encoders[2][1] = GPIO.input(self.motor_pins[2,1])
-            self.curr_encoders[3][0] = GPIO.input(self.motor_pins[3,0])
-            self.curr_encoders[3][1] = GPIO.input(self.motor_pins[3,1])
-            self.process_encoders()
+            self.curr_encoders[0][0] = GPIO.input(self.motor_pins[0][0])
+            self.curr_encoders[0][1] = GPIO.input(self.motor_pins[0][1])
+            self.curr_encoders[1][0] = GPIO.input(self.motor_pins[1][0])
+            self.curr_encoders[1][1] = GPIO.input(self.motor_pins[1][1])
+            self.curr_encoders[2][0] = GPIO.input(self.motor_pins[2][0])
+            self.curr_encoders[2][1] = GPIO.input(self.motor_pins[2][1])
+            self.curr_encoders[3][0] = GPIO.input(self.motor_pins[3][0])
+            self.curr_encoders[3][1] = GPIO.input(self.motor_pins[3][1])
+            self.process_encoders(1)
 
 
     def read_servo(self):
         self.curr_servo[0] = 1
 
     def read_accelerometer(self):
-        self.curr_accel[0] = 1;
+        self.curr_accel[0] = 1
 
     def get_data(self):
         return self.motors
