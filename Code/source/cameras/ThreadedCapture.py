@@ -4,7 +4,7 @@ import cv2
 import os
 import time
 
-from Source.logger.Logger import Logger
+from Code.source.logger.Logger import Logger
 
 class ThreadedCapture:
     """

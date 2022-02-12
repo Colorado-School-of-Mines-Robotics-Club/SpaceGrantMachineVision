@@ -8,13 +8,14 @@ import numpy as np
 import cv2
 
 # Custom imports
-from logger import Logger, logArguments, logSystemInfo, logConfiguration
-from cameras import fetchAndShowCameras, initCameras, closeCameras, DisplayManager
-from visualOdometry import computeDisparity
-from features import computeMatchingPoints, getPointsFromKeypoints
-from objectDetection import findFeatureDenseBoundingBoxes
-from utilities import getAvgTimeArr, getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag, handleVideoFlag, \
-     handleRecordFlagClose, handleThreadedDisplayFlag, Config, exceptions
+from source.logger import Logger, logArguments, logSystemInfo, logConfiguration
+from source.cameras import fetchAndShowCameras, initCameras, closeCameras, DisplayManager
+from source.visualOdometry import computeDisparity
+from source.features import computeMatchingPoints, getPointsFromKeypoints
+from source.objectDetection import findFeatureDenseBoundingBoxes
+from source.utilities import getAvgTimeArr, getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag,\
+    handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag, Config, exceptions
+
 
 # Primary function where our main control flow will happen
 # Contains a while true loop for continous iteration

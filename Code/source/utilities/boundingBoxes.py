@@ -7,9 +7,9 @@ import cv2
 from numba import jit
 
 # Custom  imports
-from Source.logger.Logger import Logger
-from Source.utilities import exceptions
-from Source.cameras.DisplayManager import DisplayManager
+from Code.source.logger.Logger import Logger
+from Code.source.utilities import exceptions
+from Code.source.cameras import DisplayManager
 
 # gets the coordinates out of the bounding box list/array
 # bounding box must be a np.array

@@ -8,13 +8,13 @@ import cv2
 from numba import jit
 
 # Custom  imports
-from Source.logger.Logger import Logger
-from Source.utilities import exceptions
+from Code.source.logger.Logger import Logger
+from Code.source.utilities import exceptions
 from .CaptureManager import CaptureManager, createCaptureSourceData
 from .DisplayManager import DisplayManager, createDisplaySourceData
 from .ThreadedCapture import ThreadedCapture
-from Source.utilities.exceptions import CameraReadError
-from Source.utilities.Config import Config
+from Code.source.utilities.exceptions import CameraReadError
+from Code.source.utilities.Config import Config
 
 
 # gets the camera frames from the captureManager

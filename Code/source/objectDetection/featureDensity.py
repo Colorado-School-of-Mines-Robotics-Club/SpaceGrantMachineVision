@@ -7,11 +7,9 @@ import numpy as np
 from numba import jit
 
 # Custom  imports
-from Source.logger.Logger import Logger
-import Source.utilities.exceptions
-from Source.features.features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
-from Source.utilities.boundingBoxes import drawBoundingBoxes, combineBoundingBoxes
-from Source.cameras.DisplayManager import DisplayManager
+from Code.source.logger.Logger import Logger
+import Code.source.utilities.exceptions
+from Code.source.utilities.boundingBoxes import drawBoundingBoxes, combineBoundingBoxes
 
 
 # given a point in x, y cordinates, an image, and an array of keypoints

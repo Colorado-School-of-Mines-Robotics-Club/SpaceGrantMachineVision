@@ -6,7 +6,7 @@ from typing import Dict, Type
 import platform
 
 # Custom imports
-from Source.utilities.Config import Config
+from source.utilities.Config import Config
 from .Logger import Logger
 
 def logSystemInfo(logger: Type[Logger]):

@@ -10,9 +10,9 @@ import numpy as np
 import platform
 
 # Custom imports
-from Source.logger.Logger import Logger
-from Source.cameras.cameras import fetchCameraImages
-from Source.utilities.Config import Config
+from Code.source.logger.Logger import Logger
+from Code.source.cameras import fetchCameraImages
+from .Config import Config
 
 def getArguments() -> Namespace:
     parser = ArgumentParser()
