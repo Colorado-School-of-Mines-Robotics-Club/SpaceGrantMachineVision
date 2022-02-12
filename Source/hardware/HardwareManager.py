@@ -13,6 +13,9 @@ class HardwareManager:
         self.curr_motors = [0, 0, 0, 0]
         self.past_motors = [0, 0, 0, 0]
 
+        self.curr_encoders = [[0,0], [0,0], [0,0], [0,0]]
+        self.past_encoders = [[0,0], [0,0], [0,0], [0,0]]
+
         self.curr_servos = [0, 0, 0, 0, 0, 0, 0, 0]
         self.past_servos = [0, 0, 0, 0, 0, 0, 0, 0]
 
@@ -25,7 +28,7 @@ class HardwareManager:
         self.motor_pins = [0, 0, 0, 0, 0, 0, 0, 0]
         self.servo_pins = [0, 0, 0, 0, 0, 0, 0, 0]
 
-    def process_encoders(self, enc1A, enc1B, enc2A, enc2B, enc3A, enc3B, enc4A, enc4B):
+    def process_encoders(self):
 
         self.motors = [enc1A, enc2A, enc3A, enc4A] #process encoder data on rising/falling edge
 
@@ -42,8 +45,17 @@ class HardwareManager:
         #TODO: write the output pins for the directions
 
     def read_motor(self):
-        self.curr_motors[0] = 1
-        #TODO: read in all sensor data
+        while True:
+            self.curr_encoders[0][0] = GPIO.input(self.motor_pins[0,0])
+            self.curr_encoders[0][1] = GPIO.input(self.motor_pins[0,1])
+            self.curr_encoders[1][0] = GPIO.input(self.motor_pins[1,0])
+            self.curr_encoders[1][1] = GPIO.input(self.motor_pins[1,1])
+            self.curr_encoders[2][0] = GPIO.input(self.motor_pins[2,0])
+            self.curr_encoders[2][1] = GPIO.input(self.motor_pins[2,1])
+            self.curr_encoders[3][0] = GPIO.input(self.motor_pins[3,0])
+            self.curr_encoders[3][1] = GPIO.input(self.motor_pins[3,1])
+            self.process_encoders()
+
 
     def read_servo(self):
         self.curr_servo[0] = 1
