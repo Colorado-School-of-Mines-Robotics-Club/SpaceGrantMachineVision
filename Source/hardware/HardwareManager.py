@@ -41,12 +41,15 @@ class HardwareManager:
         dir1 = 1
         #TODO: write the output pins for the directions
 
-
-    def read_data(self):
-        self.motors[0] = 1
+    def read_motor(self):
+        self.curr_motors[0] = 1
         #TODO: read in all sensor data
-        #TODO: Split data reading functions into individual functions so they can be threaded
 
+    def read_servo(self):
+        self.curr_servo[0] = 1
+
+    def read_accelerometer(self):
+        self.curr_accel[0] = 1;
 
     def get_data(self):
         return self.motors
