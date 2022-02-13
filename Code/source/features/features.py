@@ -55,10 +55,11 @@ def getPointsFromMatches(matches: List, leftKp: List, rightKp: List) -> (List, L
 # This is because the typical image to image comparision will have a small change between frames
 # takes a list of keypoints, a minimum distance, and a given ratio
 # kpMatches must be SORTED for optimization purposes
+@jit(forceobj=True)
 def ratioTest(kpMatches: np.ndarray, ratio: float) -> List:
-    try:
+    if len(kpMatches) > 0:
         minDist = kpMatches[0].distance
-    except Exception:
+    else:
         raise exceptions.FeatureMatchingError("ratioTest: No matched feature points present in kpMatches")
     goodDistanceDiffs = []
     for m in kpMatches:
