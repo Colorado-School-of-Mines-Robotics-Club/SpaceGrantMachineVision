@@ -124,6 +124,7 @@ def main():
 if __name__ == "__main__":
     # load the configuration file
     Config.init()
+    runParameters = Config.getRunParameters()
     iterationConstants = Config.getIterationConstantsDict()
     cameraPorts = Config.getCameraPortsDict()
     orbParams = Config.getOrbParamsDict()
@@ -134,6 +135,15 @@ if __name__ == "__main__":
     argDict = getArgDict()
     # sets global flags from boolean arguments
     HEADLESS, CLEAR_LOG, RECORD, THREADED_DISPLAY = getArgFlags(argDict)
+
+    # Merge config file run parameters with runtime args
+    HEADLESS = HEADLESS or runParameters['headless']
+    CLEAR_LOG = CLEAR_LOG or runParameters['clearlog']
+    RECORD = RECORD or runParameters['record']
+    THREADED_DISPLAY = THREADED_DISPLAY or runParameters['threadeddisplay']
+    VIDEO_PATH = argDict['video']
+    if not runParameters['video'] == '':
+        VIDEO_PATH = runParameters['video']
 
     # clears log file if the CLEAR_LOG is present
     handleClearLogFlag(CLEAR_LOG)
@@ -171,7 +181,7 @@ if __name__ == "__main__":
     # inits the DisplayManager
     DisplayManager.init()
 
-    leftCam, rightCam = handleVideoFlag(argDict['video'], cameraPorts['use_cap_dshow'], cameraPorts['leftPort'], cameraPorts['rightPort'])
+    leftCam, rightCam = handleVideoFlag(VIDEO_PATH, cameraPorts['use_cap_dshow'], cameraPorts['leftPort'], cameraPorts['rightPort'])
 
     initCameras(leftCam, rightCam, setExposure=False)
 

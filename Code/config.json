@@ -1,4 +1,11 @@
 {
+  "run_parameters": {
+    "headless": false,
+    "threadeddisplay": false,
+    "record": false,
+    "clearlog": false,
+    "video": ""
+  },
   "iteration_constants": {
     "errorTolerance": 2,
     "iterationsToAverage": 9
