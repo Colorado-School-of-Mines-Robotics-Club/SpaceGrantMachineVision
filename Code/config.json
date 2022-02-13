@@ -1,0 +1,49 @@
+{
+  "run_parameters": {
+    "headless": false,
+    "threadeddisplay": false,
+    "record": false,
+    "clearlog": false,
+    "video": ""
+  },
+  "iteration_constants": {
+    "errorTolerance": 2,
+    "iterationsToAverage": 9
+  },
+  "camera_ports": {
+    "use_cap_dshow": true,
+    "set_exposure": false,
+    "leftPort" : 0,
+    "rightPort" : 1
+  },
+  "orb_params": {
+    "nfeatures": 500,
+    "scaleFactor": 1.2,
+    "nlevels": 8,
+    "edgeThreshold": 31,
+    "firstLevel": 0,
+    "patchSize": 31
+  },
+  "sgbm_params": {
+    "minDisparity": 0,
+    "numDisparities": 112,
+    "blockSize": 3,
+    "P1": 27,
+    "P2": 675,
+    "disp12MaxDiff": 50,
+    "preFilterCap": 0,
+    "uniquenessRatio": 10,
+    "speckleWindowSize": 0,
+    "speckleRange": 4
+  },
+  "file_paths": {
+    "videoPath": "Data/Cameras/RawOutput/",
+    "calibrationPath": "Data/Calibration/"
+  },
+  "hardware_ports": {
+    "encoder1": 0,
+    "encoder2": 1,
+    "encoder3": 2,
+    "encoder4": 3
+  }
+}
