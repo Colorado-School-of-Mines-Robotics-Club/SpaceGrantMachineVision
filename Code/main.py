@@ -220,7 +220,7 @@ if __name__ == "__main__":
     Logger.log("    Closing displays through DisplayManager...")
     DisplayManager.stopDisplays()
     Logger.log("    Closing main process displays...")
-    if not HEADLESS:
+    if not HEADLESS and THREADED_DISPLAY:
         cv2.destroyWindow("Input Screen")
     Logger.log("    Shutting down logger...")
     Logger.shutdown()  # Shuts down the logging system and prints a closing message to the file
