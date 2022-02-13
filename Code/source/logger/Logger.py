@@ -121,7 +121,7 @@ class Logger:
             while not cls.buffer.empty():
                 val = cls.buffer.get()
                 if isinstance(val, str):
-                    finalMessage = "[" + datetime.now().strftime("%H:%M:%S") + "] " + val + "\n"
+                    finalMessage = f'[{datetime.now().strftime("%H:%M:%S")}] {val}\n'
                     if cls.logToConsole:
                         print(finalMessage, end="")
                     if cls.logToFile:  # and toFile:
@@ -148,14 +148,14 @@ class Logger:
                             cls.shouldThreadJoin = val[1]
                             logSetting = False
                         else:
-                            cls.buffer.put("Unknown setting <" + val[0] + "> with value <" + str(val[1]))
+                            cls.buffer.put(f'Unknown setting <{val[0]}> with value <{str(val[1])}')
                             logSetting = False
                         if logSetting:
-                            cls.buffer.put("Logger setting <" + val[0] + "> is now <" + str(val[1]) + ">")
+                            cls.buffer.put(f'Logger setting <{val[0]}> is now <{str(val[1])}>')
                     except AssertionError:
-                        cls.buffer.put("Unknown setting <" + str(val[0]) + "> with value <" + str(val[1]))
+                        cls.buffer.put(f'Unknown setting <{str(val[0])}> with value <{str(val[1])}')
                 else:
-                    cls.buffer.put("Invalid logger command of type", type(val))
+                    cls.buffer.put(f'Invalid logger command of type <{type(val)}>')
             
             if cls.shouldThreadJoin and cls.buffer.empty():
                 break

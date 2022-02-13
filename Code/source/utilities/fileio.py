@@ -25,7 +25,7 @@ def readImagesFromFolder(folder: str, recurse: bool) -> List:
                     if image is not None:
                         allImages.append(image)
                 except Exception:
-                    Logger.log("Attempted to open file: {}".format(file))
+                    Logger.log(f"Attempted to open file: {file}")
             # If the want to get images recursively
             if recurse:
                 for directory in dirs:  # Loop over all directorys in the given directory and perform the same function

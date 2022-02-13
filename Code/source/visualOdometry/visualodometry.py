@@ -44,7 +44,7 @@ def return_right_samples():
 #https://medium.com/machine-learning-world/feature-extraction-and-similar-image-search-with-opencv-for-newbies-3c59796bf774
 #Extracts features of an image via using KAZE.
 def extract_features(image_path, vector_size=32):
-    print("The passed image path is: " + str(image_path))
+    print(f"The passed image path is: {str(image_path)}")
     image = cv2.imread(image_path, 0)
     alg = cv2.KAZE_create()
     kps = alg.detect(image)
@@ -55,8 +55,8 @@ def extract_features(image_path, vector_size=32):
 
 #https://pythonprogramming.net/feature-matching-homography-python-opencv-tutorial/
 def prep_left_and_right_samples():
-    leftImgDir = "./images/left/" + str(return_left_samples()[0])
-    rightImgDir = "./images/right/" + str(return_right_samples()[0])
+    leftImgDir = f"./images/left/{str(return_left_samples()[0])}"
+    rightImgDir = f"./images/right/{str(return_right_samples()[0])}"
     img1 = cv2.imread(leftImgDir, 0)
     img2 = cv2.imread(rightImgDir, 0)
     orb = cv2.ORB_create()

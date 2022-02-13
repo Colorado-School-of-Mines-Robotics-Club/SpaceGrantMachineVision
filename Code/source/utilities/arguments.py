@@ -68,8 +68,8 @@ def handleRecordFlag(RECORD: bool, leftCam: int, rightCam: int) -> (cv2.VideoWri
         height, width, _ = leftImage.shape
         fourcc = cv2.VideoWriter_fourcc('W', 'M', 'V', '2')
         fps = 16.0
-        leftWriter = cv2.VideoWriter(videoPath + "leftOutput.wmv", fourcc=fourcc, fps=fps, frameSize=(width, height))
-        rightWriter = cv2.VideoWriter(videoPath + "rightOutput.wmv", fourcc=fourcc, fps=fps, frameSize=(width, height))
+        leftWriter = cv2.VideoWriter(f"{videoPath}leftOutput.wmv", fourcc=fourcc, fps=fps, frameSize=(width, height))
+        rightWriter = cv2.VideoWriter(f"{videoPath}rightOutput.wmv", fourcc=fourcc, fps=fps, frameSize=(width, height))
     return leftWriter, rightWriter
 
 def handleRecordFlagClose(leftWriter: cv2.VideoWriter, rightWriter: cv2.VideoWriter):
@@ -94,8 +94,8 @@ def handleVideoFlag(video: str, use_cap_dshow: bool, leftPort: int, rightPort: i
             leftCam += cv2.CAP_DSHOW
             rightCam += cv2.CAP_DSHOW
     else:
-        leftCam = video + "stereo_left.avi"
-        rightCam = video + "stereo_right.avi"
+        leftCam = f"{video}stereo_left.avi"
+        rightCam = f"{video}stereo_right.avi"
     return leftCam, rightCam
 
 def handleThreadedDisplayFlag(THREADED_DISPLAY: bool):

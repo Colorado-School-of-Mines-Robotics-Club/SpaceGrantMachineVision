@@ -46,14 +46,14 @@ class ThreadedCapture:
             while not self.capture.isOpened():
                 time.sleep(0.1)
         except Exception:
-            raise Exception("Error defining cv2.videoCapture object for source: {}".format(self.source))
+            raise Exception(f'Error defining cv2.videoCapture object for source: {self.source}')
         # set exposures if option set
         try:
             if self.setExposure:
                 self.capture.set(cv2.CAP_PROP_AUTO_EXPOSURE, autoExposure)
                 self.capture.set(cv2.CAP_PROP_EXPOSURE, exposure)
         except Exception:
-            raise Exception("Error settings exposure for video source: {}".format(self.source))
+            raise Exception(f'Error settings exposure for video source: {self.source}')
         # create undistortion K matrix
         try:
             success, frame = self.capture.read()
@@ -62,7 +62,7 @@ class ThreadedCapture:
                 self.newK, self.roi = cv2.getOptimalNewCameraMatrix(self.K, self.distC, (w,h), 1, (w,h))
                 self.x, self.y, self.w, self.h = self.roi
         except Exception:
-            raise Exception("Error computing new K matrix for video source: {}".format(self.source))
+            raise Exception(f'Error computing new K matrix for video source: {self.source}')
 
     # reads the most recent image from the camera and saves it to self.frame
     def readCapture(self):
@@ -84,7 +84,7 @@ class ThreadedCapture:
                 self.stop()
             else:
                 self.readCapture()
-                Logger.log(f"  {self.source}: Queued frame") if self.frameQ else Logger.log(f"  {self.source}: Updated frame")
+                #Logger.log(f"  {self.source}: Queued frame") if self.frameQ else Logger.log(f"  {self.source}: Updated frame")
         self.capture.release()
 
     # returns the current frame
