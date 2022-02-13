@@ -1,6 +1,7 @@
 from threading import Thread
 from collections import deque
 import cv2
+from cv2 import error as cv2Error
 import time
 import numpy as np
 
@@ -12,16 +13,17 @@ class ThreadedDisplay:
     def __init__(self, windowName="Output", frame=None, fps=24.0):
         self.windowName = windowName
         self.stopped = False
-        self.queue = deque()
+        self.queue = deque(maxlen=2)
         if frame is not None:
             self.queue.append(frame)
         self.delay = 1.0 / fps
+        self.thread = None
 
     # TODO: figure out to how strongly type return value of self for class
     def start(self):
-        thread = Thread(target=self.show, args=())
-        thread.setDaemon(True)
-        thread.start()
+        self.thread = Thread(target=self.show, args=())
+        self.thread.setDaemon(True)
+        self.thread.start()
         return self
 
     def show(self):
@@ -34,10 +36,20 @@ class ThreadedDisplay:
             except IndexError:
                 pass
             time.sleep(self.delay)
-        cv2.destroyWindow(self.windowName)
+        try:
+            if cv2.getWindowProperty(self.windowName, 0) >= 0:
+                cv2.destroyWindow(self.windowName)
+        except cv2Error:
+            pass
+
+    def updateFPS(self, fps: float):
+        self.delay = 1.0 / fps
 
     def update(self, newFrame: np.ndarray):
         self.queue.append(newFrame)
 
     def stop(self):
         self.stopped = True
+
+    def isAlive(self):
+        return self.thread.is_alive()

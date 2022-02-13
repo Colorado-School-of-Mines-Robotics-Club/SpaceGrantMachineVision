@@ -115,12 +115,14 @@ def main():
             iterTimeStr = f"Avg iteration: {avgIterTime} ms"
             cameraTimeStr = f" => Avg frame: {getAvgTimeArr(cameraFTs, iterationCounter)} ms"
             featureTimeStr = f", Avg features: {getAvgTimeArr(featureFTs, iterationCounter)} ms"
-            objectDectTimeStr = f", Avg feature density: {getAvgTimeArr(objectDectFTs, iterationCounter)} ms"
+            objectDectTimeStr = f", Avg object detection: {getAvgTimeArr(objectDectFTs, iterationCounter)} ms"
             disparityTimeStr = f", Avg disparity map: {getAvgTimeArr(disparityFTs, iterationCounter)} ms"
             Logger.log(iterNum + iterTimeStr + cameraTimeStr + featureTimeStr + objectDectTimeStr + disparityTimeStr)
             iterationCounter = 0
             iterationTimes, cameraFTs, featureFTs, objectDectFTs, disparityFTs = list(), list(), list(), list(), list()
             CaptureManager.updateAllFPS(1000.0 / avgIterTime, delayOffset=0.0)
+            if not HEADLESS:
+                DisplayManager.updateAllFPS(1000.0 / avgIterTime)
         numTotalIterations += 1
 
 

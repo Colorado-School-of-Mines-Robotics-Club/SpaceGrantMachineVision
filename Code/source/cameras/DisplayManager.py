@@ -1,6 +1,7 @@
 from typing import List, Dict
 import numpy as np
 import cv2
+from cv2 import error as cv2Error
 
 from .ThreadedDisplay import ThreadedDisplay
 
@@ -33,12 +34,25 @@ class DisplayManager:
         else:
             cls.displays[windowName] = ThreadedDisplay(windowName, frame).start()
 
+    @classmethod
+    def updateFPS(cls, windowName: str, fps: float):
+        cls.displays[windowName].updateFPS(fps)
+
+    @classmethod
+    def updateAllFPS(cls, fps: float):
+        for source, thread in cls.displays.items():
+            cls.updateFPS(source, fps)
+
     # stops a threadedDisplay from window name
     @classmethod
     def stopDisplay(cls, windowName: str):
-        cls.displays[windowName].stop()
-        if cv2.getWindowProperty(windowName, 0) >= 0:
-            cv2.destroyWindow(windowName)
+        if cls.displays[windowName].isAlive():
+            cls.displays[windowName].stop()
+        try:
+            if cv2.getWindowProperty(windowName, 0) >= 0:
+                cv2.destroyWindow(windowName)
+        except cv2Error:
+            pass
 
     # stops all displays
     @classmethod
