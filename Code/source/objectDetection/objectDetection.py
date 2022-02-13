@@ -3,6 +3,7 @@ import os
 import sys
 import time
 import math
+from typing import List
 
 # Additional libs
 import numpy as np
@@ -12,27 +13,23 @@ from numba import jit, njit
 # Custom  imports
 from source.logger.Logger import Logger
 from source.utilities import exceptions
-from source.utilities.boundingBoxes import drawBoundingBoxes
+from source.utilities.boundingBoxes import drawBoundingBoxes, cv2npContourBoxes
 from source.features.features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
 from .featureDensity import findFeatureDenseBoundingBoxes
+from .contourDetection import getContourBoundingBoxes
 
 
-def detectHorizonLine(image, show=False):
-    # use edge/contour detector to find the horizon line in an image
+def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, featuresPerPixel=0.03, show=True,
+                    threadedDisplay=False) -> List:
+    # run the contour detection
+    contourBoundingBoxes = getContourBoundingBoxes(image, show=show, threadedDisplay=threadedDisplay)
 
-    # returns a line across the middle of the screen
-    # PLACEHOLDER
-    horizonLine = [0, image.shape[1] / 2], [image.shape[0], image.shape[1] / 2]
+    # run feature density calculations
+    featureDenseBoundingBoxes = findFeatureDenseBoundingBoxes(image, featurePts, binSize=binSize,
+                                                              featuresPerPixel=featuresPerPixel, show=show,
+                                                              threadedDisplay=threadedDisplay)
 
-    if show:
-        lineImage = np.copy(image)
-        cv2.line(lineImage, (horizonLine[0][0], horizonLine[0][1]), (horizonLine[1][0], horizonLine[1][1]), (0, 0, 255), 2)
-        cv2.imshow("Horizon Line", lineImage)
+    # right now just combine the boundingBoxes, in the future should make some decisions on them
+    objectBoundingBoxes = contourBoundingBoxes + featureDenseBoundingBoxes
 
-    return horizonLine
-
-def filterBoundingBoxesByHorizon(image, boundingBoxes, horizonLine):
-
-    return boundingBoxes
-
-
+    return objectBoundingBoxes

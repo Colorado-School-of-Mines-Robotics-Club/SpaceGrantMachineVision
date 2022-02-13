@@ -135,3 +135,13 @@ def combineBoundingBoxes(boundingBoxes: List, connectedness=8) -> List:
         simplifiedBoxes.append(determineMaxMinCorners(connectedBoxes))
         connectedBoxes = list()
     return simplifiedBoxes
+
+def cv2npContourBoxes(contourBoxes):
+    npContourBoxes = []
+    for (x, y, w, h) in contourBoxes:
+        npContourBoxes.append(np.array([(x, y), (x + w, y + h)]))
+        #cv2.rectangle(rightImage, (x, y), (x + w, y + h), color=(0, 255, 0), thickness=2)
+    # for i in range(len(contourBoxes)):
+    #     npContourBoxes.append(np.array([[contourBoxes[i, 0], contourBoxes[i, 1]],
+    #                                     [contourBoxes[i, 0] + contourBoxes[i, 2]], [contourBoxes[i, 1] + contourBoxes[i, 3]]]))
+    return npContourBoxes

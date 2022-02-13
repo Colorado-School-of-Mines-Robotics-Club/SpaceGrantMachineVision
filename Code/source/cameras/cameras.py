@@ -115,71 +115,71 @@ def writeKandDistNPZ(lk: np.ndarray, rk: np.ndarray, ld: np.ndarray, rd: np.ndar
     np.save(calibrationPath + "leftDistC.npy", ld)
     np.save(calibrationPath + "rightDistC.npy", rd)
 
-# # Function to get the new frames from both cameras
-# # "Safe" such that it will throw an exception if the cameras do not yield frames
-# # Takes both cameras as left and right
-# # Returns both image in leftImage, rightImage
-# # Left image in return tuple corresponds to left camera number in return tuple
-# # @jit(forceobj=True)  # forceobj is used here since the opencv videoCaptures cannot be compiled
-# def readCameras(left, right):
-#     # Got image boolean and retrieved image
-#     gotLeft, gotRight = left.grab(), right.grab()
-#     # Ensure images were received
-#     if not gotLeft:
-#         raise exceptions.CameraReadError("Left")
-#     if not gotRight:
-#         raise exceptions.CameraReadError("Right")
-#     # Return images
-#     return left.retrieve()[1], right.retrieve()[1]
-#
-# # Convenience function which will read and show the images given by readCameras and showCameras
-# # Will pass on exceptions
-# def readAndShowCameras(leftCam, rightCam, leftK, rightK, leftDistC, rightDistC, show=True):
-#     try:
-#         leftImage, rightImage = readCameras(leftCam, rightCam)
-#         undistLeft, undistRight = undistortImages(leftImage, rightImage, leftK, rightK, leftDistC, rightDistC)
-#         if show:
-#             showCameras(undistLeft, undistRight)
-#         return undistLeft, undistRight
-#     except Exception as e:
-#         raise e
-#
-# def writeCameraImages(cameraPath, leftImage, rightImage, cameraLocks):
-#     cameraLocks[0].acquire()
-#     cv2.imwrite(cameraPath + "left_image.jpg", leftImage)
-#     cameraLocks[0].release()
-#     cameraLocks[1].acquire()
-#     cv2.imwrite(cameraPath + "right_image.jpg", rightImage)
-#     cameraLocks[1].release()
-#
-# # Function for undistorting the read in images
-# # Utilizes pre-saved camera coefficient matrices and dist coeff arrays
-# # Takes two images(np arrays of shape (w,h,c)) as parameters
-# # returns the undistorted images or raises an exception
-# def undistortImages(left, right, leftK, rightK, leftDistC, rightDistC):
-#     try:
-#         leftNewK, _ = cv2.getOptimalNewCameraMatrix(leftK, leftDistC, (left.shape[1], left.shape[0]), 1, (left.shape[1], left.shape[0]))
-#         rightNewK, _ = cv2.getOptimalNewCameraMatrix(rightK, rightDistC, (right.shape[1], right.shape[0]), 1, (right.shape[1], right.shape[0]))
-#         return cv2.undistort(left, leftK, leftDistC, None, leftNewK), cv2.undistort(right, rightK, rightDistC, None, rightNewK)
-#     except FileNotFoundError:
-#         raise FileNotFoundError("Cannot load calibration data in undistortImages -> cameras.py")
-#     except:
-#         raise exceptions.UndistortImageError("undistortImages function error")
-#
-# def readAndWriteCameras(cameraPath, leftCam, rightCam, leftK, rightK, leftDistC, rightDistC, cameraLocks):
-#     leftImg, rightImg = readCameras(leftCam, rightCam)
-#     undistortedLeft, undistortedRight = undistortImages(leftImg, rightImg, leftK, rightK, leftDistC, rightDistC)
-#     writeCameraImages(cameraPath, undistortedLeft, undistortedRight, cameraLocks)
-#
-# def cameraProcess(cameraPath, leftCam, rightCam, leftK, rightK, leftDistC, rightDistC, cameraLocks):
-#     leftCamera = cv2.VideoCapture(leftCam)
-#     rightCamera = cv2.VideoCapture(rightCam)
-#     while True:
-#         try:
-#             readAndWriteCameras(cameraPath, leftCamera, rightCamera, leftK, rightK, leftDistC, rightDistC, cameraLocks)
-#         except exceptions.CameraReadError as e:
-#             Logger.log(e)
-#         except:
-#             Logger.log("Uncaught exception in readAndWriteCameras")
-#         finally:
-#             time.sleep(0.064)
+# Function to get the new frames from both cameras
+# "Safe" such that it will throw an exception if the cameras do not yield frames
+# Takes both cameras as left and right
+# Returns both image in leftImage, rightImage
+# Left image in return tuple corresponds to left camera number in return tuple
+# @jit(forceobj=True)  # forceobj is used here since the opencv videoCaptures cannot be compiled
+def readCameras(left, right):
+    # Got image boolean and retrieved image
+    gotLeft, gotRight = left.grab(), right.grab()
+    # Ensure images were received
+    if not gotLeft:
+        raise exceptions.CameraReadError("Left")
+    if not gotRight:
+        raise exceptions.CameraReadError("Right")
+    # Return images
+    return left.retrieve()[1], right.retrieve()[1]
+
+# Convenience function which will read and show the images given by readCameras and showCameras
+# Will pass on exceptions
+def readAndShowCameras(leftCam, rightCam, leftK, rightK, leftDistC, rightDistC, show=True):
+    try:
+        leftImage, rightImage = readCameras(leftCam, rightCam)
+        undistLeft, undistRight = undistortImages(leftImage, rightImage, leftK, rightK, leftDistC, rightDistC)
+        if show:
+            showCameras(undistLeft, undistRight)
+        return undistLeft, undistRight
+    except Exception as e:
+        raise e
+
+def writeCameraImages(cameraPath, leftImage, rightImage, cameraLocks):
+    cameraLocks[0].acquire()
+    cv2.imwrite(cameraPath + "left_image.jpg", leftImage)
+    cameraLocks[0].release()
+    cameraLocks[1].acquire()
+    cv2.imwrite(cameraPath + "right_image.jpg", rightImage)
+    cameraLocks[1].release()
+
+# Function for undistorting the read in images
+# Utilizes pre-saved camera coefficient matrices and dist coeff arrays
+# Takes two images(np arrays of shape (w,h,c)) as parameters
+# returns the undistorted images or raises an exception
+def undistortImages(left, right, leftK, rightK, leftDistC, rightDistC):
+    try:
+        leftNewK, _ = cv2.getOptimalNewCameraMatrix(leftK, leftDistC, (left.shape[1], left.shape[0]), 1, (left.shape[1], left.shape[0]))
+        rightNewK, _ = cv2.getOptimalNewCameraMatrix(rightK, rightDistC, (right.shape[1], right.shape[0]), 1, (right.shape[1], right.shape[0]))
+        return cv2.undistort(left, leftK, leftDistC, None, leftNewK), cv2.undistort(right, rightK, rightDistC, None, rightNewK)
+    except FileNotFoundError:
+        raise FileNotFoundError("Cannot load calibration data in undistortImages -> cameras.py")
+    except:
+        raise exceptions.UndistortImageError("undistortImages function error")
+
+def readAndWriteCameras(cameraPath, leftCam, rightCam, leftK, rightK, leftDistC, rightDistC, cameraLocks):
+    leftImg, rightImg = readCameras(leftCam, rightCam)
+    undistortedLeft, undistortedRight = undistortImages(leftImg, rightImg, leftK, rightK, leftDistC, rightDistC)
+    writeCameraImages(cameraPath, undistortedLeft, undistortedRight, cameraLocks)
+
+def cameraProcess(cameraPath, leftCam, rightCam, leftK, rightK, leftDistC, rightDistC, cameraLocks):
+    leftCamera = cv2.VideoCapture(leftCam)
+    rightCamera = cv2.VideoCapture(rightCam)
+    while True:
+        try:
+            readAndWriteCameras(cameraPath, leftCamera, rightCamera, leftK, rightK, leftDistC, rightDistC, cameraLocks)
+        except exceptions.CameraReadError as e:
+            Logger.log(e)
+        except:
+            Logger.log("Uncaught exception in readAndWriteCameras")
+        finally:
+            time.sleep(0.064)
