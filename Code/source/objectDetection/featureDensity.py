@@ -70,7 +70,7 @@ def getFeatureDenseBoundingBoxes(imageWidth: int, imageHeight: int, pts: List, h
 
 
 # takes an image and returns bounding box coordinates
-def findFeatureDenseBoundingBoxes(image: np.ndarray, pts: np.ndarray, binSize=30.0, featuresPerPixel=0.01, show=False,
+def findFeatureDenseBoundingBoxes(image: np.ndarray, pts: np.ndarray, binSize=30.0, featuresPerPixel=0.03, show=False,
                                   threadedDisplay=True) -> List:
     # compute dimensional information
     imageHeight, imageWidth = image.shape[0], image.shape[1]

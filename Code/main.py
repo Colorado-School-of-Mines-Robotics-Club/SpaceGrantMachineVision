@@ -12,7 +12,7 @@ from source.logger import Logger, logArguments, logSystemInfo, logConfiguration
 from source.cameras import fetchAndShowCameras, initCameras, closeCameras, DisplayManager, CaptureManager
 from source.visualOdometry import computeDisparity
 from source.features import computeMatchingPoints, getPointsFromKeypoints
-from source.objectDetection import findFeatureDenseBoundingBoxes
+from source.objectDetection import objectDetection
 from source.utilities import getAvgTimeArr, getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag,\
     handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag, Config, exceptions
 
@@ -53,23 +53,22 @@ def main():
             featureStartTime = time.perf_counter()
             # feature points for left and right images
             # the point at index [0], [1], [2], etc. in both is the same real life feature,
-            leftPts, rightPts, leftKp, leftDesc, rightKp, rightDesc = computeMatchingPoints(grayLeftImage,
-                                                                                            grayRightImage, orb,
-                                                                                            matcher, show=not HEADLESS,
-                                                                                            threadedDisplay=THREADED_DISPLAY)
+            leftPts, rightPts, leftKp, leftDesc, rightKp, rightDesc = \
+                computeMatchingPoints(grayLeftImage, grayRightImage, orb, matcher, show=not HEADLESS,
+                                      threadedDisplay=THREADED_DISPLAY)
             featureFTs.append(time.perf_counter() - featureStartTime)
 
-            featureDenseStartTime = time.perf_counter()
+            objectDectStartTime = time.perf_counter()
             # acquires the bounding box cordinates for areas of the image where there are dense features
-            featureDenseBoundingBoxes = findFeatureDenseBoundingBoxes(leftImage, getPointsFromKeypoints(leftKp),
-                                                                      binSize=30.0, featuresPerPixel=0.03,
-                                                                      show=not HEADLESS,
-                                                                      threadedDisplay=THREADED_DISPLAY)
-            objectDectFTs.append(time.perf_counter() - featureDenseStartTime)
+            objectBoundingBoxes = objectDetection(leftImage, getPointsFromKeypoints(leftKp), binSize=30.0,
+                                                  featuresPerPixel=0.03, show=not HEADLESS,
+                                                  threadedDisplay=THREADED_DISPLAY)
+            objectDectFTs.append(time.perf_counter() - objectDectStartTime)
 
             disparityStartTime = time.perf_counter()
             # this disparity map calculation should maybe get removed since we ??only?? care about the depth values
-            disparityMap = computeDisparity(stereo, grayLeftImage, grayRightImage, show=not HEADLESS, threadedDisplay=THREADED_DISPLAY)
+            disparityMap = computeDisparity(stereo, grayLeftImage, grayRightImage, show=not HEADLESS,
+                                            threadedDisplay=THREADED_DISPLAY)
             disparityFTs.append(time.perf_counter() - disparityStartTime)
 
             # all additional functionality should be present within the === comments
