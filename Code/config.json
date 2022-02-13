@@ -12,6 +12,7 @@
   },
   "camera_ports": {
     "use_cap_dshow": true,
+    "set_exposure": false,
     "leftPort" : 0,
     "rightPort" : 1
   },

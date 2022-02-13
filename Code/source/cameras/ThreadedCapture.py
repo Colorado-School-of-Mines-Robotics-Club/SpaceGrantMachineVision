@@ -11,9 +11,14 @@ class ThreadedCapture:
         Class that continuously gets frames from a VideoCapture object
         with a dedicated thread.
     """
-    def __init__(self, source, K=None, distC=None, setExposure=False, autoExposure=1.0, exposure=100.0, logger=None):
+    def __init__(self, source, fps=None, delayOffset=1.0, K=None, distC=None, setExposure=False, autoExposure=1.0,
+                 exposure=100.0, framesAutoFPS=5, logger=None):
         if logger is not None:
             self.logger = logger
+        # define delay from fps
+        # if fps does not exist then define it automatically at the end of init
+        if fps is not None:
+            self.delay = 1.0 / (fps - delayOffset)
         # check if the source is a video file
         if isinstance(source, str):
             if os.path.exists(source):
@@ -43,10 +48,18 @@ class ThreadedCapture:
         # create the cv2 video capture to acquire either the recorded video or webcam
         try:
             self.capture = cv2.VideoCapture(source)
-            while not self.capture.isOpened():
-                time.sleep(0.1)
         except Exception:
             raise Exception(f'Error defining cv2.videoCapture object for source: {self.source}')
+        if not self.capture.isOpened():
+            raise Exception(f"Could not open video source: {self.source}")
+        try:
+            while True:
+                got_frame, temp_frame = self.capture.read()
+                if got_frame:
+                    break
+                time.sleep(0.1)
+        except Exception:
+            raise Exception(f"Error reading from video source: {self.source}")
         # set exposures if option set
         try:
             if self.setExposure:
@@ -63,6 +76,17 @@ class ThreadedCapture:
                 self.x, self.y, self.w, self.h = self.roi
         except Exception:
             raise Exception(f'Error computing new K matrix for video source: {self.source}')
+        # automatic fps calibration
+        if fps is None:
+            start = time.perf_counter()
+            for i in range(0, framesAutoFPS):
+                _, _ = self.capture.read()
+            self.delay = 1.0 / ((framesAutoFPS / (time.perf_counter() - start)) - delayOffset)
+        Logger.log(f"  Completed setup of video source: {self.source} @ {time.perf_counter()}")
+
+    # updates the fps of the camera (and optionally the delayOffset)
+    def updateFPS(self, fps: float, delayOffset=1.0):
+        self.delay = 1 / (fps - delayOffset)
 
     # reads the most recent image from the camera and saves it to self.frame
     def readCapture(self):
@@ -84,7 +108,9 @@ class ThreadedCapture:
                 self.stop()
             else:
                 self.readCapture()
-                #Logger.log(f"  {self.source}: Queued frame") if self.frameQ else Logger.log(f"  {self.source}: Updated frame")
+                Logger.log(f"  {self.source}: Queued frame @ {time.perf_counter()}") if self.frameQ else Logger.log(
+                    f"  {self.source}: Updated frame @ {time.perf_counter()}")
+            time.sleep(self.delay)
         self.capture.release()
 
     # returns the current frame

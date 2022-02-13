@@ -9,7 +9,7 @@ import cv2
 
 # Custom imports
 from source.logger import Logger, logArguments, logSystemInfo, logConfiguration
-from source.cameras import fetchAndShowCameras, initCameras, closeCameras, DisplayManager
+from source.cameras import fetchAndShowCameras, initCameras, closeCameras, DisplayManager, CaptureManager
 from source.visualOdometry import computeDisparity
 from source.features import computeMatchingPoints, getPointsFromKeypoints
 from source.objectDetection import findFeatureDenseBoundingBoxes
@@ -20,7 +20,7 @@ from source.utilities import getAvgTimeArr, getArgDict, getArgFlags, handleRecor
 # Primary function where our main control flow will happen
 # Contains a while true loop for continous iteration
 def main():
-    numTotalIterations, consecutiveErrors, iterationCounter = 0, 0, 0
+    numTotalIterations, consecutiveErrors, iterationCounter, iterationTime = 0, 0, 0, 0
     iterationTimes, cameraFTs, featureFTs, objectDectFTs, disparityFTs = list(), list(), list(), list(), list()
     leftImage, rightImage, grayLeftImage, grayRightImage = None, None, None, None
     leftPts, rightPts, leftKp, leftDesc, rightKp, rightDesc = None, None, None, None, None, None
@@ -90,6 +90,7 @@ def main():
                 keyPressed = cv2.waitKey(1) & 0xFF
                 if keyPressed == 27:
                     raise exceptions.CustomKeyboardInterrupt("ESC")  # Quit on ESC
+            iterationTime = time.perf_counter() - iterationStartTime
         except exceptions.CustomKeyboardInterrupt as e:  # Kills the loop if a keyboardInterrupt occurs
             Logger.log(f"User killed loop with: {e.getKey()}")
             break
@@ -98,18 +99,20 @@ def main():
         except Exception as e:
             # Possibly instead of restarting, we might want to look into
             Logger.log(
-                f"{str(e)} -> Occured in primary operation loop of program. Failed iterations in a row: {consecutiveErrors}")
+                f"{str(e)} -> Occured in primary operation loop of program. " +
+                "Failed iterations in a row: {consecutiveErrors}")
             consecutiveErrors += 1
             if consecutiveErrors > errorTolerance:
                 Logger.log("RESTARTING PRIMARY CONTROL LOOP")
                 break
         if iterationCounter < iterationsToAverage:
             if iterationCounter != 0:
-                iterationTimes.append(time.perf_counter() - iterationStartTime)
+                iterationTimes.append(iterationTime)
             iterationCounter += 1
         else:
+            avgIterTime = getAvgTimeArr(iterationTimes, iterationCounter)
             iterNum = f"#{numTotalIterations + 1} Total Iterations: "
-            iterTimeStr = f"Avg iteration: {getAvgTimeArr(iterationTimes, iterationCounter)} ms"
+            iterTimeStr = f"Avg iteration: {avgIterTime} ms"
             cameraTimeStr = f" => Avg frame: {getAvgTimeArr(cameraFTs, iterationCounter)} ms"
             featureTimeStr = f", Avg features: {getAvgTimeArr(featureFTs, iterationCounter)} ms"
             objectDectTimeStr = f", Avg feature density: {getAvgTimeArr(objectDectFTs, iterationCounter)} ms"
@@ -117,6 +120,7 @@ def main():
             Logger.log(iterNum + iterTimeStr + cameraTimeStr + featureTimeStr + objectDectTimeStr + disparityTimeStr)
             iterationCounter = 0
             iterationTimes, cameraFTs, featureFTs, objectDectFTs, disparityFTs = list(), list(), list(), list(), list()
+            CaptureManager.updateAllFPS(1000.0 / avgIterTime, delayOffset=0.0)
         numTotalIterations += 1
 
 
@@ -183,7 +187,7 @@ if __name__ == "__main__":
 
     leftCam, rightCam = handleVideoFlag(VIDEO_PATH, cameraPorts['use_cap_dshow'], cameraPorts['leftPort'], cameraPorts['rightPort'])
 
-    initCameras(leftCam, rightCam, setExposure=False)
+    initCameras(leftCam, rightCam, setExposure=cameraPorts['set_exposure'])
 
     leftWriter, rightWriter = handleRecordFlag(RECORD, leftCam, rightCam)
 

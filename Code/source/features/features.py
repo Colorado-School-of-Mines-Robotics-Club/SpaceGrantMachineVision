@@ -1,5 +1,5 @@
 # Built in python libs
-from typing import List
+from typing import List, Tuple, Any
 
 # Additional libs
 import numpy as np

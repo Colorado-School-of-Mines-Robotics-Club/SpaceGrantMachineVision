@@ -37,17 +37,11 @@ class DisplayManager:
     @classmethod
     def stopDisplay(cls, windowName: str):
         cls.displays[windowName].stop()
-        try:
+        if cv2.getWindowProperty(windowName, 0) >= 0:
             cv2.destroyWindow(windowName)
-        except Exception:
-            pass
 
     # stops all displays
     @classmethod
     def stopDisplays(cls):
         for source, thread in cls.displays.items():
-            thread.stop()
-            try:
-                cv2.destroyWindow(source)
-            except Exception:
-                pass
+            cls.stopDisplay(source)
