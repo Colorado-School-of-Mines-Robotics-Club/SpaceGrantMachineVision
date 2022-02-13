@@ -5,16 +5,22 @@ import os
 import time
 
 from source.logger.Logger import Logger
+from source.utilities.Config import Config
 
 class ThreadedCapture:
     """
         Class that continuously gets frames from a VideoCapture object
         with a dedicated thread.
     """
+
+    LOG_FRAME_INFO = True
+
     def __init__(self, source, fps=None, delayOffset=1.0, K=None, distC=None, setExposure=False, autoExposure=1.0,
                  exposure=100.0, framesAutoFPS=5, logger=None):
         if logger is not None:
             self.logger = logger
+
+        self.LOG_FRAME_INFO = Config.getLoggingOptions()['logFrameInfo']
         # define delay from fps
         # if fps does not exist then define it automatically at the end of init
         if fps is not None:
@@ -108,8 +114,9 @@ class ThreadedCapture:
                 self.stop()
             else:
                 self.readCapture()
-                Logger.log(f"  {self.source}: Queued frame @ {time.perf_counter()}") if self.frameQ else Logger.log(
-                    f"  {self.source}: Updated frame @ {time.perf_counter()}")
+                if self.LOG_FRAME_INFO:
+                    Logger.log(f"  {self.source}: Queued frame @ {time.perf_counter()}") if self.frameQ else Logger.log(
+                        f"  {self.source}: Updated frame @ {time.perf_counter()}")
             time.sleep(self.delay)
         self.capture.release()
 

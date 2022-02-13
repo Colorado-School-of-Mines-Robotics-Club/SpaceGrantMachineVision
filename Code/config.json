@@ -6,6 +6,11 @@
     "clearlog": false,
     "video": ""
   },
+  "logging_options": {
+    "logSystemInfo": true,
+    "logParameters": true,
+    "logFrameInfo": false
+  },
   "iteration_constants": {
     "errorTolerance": 2,
     "iterationsToAverage": 9
