@@ -1,6 +1,8 @@
 import threading
+
+
 class HardwareManager:
-    def __init__(self,address):
+    def __init__(self):
         try:
             import RPi.GPIO as GPIO
             self.GPIO_fail = False
@@ -8,7 +10,9 @@ class HardwareManager:
             self.GPIO_fail = True
             pass
 
-        self.address = address
+        self.pwm_address = 0x00
+        self.accelerometer_address = 0x00
+
         self.curr_motors = [0, 0, 0, 0]
         self.past_motors = [0, 0, 0, 0]
 
@@ -29,16 +33,16 @@ class HardwareManager:
         self.dir_pins = [29, 31, 33, 35]
 
         #Split encoder reading into 4 threads for speed and accuracy
-        motor1 = threading.thread(target=self.read_motor, args=(1,))
-        motor2 = threading.thread(target=self.read_motor, args=(2,))
-        motor3 = threading.thread(target=self.read_motor, args=(3,))
-        motor4 = threading.thread(target=self.read_motor, args=(4,))
+        motor1 = threading.Thread(target=self.read_motor, args=(0,))
+        motor2 = threading.Thread(target=self.read_motor, args=(1,))
+        motor3 = threading.Thread(target=self.read_motor, args=(2,))
+        motor4 = threading.Thread(target=self.read_motor, args=(3,))
 
         #one thread for reading servo return data
-        servos = threading.thread(target=self.read_servo)
+        servos = threading.Thread(target=self.read_servo)
 
         #one thread for reading accelerometer data
-        accel = threading.thread(target=self.read_accelerometer)
+        accel = threading.Thread(target=self.read_accelerometer)
 
         #start all data collection threads
         motor1.start()
@@ -46,7 +50,6 @@ class HardwareManager:
         motor3.start()
         motor4.start()
         servos.start()
-
 
     def write_pwm(self, motor1, motor2, motor3, motor4, sus1, sus2, sus3, sus4, wheel1, wheel2, wheel3, wheel4, dir1,
                   dir2, dir3, dir4, rgb):
@@ -56,7 +59,7 @@ class HardwareManager:
         #TODO: write PWM for each LED
         self.write_GPIO(self, dir1, dir2,dir3,dir4)
 
-    def write_GPIO(self, dir1, dir2, dir3, dir4):
+    def write_gpio(self, dir1, dir2, dir3, dir4):
         dir1 = 1
         #TODO: write the output pins for the directions
 
@@ -80,9 +83,6 @@ class HardwareManager:
 
             self.past_encoders[thread] = self.curr_encoders[thread][0]
 
-
-
-
     def read_servo(self):
         self.curr_servo[0] = 1
 
@@ -91,5 +91,6 @@ class HardwareManager:
 
     def get_data(self):
         return self.motors
-        #TODO: return all data in a reasonable format (Maybe convert accelerometer data to velocity ect)
+        #TODO: return all data in a reasonable format
+
 
