@@ -1,6 +1,5 @@
+import threading
 class HardwareManager:
-
-
     def __init__(self,address):
         try:
             import RPi.GPIO as GPIO
@@ -14,7 +13,7 @@ class HardwareManager:
         self.past_motors = [0, 0, 0, 0]
 
         self.curr_encoders = [[0,0], [0,0], [0,0], [0,0]]
-        self.past_encoders = [[0,0], [0,0], [0,0], [0,0]]
+        self.past_encoders = [0,0,0,0]
 
         self.curr_servos = [0, 0, 0, 0, 0, 0, 0, 0]
         self.past_servos = [0, 0, 0, 0, 0, 0, 0, 0]
@@ -29,9 +28,25 @@ class HardwareManager:
         self.servo_pins = [19, 21, 23, 37, 22, 24, 26, 32]
         self.dir_pins = [29, 31, 33, 35]
 
-    def process_encoders(self, curr):
+        #Split encoder reading into 4 threads for speed and accuracy
+        motor1 = threading.thread(target=self.read_motor, args=(1,))
+        motor2 = threading.thread(target=self.read_motor, args=(2,))
+        motor3 = threading.thread(target=self.read_motor, args=(3,))
+        motor4 = threading.thread(target=self.read_motor, args=(4,))
 
-         #process encoder data on rising/falling edge
+        #one thread for reading servo return data
+        servos = threading.thread(target=self.read_servo)
+
+        #one thread for reading accelerometer data
+        accel = threading.thread(target=self.read_accelerometer)
+
+        #start all data collection threads
+        motor1.start()
+        motor2.start()
+        motor3.start()
+        motor4.start()
+        servos.start()
+
 
     def write_pwm(self, motor1, motor2, motor3, motor4, sus1, sus2, sus3, sus4, wheel1, wheel2, wheel3, wheel4, dir1,
                   dir2, dir3, dir4, rgb):
@@ -45,17 +60,27 @@ class HardwareManager:
         dir1 = 1
         #TODO: write the output pins for the directions
 
-    def read_motor(self):
+    def read_motor(self, thread):
+        #read current edge value before starting the loop
+        self.past_encoders[thread] = GPIO.input(self.motor_pins[thread][0])
+
         while True:
-            self.curr_encoders[0][0] = GPIO.input(self.motor_pins[0][0])
-            self.curr_encoders[0][1] = GPIO.input(self.motor_pins[0][1])
-            self.curr_encoders[1][0] = GPIO.input(self.motor_pins[1][0])
-            self.curr_encoders[1][1] = GPIO.input(self.motor_pins[1][1])
-            self.curr_encoders[2][0] = GPIO.input(self.motor_pins[2][0])
-            self.curr_encoders[2][1] = GPIO.input(self.motor_pins[2][1])
-            self.curr_encoders[3][0] = GPIO.input(self.motor_pins[3][0])
-            self.curr_encoders[3][1] = GPIO.input(self.motor_pins[3][1])
-            self.process_encoders(1)
+            #read current encoder values
+            self.curr_encoders[thread][0] = GPIO.input(self.motor_pins[thread][0])
+            self.curr_encoders[thread][1] = GPIO.input(self.motor_pins[thread][1])
+
+            #if edge detected, check B line for rotation direction
+            if self.curr_encoders[thread][0] == self.past_encoders[thread]:
+                if self.curr_encoders[thread][1] == self.curr_encoders[thread][0] :
+                    # increment motor angle by angular distance of one click
+                    #TODO: find the angle per click and add this instead of keeping track of number of "clicks"
+                    self.curr_motors[thread] += 1
+                else:
+                    self.curr_motors[thread] -= 1
+
+            self.past_encoders[thread] = self.curr_encoders[thread][0]
+
+
 
 
     def read_servo(self):
