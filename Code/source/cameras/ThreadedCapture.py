@@ -14,6 +14,7 @@ class ThreadedCapture:
     """
 
     LOG_FRAME_INFO = True
+    LOG_VIDEO_INPUT_INFO = True
 
     def __init__(self, source, fps=None, delayOffset=1.0, K=None, distC=None, setExposure=False, autoExposure=1.0,
                  exposure=100.0, framesAutoFPS=5, logger=None):
@@ -21,6 +22,7 @@ class ThreadedCapture:
             self.logger = logger
 
         self.LOG_FRAME_INFO = Config.getLoggingOptions()['logFrameInfo']
+        self.LOG_VIDEO_INPUT_INFO = Config.getLoggingOptions()['logVideoInputInfo']
         # define delay from fps
         # if fps does not exist then define it automatically at the end of init
         if fps is not None:
@@ -58,10 +60,25 @@ class ThreadedCapture:
             raise Exception(f'Error defining cv2.videoCapture object for source: {self.source}')
         if not self.capture.isOpened():
             raise Exception(f"Could not open video source: {self.source}")
+
         try:
             while True:
                 got_frame, temp_frame = self.capture.read()
                 if got_frame:
+                    # Print video source info
+                    Logger.log(f'Capture <{source}> info:')
+                    Logger.log(f'   Resolution: {temp_frame.shape[1]} x {temp_frame.shape[0]}')
+                    imageFormat = temp_frame.shape[2]
+                    if imageFormat == 1:
+                        'Grayscale'
+                    elif imageFormat == 3:
+                        imageFormat = 'RGB'
+                    elif imageFormat == 4:
+                        imageFormat = 'RGBA'
+                    else:
+                        imageFormat = f'{imageFormat} channels'
+                    Logger.log(f'   Format: {imageFormat}')
+
                     break
                 time.sleep(0.1)
         except Exception:
@@ -88,7 +105,7 @@ class ThreadedCapture:
             for i in range(0, framesAutoFPS):
                 _, _ = self.capture.read()
             self.delay = 1.0 / ((framesAutoFPS / (time.perf_counter() - start)) - delayOffset)
-        Logger.log(f"  Completed setup of video source: {self.source} @ {time.perf_counter()}")
+        Logger.log(f"Completed setup of video source: {self.source} @ {time.perf_counter()}")
 
     # updates the fps of the camera (and optionally the delayOffset)
     def updateFPS(self, fps: float, delayOffset=1.0):

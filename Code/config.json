@@ -9,6 +9,7 @@
   "logging_options": {
     "logSystemInfo": true,
     "logParameters": true,
+    "logVideoInputInfo": true,
     "logFrameInfo": false
   },
   "iteration_constants": {
@@ -16,8 +17,8 @@
     "iterationsToAverage": 9
   },
   "camera_ports": {
-    "use_cap_dshow": true,
-    "set_exposure": false,
+    "useCapDShow": true,
+    "setExposure": false,
     "leftPort" : 0,
     "rightPort" : 1
   },
