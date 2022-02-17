@@ -63,11 +63,15 @@ def main():
             # COMPUTES MATCHING FEATURES ACROSS BOTH CURRENT IMAGES
             prevLeftPts, leftPts, prevLeftKp, prevLeftDesc, leftKp, leftDesc, leftMatches = \
                 computeMatchingPoints(prevGrayLeftImage, grayLeftImage, orb, matcher,
-                                      ratio=featureParams['startingRatio'], show=not HEADLESS,
+                                      ratio=featureParams['startingRatio'],
+                                      featureRatio=featureParams["featureRatio"], stepSize=featureParams["stepSize"],
+                                      timeout=featureParams["timeout"], show=not HEADLESS,
                                       threadedDisplay=THREADED_DISPLAY, windowName="Left Matched Features")
             prevRightPts, rightPts, prevRightKp, prevRightDesc, rightKp, rightDesc, rightMatches = \
                 computeMatchingPoints(prevGrayRightImage, grayRightImage, orb, matcher,
-                                      ratio=featureParams['startingRatio'], show=not HEADLESS,
+                                      ratio=featureParams['startingRatio'],
+                                      featureRatio=featureParams["featureRatio"], stepSize=featureParams["stepSize"],
+                                      timeout=featureParams["timeout"], show=not HEADLESS,
                                       threadedDisplay=THREADED_DISPLAY, windowName="Right Matched Features")
             xTranslation, yTranslation = getAvgTranslationXY(leftMatches, prevLeftKp, leftKp, rightMatches, prevRightKp,
                                                              rightKp)

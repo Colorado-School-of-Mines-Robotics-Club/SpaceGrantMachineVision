@@ -95,14 +95,16 @@ def getAvgTranslationXY(leftMatches: np.ndarray, prevLeftKp: np.ndarray, leftKp:
     numErrors = 0
     try:
         leftX, leftY = getTranslationXY(leftMatches, prevLeftKp, leftKp)
-    except Exception:
+    except IndexError:
         numErrors += 1
-        pass
+    except ZeroDivisionError:
+        numErrors += 1
     try:
         rightX, rightY = getTranslationXY(rightMatches, prevRightKp, rightKp)
-    except Exception:
+    except IndexError:
         numErrors += 1
-        pass
+    except ZeroDivisionError:
+        numErrors += 1
     if numErrors >= 2:
         return 0.0, 0.0
     return (leftX + rightX) / (2 - numErrors), (leftY + rightY) / (2 - numErrors)

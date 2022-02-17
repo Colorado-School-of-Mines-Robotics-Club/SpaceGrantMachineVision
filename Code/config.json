@@ -1,10 +1,10 @@
 {
   "run_parameters": {
-    "headless": true,
+    "headless": false,
     "threadeddisplay": false,
     "record": false,
     "clearlog": true,
-    "video": "../Data/Cameras/DefaultVideo/"
+    "video": ""
   },
   "logging_options": {
     "logSystemInfo": true,
@@ -25,7 +25,7 @@
     "rightPort" : 1
   },
   "orb_params": {
-    "nfeatures": 750,
+    "nfeatures": 250,
     "scaleFactor": 1.2,
     "nlevels": 8,
     "edgeThreshold": 31,
@@ -33,7 +33,10 @@
     "patchSize": 31
   },
   "feature_params": {
-    "startingRatio": 1.0
+    "startingRatio": 1.2,
+    "featureRatio": 0.1,
+    "stepSize": 0.05,
+    "timeout": 20
   },
   "object_detection_params": {
     "binSize": 30.0,
@@ -41,15 +44,15 @@
   },
   "sgbm_params": {
     "minDisparity": 0,
-    "numDisparities": 112,
+    "numDisparities": 16,
     "blockSize": 3,
     "P1": 27,
     "P2": 675,
-    "disp12MaxDiff": 50,
+    "disp12MaxDiff": -1,
     "preFilterCap": 0,
-    "uniquenessRatio": 10,
+    "uniquenessRatio": 15,
     "speckleWindowSize": 0,
-    "speckleRange": 4
+    "speckleRange": 0
   },
   "file_paths": {
     "videoPath": "Data/Cameras/RawOutput/",

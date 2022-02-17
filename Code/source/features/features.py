@@ -54,9 +54,9 @@ def getPointsFromMatches(matches: List, leftKp: List, rightKp: List) -> (List, L
 # takes two grayscale images, a feature detector, and a matcher
 # the showMatches optional parameter shows the total features and not the ones acquired through the ratio test
 def computeMatchingPoints(left: np.ndarray, right: np.ndarray, featureDetector: cv2.ORB, featureMatcher, ratio=1.0,
-                          show=False, threadedDisplay=True, windowName="Matched Features") -> (List, List, List,
-                                                                                               np.ndarray, List,
-                                                                                               np.ndarray, np.ndarray):
+                          featureRatio=0.1, stepSize=0.04, timeout=1000, show=False, threadedDisplay=True,
+                          windowName="Matched Features") -> (List, List, List, np.ndarray, List, np.ndarray,
+                                                             np.ndarray):
     try:
         leftKp, leftDesc, rightKp, rightDesc = getImagePairKeyDesc(left, right, featureDetector)
         if leftDesc is None or rightDesc is None:
@@ -65,7 +65,8 @@ def computeMatchingPoints(left: np.ndarray, right: np.ndarray, featureDetector: 
         # sort the matches
         sortedMatches = sortMatches(matches)
         # perform ratio test on matching key points
-        ratioMatches = adaptiveRatioTest(sortedMatches, startingRatio=ratio, targetFeatureRatio=0.1, stepSize=0.04)
+        ratioMatches = adaptiveRatioTest(sortedMatches, startingRatio=ratio, targetFeatureRatio=featureRatio,
+                                         stepSize=stepSize, timeout=timeout)
         if len(ratioMatches) == 0:
             ratioMatches = sortedMatches
         # extract image coordinates of matches
