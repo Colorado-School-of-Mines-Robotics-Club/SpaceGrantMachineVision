@@ -17,11 +17,8 @@ class ThreadedCapture:
     LOG_VIDEO_INPUT_INFO = True
 
     def __init__(self, source, fps=None, delayOffset=1.0, K=None, distC=None, setExposure=False, autoExposure=1.0,
-                 exposure=100.0, framesAutoFPS=5, log=False):
-        self.log = False
-        if log:
-            self.log = True
-
+                 exposure=100.0, framesAutoFPS=5):
+        self.LOG_SETUP = Config.getLoggingOptions()['logThreadedCaptureSetup']
         self.LOG_FRAME_INFO = Config.getLoggingOptions()['logFrameInfo']
         self.LOG_VIDEO_INPUT_INFO = Config.getLoggingOptions()['logVideoInputInfo']
         # define delay from fps
@@ -66,20 +63,20 @@ class ThreadedCapture:
             while True:
                 got_frame, temp_frame = self.capture.read()
                 if got_frame:
-                    # Print video source info
-                    Logger.log(f'Capture <{source}> info:')
-                    Logger.log(f'   Resolution: {temp_frame.shape[1]} x {temp_frame.shape[0]}')
-                    imageFormat = temp_frame.shape[2]
-                    if imageFormat == 1:
-                        'Grayscale'
-                    elif imageFormat == 3:
-                        imageFormat = 'RGB'
-                    elif imageFormat == 4:
-                        imageFormat = 'RGBA'
-                    else:
-                        imageFormat = f'{imageFormat} channels'
-                    Logger.log(f'   Format: {imageFormat}')
-
+                    if self.LOG_VIDEO_INPUT_INFO:
+                        # Print video source info
+                        Logger.log(f'Capture <{source}> info:')
+                        Logger.log(f'   Resolution: {temp_frame.shape[1]} x {temp_frame.shape[0]}')
+                        imageFormat = temp_frame.shape[2]
+                        if imageFormat == 1:
+                            'Grayscale'
+                        elif imageFormat == 3:
+                            imageFormat = 'RGB'
+                        elif imageFormat == 4:
+                            imageFormat = 'RGBA'
+                        else:
+                            imageFormat = f'{imageFormat} channels'
+                        Logger.log(f'   Format: {imageFormat}')
                     break
                 if time.time() - startTime > 5:
                     raise Exception("Timed out in camera read")
@@ -108,7 +105,7 @@ class ThreadedCapture:
             for i in range(0, framesAutoFPS):
                 _, _ = self.capture.read()
             self.delay = 1.0 / ((framesAutoFPS / (time.perf_counter() - start)) - delayOffset)
-        if self.log:
+        if self.LOG_SETUP:
             Logger.log(f"  Completed setup of video source: {self.source} @ {time.perf_counter()}")
 
     # updates the fps of the camera (and optionally the delayOffset)

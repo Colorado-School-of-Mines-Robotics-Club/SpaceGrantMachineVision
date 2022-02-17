@@ -10,7 +10,8 @@
     "logSystemInfo": true,
     "logParameters": true,
     "logVideoInputInfo": true,
-    "logFrameInfo": false
+    "logFrameInfo": true,
+    "logThreadedCaptureSetup": true
   },
   "iteration_constants": {
     "errorTolerance": 2,
@@ -20,8 +21,7 @@
     "useCapDShow": true,
     "setExposure": false,
     "leftPort" : 0,
-    "rightPort" : 1,
-    "log_cameras" : true
+    "rightPort" : 1
   },
   "orb_params": {
     "nfeatures": 500,

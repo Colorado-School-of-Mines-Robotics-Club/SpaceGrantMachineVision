@@ -6,7 +6,7 @@ from source.logger.Logger import Logger
 
 
 def createCaptureSourceData(source: Union[str, int], fps=None, delayOffset=1.0, K=None, distC=None, setExposure=False,
-                            autoExposure=1.0, exposure=100.0, framesAutoFPS=5, log=False) -> List:
+                            autoExposure=1.0, exposure=100.0, framesAutoFPS=5) -> List:
     return [source, fps, delayOffset, K, distC, setExposure, autoExposure, exposure, framesAutoFPS, log]
 
 
@@ -23,7 +23,7 @@ class CaptureManager:
         # initialize and start all threads
         for src in sources:
             cls.sources[src[0]] = ThreadedCapture(src[0], src[1], src[2], src[3], src[4], src[5], src[6], src[7],
-                                                  src[8], src[9]).start()
+                                                  src[8]).start()
 
     # gets the frame from a specific source
     @classmethod
