@@ -88,9 +88,21 @@ def getTranslationXY(matchedKp: np.ndarray, prevKp: np.ndarray, currKp: np.ndarr
     return transX, transY
 
 
-@jit(forceobj=True)
 def getAvgTranslationXY(leftMatches: np.ndarray, prevLeftKp: np.ndarray, leftKp: np.ndarray, rightMatches: np.ndarray,
                         prevRightKp: np.ndarray, rightKp: np.ndarray) -> (float, float):
-    leftX, leftY = getTranslationXY(leftMatches, prevLeftKp, leftKp)
-    rightX, rightY = getTranslationXY(rightMatches, prevRightKp, rightKp)
-    return (leftX + rightX) / 2, (leftY + rightY) / 2
+    leftX, leftY = 0.0, 0.0
+    rightX, rightY = 0.0, 0.0
+    numErrors = 0
+    try:
+        leftX, leftY = getTranslationXY(leftMatches, prevLeftKp, leftKp)
+    except Exception:
+        numErrors += 1
+        pass
+    try:
+        rightX, rightY = getTranslationXY(rightMatches, prevRightKp, rightKp)
+    except Exception:
+        numErrors += 1
+        pass
+    if numErrors >= 2:
+        return 0.0, 0.0
+    return (leftX + rightX) / (2 - numErrors), (leftY + rightY) / (2 - numErrors)

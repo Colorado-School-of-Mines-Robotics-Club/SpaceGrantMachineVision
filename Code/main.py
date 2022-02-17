@@ -66,7 +66,7 @@ def main():
                                       ratio=featureParams['startingRatio'], show=not HEADLESS,
                                       threadedDisplay=THREADED_DISPLAY, windowName="Left Matched Features")
             prevRightPts, rightPts, prevRightKp, prevRightDesc, rightKp, rightDesc, rightMatches = \
-                computeMatchingPoints(prevGrayLeftImage, grayRightImage, orb, matcher,
+                computeMatchingPoints(prevGrayRightImage, grayRightImage, orb, matcher,
                                       ratio=featureParams['startingRatio'], show=not HEADLESS,
                                       threadedDisplay=THREADED_DISPLAY, windowName="Right Matched Features")
             xTranslation, yTranslation = getAvgTranslationXY(leftMatches, prevLeftKp, leftKp, rightMatches, prevRightKp,
