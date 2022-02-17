@@ -35,6 +35,8 @@ def isFeatureDense(x: int, y: int, iwidth: int, iheight: int, kp: np.ndarray, wi
     if bottomBound >= iheight:
         bottomBound = iheight - 1
     # iterate over key points, determine if within boundary
+    if len(kp) == 0:
+        return False, -1, -1, -1, -1
     # print(f"topBound:{topBound}, bottomBound:{bottomBound}, leftBound{leftBound}, rightBound{rightBound}")
     kpInRegion = 0.0
     for keypoint in kp:
