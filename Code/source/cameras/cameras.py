@@ -115,6 +115,7 @@ def writeKandDistNPZ(lk: np.ndarray, rk: np.ndarray, ld: np.ndarray, rd: np.ndar
     np.save(calibrationPath + "leftDistC.npy", ld)
     np.save(calibrationPath + "rightDistC.npy", rd)
 
+
 # Function to get the new frames from both cameras
 # "Safe" such that it will throw an exception if the cameras do not yield frames
 # Takes both cameras as left and right

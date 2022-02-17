@@ -1,7 +1,11 @@
-from Code.source.cameras import CaptureManager, createCaptureSourceData
 import cv2
+import sys
+
+
+from Code.source.cameras import CaptureManager, createCaptureSourceData
 
 if __name__ == '__main__' :
+
     source1 = createCaptureSourceData(0)
     source2 = createCaptureSourceData(1)
     CaptureManager.init([source1, source2])
