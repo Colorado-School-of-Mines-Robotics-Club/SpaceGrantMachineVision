@@ -14,7 +14,8 @@
     "use_cap_dshow": true,
     "set_exposure": false,
     "leftPort" : 0,
-    "rightPort" : 1
+    "rightPort" : 1,
+    "log_cameras" : true
   },
   "orb_params": {
     "nfeatures": 500,

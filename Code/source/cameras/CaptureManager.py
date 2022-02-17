@@ -6,8 +6,8 @@ from source.logger.Logger import Logger
 
 
 def createCaptureSourceData(source: Union[str, int], fps=None, delayOffset=1.0, K=None, distC=None, setExposure=False,
-                            autoExposure=1.0, exposure=100.0, framesAutoFPS=5, logger=None) -> List:
-    return [source, fps, delayOffset, K, distC, setExposure, autoExposure, exposure, framesAutoFPS, logger]
+                            autoExposure=1.0, exposure=100.0, framesAutoFPS=5, log=False) -> List:
+    return [source, fps, delayOffset, K, distC, setExposure, autoExposure, exposure, framesAutoFPS, log]
 
 
 class CaptureManager:

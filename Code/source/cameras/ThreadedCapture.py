@@ -3,8 +3,8 @@ from collections import deque
 import cv2
 import os
 import time
-
 from source.logger.Logger import Logger
+
 
 class ThreadedCapture:
     """
@@ -12,23 +12,23 @@ class ThreadedCapture:
         with a dedicated thread.
     """
     def __init__(self, source, fps=None, delayOffset=1.0, K=None, distC=None, setExposure=False, autoExposure=1.0,
-                 exposure=100.0, framesAutoFPS=5, logger=None):
-        if logger is not None:
-            self.logger = logger
+                 exposure=100.0, framesAutoFPS=5, log=False):
+        self.log = False
+        if log:
+            self.log = True
         # define delay from fps
         # if fps does not exist then define it automatically at the end of init
         if fps is not None:
             self.delay = 1.0 / (fps - delayOffset)
         # check if the source is a video file
+        self.video = False
+        self.frameQ = None
         if isinstance(source, str):
             if os.path.exists(source):
                 self.video = True
                 self.frameQ = deque()
             else:
                 raise FileNotFoundError(f"Could not find file for source:{source}")
-        else:
-            self.video = False
-            self.frameQ = None
         # basic checking with asserts that all data is present
         if (K is not None) or (distC is not None):
             assert ((K is not None) and (distC is not None)), "If K or distC is defined, then both must be defined"
@@ -53,36 +53,40 @@ class ThreadedCapture:
         if not self.capture.isOpened():
             raise Exception(f"Could not open video source: {self.source}")
         try:
+            startTime = time.time()
             while True:
                 got_frame, temp_frame = self.capture.read()
                 if got_frame:
                     break
+                if time.time() - startTime > 5:
+                    raise Exception("Timed out in camera read")
                 time.sleep(0.1)
-        except Exception:
-            raise Exception(f"Error reading from video source: {self.source}")
+        except Exception as e:
+            raise Exception(f"Error reading from video source: {self.source} -> {e}")
         # set exposures if option set
         try:
             if self.setExposure:
                 self.capture.set(cv2.CAP_PROP_AUTO_EXPOSURE, autoExposure)
                 self.capture.set(cv2.CAP_PROP_EXPOSURE, exposure)
-        except Exception:
-            raise Exception(f'Error settings exposure for video source: {self.source}')
+        except Exception as e:
+            raise Exception(f"Error settings exposure for video source: {self.source} -> {e}")
         # create undistortion K matrix
         try:
             success, frame = self.capture.read()
             if (self.K is not None) and (self.distC is not None):
                 h, w = frame.shape[:2]
-                self.newK, self.roi = cv2.getOptimalNewCameraMatrix(self.K, self.distC, (w,h), 1, (w,h))
+                self.newK, self.roi = cv2.getOptimalNewCameraMatrix(self.K, self.distC, (w, h), 1, (w, h))
                 self.x, self.y, self.w, self.h = self.roi
-        except Exception:
-            raise Exception(f'Error computing new K matrix for video source: {self.source}')
+        except Exception as e:
+            raise Exception(f'Error computing new K matrix for video source: {self.source} -> {e}')
         # automatic fps calibration
         if fps is None:
             start = time.perf_counter()
             for i in range(0, framesAutoFPS):
                 _, _ = self.capture.read()
             self.delay = 1.0 / ((framesAutoFPS / (time.perf_counter() - start)) - delayOffset)
-        Logger.log(f"  Completed setup of video source: {self.source} @ {time.perf_counter()}")
+        if self.log:
+            Logger.log(f"  Completed setup of video source: {self.source} @ {time.perf_counter()}")
 
     # updates the fps of the camera (and optionally the delayOffset)
     def updateFPS(self, fps: float, delayOffset=1.0):
@@ -108,8 +112,9 @@ class ThreadedCapture:
                 self.stop()
             else:
                 self.readCapture()
-                Logger.log(f"  {self.source}: Queued frame @ {time.perf_counter()}") if self.frameQ else Logger.log(
-                    f"  {self.source}: Updated frame @ {time.perf_counter()}")
+                if self.log:
+                    Logger.log(f"  {self.source}: Queued frame @ {time.perf_counter()}") if self.frameQ else Logger.log(
+                        f"  {self.source}: Updated frame @ {time.perf_counter()}")
             time.sleep(self.delay)
         self.capture.release()
 
@@ -133,5 +138,3 @@ class ThreadedCapture:
     # stops the capture
     def stop(self):
         self.stopped = True
-
-

@@ -186,9 +186,10 @@ if __name__ == "__main__":
     # inits the DisplayManager
     DisplayManager.init()
 
-    leftCam, rightCam = handleVideoFlag(VIDEO_PATH, cameraPorts['use_cap_dshow'], cameraPorts['leftPort'], cameraPorts['rightPort'])
+    leftCam, rightCam = handleVideoFlag(VIDEO_PATH, cameraPorts['use_cap_dshow'], cameraPorts['leftPort'],
+                                        cameraPorts['rightPort'])
 
-    initCameras(leftCam, rightCam, setExposure=cameraPorts['set_exposure'])
+    initCameras(leftCam, rightCam, setExposure=cameraPorts['set_exposure'], log=cameraPorts['log_cameras'])
 
     leftWriter, rightWriter = handleRecordFlag(RECORD, leftCam, rightCam)
 
