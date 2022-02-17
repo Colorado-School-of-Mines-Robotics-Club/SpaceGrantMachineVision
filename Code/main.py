@@ -84,7 +84,10 @@ def main():
             # pick a random point on the map and increment it
             # Map.updatePoint(random.randrange(0, 100), random.randrange(0, 50), random.randrange(0, 255))
 
-            _ = getTranslationXY(matches, leftKp, rightKp)
+            try:
+                _ = getTranslationXY(matches, leftKp, rightKp)
+            except Exception:
+                pass
 
             # ===========================================================================================================
             # redraws the map
