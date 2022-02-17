@@ -87,7 +87,7 @@ def main():
             # ===========================================================================================================
             # redraws the map
             mapDisplay = Map.draw()
-            mapDisplay = Robot.draw(mapDisplay)
+            # mapDisplay = Robot.draw(mapDisplay)
             if not HEADLESS:
                 if THREADED_DISPLAY:
                     DisplayManager.show("Current Map", mapDisplay)
@@ -219,7 +219,7 @@ if __name__ == "__main__":
 
     # define the map
     Map = Map()
-    # Robot = Robot()
+    Robot = Robot()
 
     # being primary loop
     Logger.log("Program starting...")
