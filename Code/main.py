@@ -57,7 +57,7 @@ def main():
                                                                                        threadedDisplay=THREADED_DISPLAY)
             cameraFTs.append(time.perf_counter() - cameraStartTime)
 
-            if numTotalIterations > 150:
+            if numTotalIterations == 153:
                 print("debug point")
             featureStartTime = time.perf_counter()
             # feature points for left and right images

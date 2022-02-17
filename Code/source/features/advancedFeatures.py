@@ -35,7 +35,8 @@ def ratioTest(kpMatches: np.ndarray, ratio: float) -> List:
 
 
 @jit(forceobj=True)
-def adaptiveRatioTest(kpMatches: np.ndarray, startingRatio: float, targetFeatureRatio: float, stepSize: float) -> List:
+def adaptiveRatioTest(kpMatches: np.ndarray, startingRatio: float, targetFeatureRatio: float, stepSize: float,
+                      timeout=1000) -> List:
     ratioPoints: List = list()
     currentFeatureRatio = 0.0
     counter = 0
@@ -43,6 +44,8 @@ def adaptiveRatioTest(kpMatches: np.ndarray, startingRatio: float, targetFeature
         ratioPoints = ratioTest(kpMatches, startingRatio + stepSize * counter)
         currentFeatureRatio = len(ratioPoints) / len(kpMatches)
         counter += 1
+        if counter > timeout:
+            break
     # print(f"CurrentFeatureRatio: {currentFeatureRatio} with ratio: {startingRatio + (counter - 1) * stepSize}")
     return ratioPoints
 
@@ -72,20 +75,16 @@ def getCoordinateAverage(array):
     avgX = getAvgCoordinate(array[:, 0][:, 0])
     # Grabs only the second column (y values)
     avgY = getAvgCoordinate(array[0, :][0, :])
-
     return avgX, avgY
 
 
 @jit(forceobj=True)
 def getTranslationXY(matchedKp: np.ndarray, prevKp: np.ndarray, currKp: np.ndarray) -> (float, float):
     prevPts, currPts = getSrcDstPointsFromMatches(matchedKp, prevKp, currKp)
-
     prevAvgX, prevAvgY = getCoordinateAverage(prevPts)
     currAvgX, currAvgY = getCoordinateAverage(currPts)
-
     transX = currAvgX - prevAvgX
     transY = currAvgY - prevAvgY
-
     return transX, transY
 
 

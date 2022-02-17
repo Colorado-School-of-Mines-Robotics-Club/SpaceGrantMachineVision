@@ -10,7 +10,7 @@
     "logSystemInfo": true,
     "logParameters": true,
     "logVideoInputInfo": true,
-    "logFrameInfo": false,
+    "logFrameInfo": true,
     "logThreadedCaptureSetup": true
   },
   "iteration_constants": {
