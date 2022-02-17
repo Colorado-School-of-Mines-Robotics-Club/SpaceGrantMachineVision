@@ -29,11 +29,11 @@ def main():
     leftPts, rightPts, leftKp, leftDesc, rightKp, rightDesc = None, None, None, None, None, None
     leftMatches, rightMatches = None, None
     xTranslation, yTranslation = None, None
-    featureDenseBoundingBoxes = None
+    objectBoundingBoxes = None
     disparityMap = None
     while True:
         iterationStartTime = time.perf_counter()
-        if LOG_FRAME_INFO:
+        if LOG_ITERATION_INFO:
             Logger.log(f"#{numTotalIterations}: Started @ {iterationStartTime}")
         try:
             # need to save previous images (if they exist) for visual odometry
@@ -45,7 +45,7 @@ def main():
             prevLeftKp, prevRightKp = leftKp, rightKp
             prevLeftDesc, prevRightDesc = leftDesc, rightDesc
             prevLeftMatches, prevRightMatches = leftMatches, rightMatches
-            prevFeatureDenseBoundingBoxes = featureDenseBoundingBoxes
+            prevObjectBoundingBoxes = objectBoundingBoxes
 
             # save previous frame visual odometry information
             prevDisparityMap = disparityMap
@@ -57,8 +57,6 @@ def main():
                                                                                        threadedDisplay=THREADED_DISPLAY)
             cameraFTs.append(time.perf_counter() - cameraStartTime)
 
-            if numTotalIterations == 153:
-                print("debug point")
             featureStartTime = time.perf_counter()
             # feature points for left and right images
             # the point at index [0], [1], [2], etc. in both is the same real life feature
@@ -71,15 +69,16 @@ def main():
                 computeMatchingPoints(prevGrayLeftImage, grayRightImage, orb, matcher,
                                       ratio=featureParams['startingRatio'], show=not HEADLESS,
                                       threadedDisplay=THREADED_DISPLAY, windowName="Right Matched Features")
-            # xTranslation, yTranslation = getAvgTranslationXY(leftMatches, prevLeftKp, leftKp, rightMatches, prevRightKp,
-            #                                                  rightKp)
+            xTranslation, yTranslation = getAvgTranslationXY(leftMatches, prevLeftKp, leftKp, rightMatches, prevRightKp,
+                                                             rightKp)
             featureFTs.append(time.perf_counter() - featureStartTime)
 
             objectDectStartTime = time.perf_counter()
             # acquires the bounding box cordinates for areas of the image where there are dense features
-            objectBoundingBoxes = objectDetection(leftImage, getPointsFromKeypoints(leftKp), binSize=30.0,
-                                                  featuresPerPixel=0.03, show=not HEADLESS,
-                                                  threadedDisplay=THREADED_DISPLAY)
+            objectBoundingBoxes = objectDetection(leftImage, getPointsFromKeypoints(leftKp),
+                                                  binSize=objectDetectionParams["binSize"],
+                                                  featuresPerPixel=objectDetectionParams["featuresPerPixel"],
+                                                  show=not HEADLESS, threadedDisplay=THREADED_DISPLAY)
             objectDectFTs.append(time.perf_counter() - objectDectStartTime)
 
             disparityStartTime = time.perf_counter()
@@ -93,8 +92,6 @@ def main():
             # ===========================================================================================================
             # TODO
             # Fill in remainder of functionality
-
-            # transXleft, transYleft = getTranslationXY()
 
             # ===========================================================================================================
             # redraws the map
@@ -161,13 +158,14 @@ if __name__ == "__main__":
     runParameters = Config.getRunParameters()
     loggingOptions = Config.getLoggingOptions()
     iterationConstants = Config.getIterationConstantsDict()
-    cameraPorts = Config.getCameraPortsDict()
+    cameraParams = Config.getCamerasDict()
     orbParams = Config.getOrbParamsDict()
     featureParams = Config.getFeatureParamsDict()
+    objectDetectionParams = Config.getObjectDetectionDict()
     sgbmParams = Config.getSBGMParamsDict()
     hardwarePorts = Config.getHardwarePortsDict()
 
-    LOG_FRAME_INFO = loggingOptions['logFrameInfo']
+    LOG_ITERATION_INFO = loggingOptions['logIterationStarts']
 
     # get dictionary with args
     argDict = getArgDict()
@@ -222,10 +220,10 @@ if __name__ == "__main__":
     # inits the DisplayManager
     DisplayManager.init()
 
-    leftCam, rightCam = handleVideoFlag(VIDEO_PATH, cameraPorts["useCapDShow"], cameraPorts['leftPort'],
-                                        cameraPorts['rightPort'])
+    leftCam, rightCam = handleVideoFlag(VIDEO_PATH, cameraParams["useCapDShow"], cameraParams['leftPort'],
+                                        cameraParams['rightPort'])
 
-    initCameras(leftCam, rightCam, setExposure=cameraPorts['setExposure'])
+    initCameras(leftCam, rightCam, setExposure=cameraParams['setExposure'])
 
     leftWriter, rightWriter = handleRecordFlag(RECORD, leftCam, rightCam)
 

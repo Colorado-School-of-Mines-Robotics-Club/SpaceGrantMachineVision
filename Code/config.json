@@ -11,6 +11,7 @@
     "logParameters": true,
     "logVideoInputInfo": true,
     "logFrameInfo": true,
+    "logIterationStarts": true,
     "logThreadedCaptureSetup": true
   },
   "iteration_constants": {
@@ -33,6 +34,10 @@
   },
   "feature_params": {
     "startingRatio": 1.0
+  },
+  "object_detection_params": {
+    "binSize": 30.0,
+    "featuresPerPixel": 0.03
   },
   "sgbm_params": {
     "minDisparity": 0,
