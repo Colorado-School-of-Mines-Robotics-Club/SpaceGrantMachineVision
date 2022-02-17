@@ -86,34 +86,3 @@ def prep_left_and_right_samples():
     # plt.imshow(img3)
     # plt.show()
 
-    # (x, y) coordinates from the first image.    
-    dst_pts = np.float32([kp1[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
-    # (x, y) coordinates from the second image.
-    src_pts = np.float32([kp2[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
-
-    dst_pts = np.array(dst_pts)
-    src_pts = np.array(src_pts)
-
-    # Grabs only the first column (x values)
-    dst_pts_x_translation = getTranslationX(dst_pts[:, 0][:, 0])
-    # Grabs only the second column (y values)
-    dst_pts_y_translation = getTranslationY(dst_pts[0, :][0, :])
-    # Apply the same process to the belows
-    src_pts_x_translation = getTranslationX(src_pts[:, 0][:, 0])
-    src_pts_y_translation = getTranslationY(src_pts[0, :][0, :])
-
-    return 'mock and stubs'
-
-def getTranslationX(array_x):
-    x_val_sum = 0
-    for element in array_x:
-        x_val_sum += element
-    
-    return x_val_sum / len(array_x)
-
-def getTranslationY(array_y):
-    y_val_sum = 0
-    for element in array_y:
-        y_val_sum += element
-    
-    return y_val_sum / len(array_y)

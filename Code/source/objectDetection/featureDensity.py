@@ -4,7 +4,7 @@ from typing import List
 
 # Additional libs
 import numpy as np
-from numba import jit
+from numba import jit, njit, prange
 
 # Custom  imports
 from source.logger.Logger import Logger
@@ -18,7 +18,7 @@ from source.utilities.boundingBoxes import drawBoundingBoxes, combineBoundingBox
 # where x1, y1, x2, y2 are the top left and bottom right image coordinates
 # if the boolean is False the points are all -1
 @jit(nopython=True)
-def isFeatureDense(x: int, y: int, iwidth: int, iheight: int, kp: List, width: int, height: int,
+def isFeatureDense(x: int, y: int, iwidth: int, iheight: int, kp: np.ndarray, width: int, height: int,
                    featurePerPixel: float) -> (int, int, int, int):
     # check if x and y are inside of the image
     # determine the top left and bottom right bounding box coordinates for the region
@@ -54,7 +54,7 @@ def isFeatureDense(x: int, y: int, iwidth: int, iheight: int, kp: List, width: i
 # iterates over every bin in the image and determines if that bin is feature dense
 # if the bin is feature dense, it will save its bounding box
 @jit(nopython=True)
-def getFeatureDenseBoundingBoxes(imageWidth: int, imageHeight: int, pts: List, horzBins: int, vertBins: int,
+def getFeatureDenseBoundingBoxes(imageWidth: int, imageHeight: int, pts: np.ndarray, horzBins: int, vertBins: int,
                                  binSize: int, featuresPerPixel: float) -> List:
     # bounding boxes are stored as [[x1, y1], [x2, y2]]
     boundingBoxes = []

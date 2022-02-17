@@ -12,7 +12,7 @@ import cv2
 from source.logger import Logger, logArguments, logSystemInfo, logConfiguration
 from source.cameras import fetchAndShowCameras, initCameras, closeCameras, DisplayManager, CaptureManager
 from source.visualOdometry import computeDisparity
-from source.features import computeMatchingPoints, getPointsFromKeypoints
+from source.features import computeMatchingPoints, getPointsFromKeypoints, getTranslationXY
 from source.objectDetection import objectDetection
 from source.simulation import Map, Robot
 from source.utilities import getAvgTimeArr, getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag,\
@@ -25,7 +25,7 @@ def main():
     numTotalIterations, consecutiveErrors, iterationCounter, iterationTime = 0, 0, 0, 0
     iterationTimes, cameraFTs, featureFTs, objectDectFTs, disparityFTs = list(), list(), list(), list(), list()
     leftImage, rightImage, grayLeftImage, grayRightImage = None, None, None, None
-    leftPts, rightPts, leftKp, leftDesc, rightKp, rightDesc = None, None, None, None, None, None
+    leftPts, rightPts, leftKp, leftDesc, rightKp, rightDesc, matches = None, None, None, None, None, None, None
     featureDenseBoundingBoxes = None
     disparityMap = None
     while True:
@@ -41,7 +41,7 @@ def main():
             prevLeftPts, prevRightPts = leftPts, rightPts
             prevLeftKp, prevRightKp = leftKp, rightKp
             prevLeftDesc, prevRightDesc = leftDesc, rightDesc
-            prevFeatureDenseBoundingBoxes = featureDenseBoundingBoxes
+            prevFeatureDenseBoundingBoxes, prevMatches = featureDenseBoundingBoxes, matches
 
             # save previous frame visual odometry information
             prevDisparityMap = disparityMap
@@ -56,8 +56,8 @@ def main():
             featureStartTime = time.perf_counter()
             # feature points for left and right images
             # the point at index [0], [1], [2], etc. in both is the same real life feature,
-            leftPts, rightPts, leftKp, leftDesc, rightKp, rightDesc = \
-                computeMatchingPoints(grayLeftImage, grayRightImage, orb, matcher, show=not HEADLESS,
+            leftPts, rightPts, leftKp, leftDesc, rightKp, rightDesc, matches = \
+                computeMatchingPoints(grayLeftImage, grayRightImage, orb, matcher, ratio=1.0, show=not HEADLESS,
                                       threadedDisplay=THREADED_DISPLAY)
             featureFTs.append(time.perf_counter() - featureStartTime)
 
@@ -83,6 +83,8 @@ def main():
             # TESTING
             # pick a random point on the map and increment it
             # Map.updatePoint(random.randrange(0, 100), random.randrange(0, 50), random.randrange(0, 255))
+
+            _ = getTranslationXY(matches, leftKp, rightKp)
 
             # ===========================================================================================================
             # redraws the map
