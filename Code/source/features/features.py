@@ -57,9 +57,9 @@ def computeMatchingPoints(left: np.ndarray, right: np.ndarray, featureDetector: 
                           show=False, threadedDisplay=True) -> (List, List, List, np.ndarray, List, np.ndarray):
     try:
         leftKp, leftDesc, rightKp, rightDesc = getImagePairKeyDesc(left, right, featureDetector)
+        if leftDesc is None or rightDesc is None:
+            return [], [], leftKp, leftDesc, rightKp, rightDesc, list()
         matches = featureMatcher.match(leftDesc, rightDesc)
-        if len(matches) == 0:
-            raise exceptions.FeatureMatchingError("computeMatchingPoints:")
         # sort the matches
         sortedMatches = sortMatches(matches)
         # perform ratio test on matching key points
@@ -70,7 +70,9 @@ def computeMatchingPoints(left: np.ndarray, right: np.ndarray, featureDetector: 
         try:
             left_pts, right_pts = getPointsFromMatches(ratioMatches, leftKp, rightKp)
         except Exception:
-            raise exceptions.FeatureMatchingError("computeMatchingPoints: Could not pull points from features")
+            Logger.log("Warning: Could not pull points from features. No features?")
+            return [], [], leftKp, leftDesc, rightKp, rightDesc, ratioMatches
+            pass
         # show the output
         if show:
             try:

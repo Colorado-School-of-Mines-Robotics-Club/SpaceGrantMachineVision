@@ -24,7 +24,7 @@ def ratioTest(kpMatches: np.ndarray, ratio: float) -> List:
     if len(kpMatches) > 0:
         minDist = kpMatches[0].distance
     else:
-        raise exceptions.FeatureMatchingError("ratioTest: No matched feature points present in kpMatches")
+        minDist = 0.0
     goodDistanceDiffs = []
     for m in kpMatches:
         if m.distance < ratio * minDist:
