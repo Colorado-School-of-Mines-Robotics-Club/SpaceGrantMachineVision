@@ -28,7 +28,8 @@ def main():
     disparityMap = None
     while True:
         iterationStartTime = time.perf_counter()
-        Logger.log(f"#{numTotalIterations}: Started @ {iterationStartTime}")
+        if LOG_FRAME_INFO:
+            Logger.log(f"#{numTotalIterations}: Started @ {iterationStartTime}")
         try:
             # need to save previous images (if they exist) for visual odometry
             prevLeftImage, prevRightImage = leftImage, rightImage
@@ -130,11 +131,14 @@ if __name__ == "__main__":
     # load the configuration file
     Config.init()
     runParameters = Config.getRunParameters()
+    loggingOptions = Config.getLoggingOptions()
     iterationConstants = Config.getIterationConstantsDict()
     cameraPorts = Config.getCameraPortsDict()
     orbParams = Config.getOrbParamsDict()
     sgbmParams = Config.getSBGMParamsDict()
     hardwarePorts = Config.getHardwarePortsDict()
+
+    LOG_FRAME_INFO = loggingOptions['logFrameInfo']
 
     # get dictionary with args
     argDict = getArgDict()
@@ -157,11 +161,14 @@ if __name__ == "__main__":
     # ensure logger init is done before logging anything
     time.sleep(1)
     # log system info
-    logSystemInfo(Logger)
-    # log all arguments
-    logArguments(Logger, argDict)
-    # log all configuration details
-    logConfiguration(Logger)
+    if loggingOptions['logSystemInfo']:
+        logSystemInfo(Logger)
+
+    if loggingOptions['logParameters']:
+        # log all arguments
+        logArguments(Logger, argDict)
+        # log all configuration details
+        logConfiguration(Logger)
 
     # Global constants for any hyper parameters for the code or physical constants
     # Define any global constants

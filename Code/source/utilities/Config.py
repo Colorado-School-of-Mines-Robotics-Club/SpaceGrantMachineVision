@@ -15,6 +15,7 @@ from source.logger.Logger import Logger
 class Config:
     data = dict()
     runParameters = dict()
+    loggingOptions = dict()
     iterationConstants = dict()
     cameraPorts = dict()
     orbParams = dict()
@@ -28,6 +29,7 @@ class Config:
             with open(configFile, 'r') as f:
                 cls.data = json.load(f)
             cls.runParameters = cls.data['run_parameters']
+            cls.loggingOptions = cls.data['logging_options']
             cls.iterationConstants = cls.data['iteration_constants']
             cls.cameraPorts = cls.data['camera_ports']
             cls.orbParams = cls.data['orb_params']
@@ -44,6 +46,10 @@ class Config:
     @classmethod
     def getRunParameters(cls) -> Dict:
         return cls.runParameters
+
+    @classmethod
+    def getLoggingOptions(cls) -> Dict:
+        return cls.loggingOptions
 
     @classmethod
     def getIterationConstantsDict(cls) -> Dict:
