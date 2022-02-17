@@ -1,5 +1,6 @@
 # Built in python libs
 import os
+import random
 import sys
 import time
 
@@ -13,6 +14,7 @@ from source.cameras import fetchAndShowCameras, initCameras, closeCameras, Displ
 from source.visualOdometry import computeDisparity
 from source.features import computeMatchingPoints, getPointsFromKeypoints
 from source.objectDetection import objectDetection
+from source.simulation import Map, Robot
 from source.utilities import getAvgTimeArr, getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag,\
     handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag, Config, exceptions
 
@@ -78,7 +80,19 @@ def main():
             # TODO
             # Fill in remainder of functionality
 
+            # TESTING
+            # pick a random point on the map and increment it
+            # Map.updatePoint(random.randrange(0, 100), random.randrange(0, 50), random.randrange(0, 255))
+
             # ===========================================================================================================
+            # redraws the map
+            mapDisplay = Map.draw()
+            mapDisplay = Robot.draw(mapDisplay)
+            if not HEADLESS:
+                if THREADED_DISPLAY:
+                    DisplayManager.show("Current Map", mapDisplay)
+                else:
+                    cv2.imshow("Current Map", mapDisplay)
             # handles saving the video feed
             if RECORD:
                 leftWriter.write(leftImage)
@@ -100,7 +114,7 @@ def main():
             # Possibly instead of restarting, we might want to look into
             Logger.log(
                 f"{str(e)} -> Occured in primary operation loop of program. " +
-                "Failed iterations in a row: {consecutiveErrors}")
+                f"Failed iterations in a row: {consecutiveErrors}")
             consecutiveErrors += 1
             if consecutiveErrors > errorTolerance:
                 Logger.log("RESTARTING PRIMARY CONTROL LOOP")
@@ -202,6 +216,10 @@ if __name__ == "__main__":
 
     if not HEADLESS:
         handleThreadedDisplayFlag(THREADED_DISPLAY)
+
+    # define the map
+    Map = Map()
+    Robot = Robot()
 
     # being primary loop
     Logger.log("Program starting...")
