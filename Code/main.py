@@ -207,10 +207,10 @@ if __name__ == "__main__":
     # inits the DisplayManager
     DisplayManager.init()
 
-    leftCam, rightCam = handleVideoFlag(VIDEO_PATH, cameraPorts['use_cap_dshow'], cameraPorts['leftPort'],
+    leftCam, rightCam = handleVideoFlag(VIDEO_PATH, cameraPorts["useCapDShow"], cameraPorts['leftPort'],
                                         cameraPorts['rightPort'])
 
-    initCameras(leftCam, rightCam, setExposure=cameraPorts['set_exposure'], log=cameraPorts['log_cameras'])
+    initCameras(leftCam, rightCam, setExposure=cameraPorts['setExposure'])
 
     leftWriter, rightWriter = handleRecordFlag(RECORD, leftCam, rightCam)
 
@@ -219,7 +219,7 @@ if __name__ == "__main__":
 
     # define the map
     Map = Map()
-    Robot = Robot()
+    # Robot = Robot()
 
     # being primary loop
     Logger.log("Program starting...")

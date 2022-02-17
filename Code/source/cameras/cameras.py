@@ -72,8 +72,8 @@ def fetchAndShowCameras(leftSource: int, rightSource: int, show=True, threadedDi
 def initCameras(leftCam: int, rightCam: int, setExposure=False, log=False):
     leftK, rightK, leftDistC, rightDistC = loadUndistortionFiles()
     # start CaptureManager for left and right cameras
-    left = createCaptureSourceData(source=leftCam, K=leftK, distC=leftDistC, setExposure=setExposure, log=log)
-    right = createCaptureSourceData(source=rightCam, K=rightK, distC=rightDistC, setExposure=setExposure, log=log)
+    left = createCaptureSourceData(source=leftCam, K=leftK, distC=leftDistC, setExposure=setExposure)
+    right = createCaptureSourceData(source=rightCam, K=rightK, distC=rightDistC, setExposure=setExposure)
     CaptureManager.init([left, right])
     # sleep time for cameras to read in a frame
     leftImage, rightImage = fetchCameraImages(leftCam, rightCam)
