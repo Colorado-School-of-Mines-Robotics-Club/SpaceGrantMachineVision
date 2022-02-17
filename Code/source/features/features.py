@@ -10,6 +10,7 @@ from numba import jit
 from source.logger.Logger import Logger
 from source.utilities import exceptions
 from source.cameras import DisplayManager
+from .advancedFeatures import adaptiveRatioTest
 
 
 # function that given to images computes their features
@@ -38,6 +39,7 @@ def getPointsFromKeypoints(kp: List) -> np.ndarray:
 
 # sorts matched keypoints returned directly from the cv2.matcher object
 # this sorts them by distance
+# @jit(forceobj=True)
 def sortMatches(matches: List) -> np.ndarray:
     return np.array(sorted(matches, key=lambda x: x.distance))
 
@@ -48,61 +50,42 @@ def getPointsFromMatches(matches: List, leftKp: List, rightKp: List) -> (List, L
     return [leftKp[mat.queryIdx].pt for mat in matches], [rightKp[mat.trainIdx].pt for mat in matches]
 
 
-# performs the ratio test on a set of matched keypoints
-# the ratio test filters matched keypoints out if they are greater than the minimum seperation between matched
-# by a set amount. The usual value is 3. Thus, if the distance between two matched features is 3 times larger than the
-# minimum pixel distance between 2 matched features, than we can say it is invalid and in outlier.
-# This is because the typical image to image comparision will have a small change between frames
-# takes a list of keypoints, a minimum distance, and a given ratio
-# kpMatches must be SORTED for optimization purposes
-@jit(forceobj=True)
-def ratioTest(kpMatches: np.ndarray, ratio: float) -> List:
-    if len(kpMatches) > 0:
-        minDist = kpMatches[0].distance
-    else:
-        raise exceptions.FeatureMatchingError("ratioTest: No matched feature points present in kpMatches")
-    goodDistanceDiffs = []
-    for m in kpMatches:
-        if m.distance < ratio * minDist:
-            goodDistanceDiffs.append(m)
-        else:
-            break
-    return goodDistanceDiffs
-
-
 # funtion that computes the matching features between two images and returns the corresponding points
 # takes two grayscale images, a feature detector, and a matcher
 # the showMatches optional parameter shows the total features and not the ones acquired through the ratio test
-def computeMatchingPoints(left: np.ndarray, right: np.ndarray, featureDetector: cv2.ORB, featureMatcher, ratio=3.5,
-                          show=False, threadedDisplay=True) -> (List, List, List, np.ndarray, List, np.ndarray):
+def computeMatchingPoints(left: np.ndarray, right: np.ndarray, featureDetector: cv2.ORB, featureMatcher, ratio=1.0,
+                          show=False, threadedDisplay=True, windowName="Matched Features") -> (List, List, List,
+                                                                                               np.ndarray, List,
+                                                                                               np.ndarray, np.ndarray):
     try:
         leftKp, leftDesc, rightKp, rightDesc = getImagePairKeyDesc(left, right, featureDetector)
+        if leftDesc is None or rightDesc is None:
+            return [], [], leftKp, leftDesc, rightKp, rightDesc, list()
         matches = featureMatcher.match(leftDesc, rightDesc)
-        if len(matches) == 0:
-            raise exceptions.FeatureMatchingError("computeMatchingPoints:")
         # sort the matches
         sortedMatches = sortMatches(matches)
         # perform ratio test on matching key points
-        ratioMatches = ratioTest(sortedMatches, ratio=ratio)
+        ratioMatches = adaptiveRatioTest(sortedMatches, startingRatio=ratio, targetFeatureRatio=0.1, stepSize=0.04)
         if len(ratioMatches) == 0:
             ratioMatches = sortedMatches
         # extract image coordinates of matches
         try:
             left_pts, right_pts = getPointsFromMatches(ratioMatches, leftKp, rightKp)
         except Exception:
-            raise exceptions.FeatureMatchingError("computeMatchingPoints: Could not pull points from features")
+            Logger.log("Warning: Could not pull points from features. No features?")
+            return [], [], leftKp, leftDesc, rightKp, rightDesc, ratioMatches
+            pass
         # show the output
         if show:
             try:
-                # uses 7% compute time on i7-7700k
                 matchedImg = cv2.drawMatches(left, leftKp, right, rightKp, ratioMatches, None, flags=2)
                 if threadedDisplay:
-                    DisplayManager.show("Matched Features", matchedImg)
+                    DisplayManager.show(windowName, matchedImg)
                 else:
-                    cv2.imshow("Matched Features", matchedImg)
+                    cv2.imshow(windowName, matchedImg)
             except Exception:
                 Logger.log("    computeMatchingPoints -> Failed to display matches")
                 raise exceptions.FeatureDrawingError()
-        return left_pts, right_pts, leftKp, leftDesc, rightKp, rightDesc
+        return left_pts, right_pts, leftKp, leftDesc, rightKp, rightDesc, ratioMatches
     except Exception as e:  # generic exception catcher, just return no list of points
         raise e

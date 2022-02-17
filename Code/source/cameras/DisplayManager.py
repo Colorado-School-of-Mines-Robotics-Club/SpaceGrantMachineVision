@@ -5,8 +5,10 @@ from cv2 import error as cv2Error
 
 from .ThreadedDisplay import ThreadedDisplay
 
+
 def createDisplaySourceData(windowName="Output", frame=None) -> List:
     return [windowName, frame]
+
 
 class DisplayManager:
     """
