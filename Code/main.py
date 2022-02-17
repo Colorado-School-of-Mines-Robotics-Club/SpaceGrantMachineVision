@@ -142,8 +142,13 @@ def main():
 
 # denotes program entered in this file, the main thread
 if __name__ == "__main__":
+    # get dictionary with cli args
+    argDict = getArgDict()
+    # sets global flags from boolean arguments
+    HEADLESS, CLEAR_LOG, RECORD, THREADED_DISPLAY = getArgFlags(argDict)
+
     # load the configuration file
-    Config.init()
+    Config.init(argDict['config'])
     runParameters = Config.getRunParameters()
     loggingOptions = Config.getLoggingOptions()
     iterationConstants = Config.getIterationConstantsDict()
@@ -153,11 +158,6 @@ if __name__ == "__main__":
     hardwarePorts = Config.getHardwarePortsDict()
 
     LOG_FRAME_INFO = loggingOptions['logFrameInfo']
-
-    # get dictionary with args
-    argDict = getArgDict()
-    # sets global flags from boolean arguments
-    HEADLESS, CLEAR_LOG, RECORD, THREADED_DISPLAY = getArgFlags(argDict)
 
     # Merge config file run parameters with runtime args
     HEADLESS = HEADLESS or runParameters['headless']
