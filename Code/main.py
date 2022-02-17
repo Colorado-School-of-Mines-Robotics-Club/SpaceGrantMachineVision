@@ -1,6 +1,7 @@
 # Built in python libs
 import os
 import random
+import signal
 import sys
 import time
 
@@ -12,7 +13,7 @@ import cv2
 from source.logger import Logger, logArguments, logSystemInfo, logConfiguration
 from source.cameras import fetchAndShowCameras, initCameras, closeCameras, DisplayManager, CaptureManager
 from source.visualOdometry import computeDisparity
-from source.features import computeMatchingPoints, getPointsFromKeypoints, getTranslationXY
+from source.features import computeMatchingPoints, getPointsFromKeypoints, getAvgTranslationXY
 from source.objectDetection import objectDetection
 from source.simulation import Map, Robot
 from source.utilities import getAvgTimeArr, getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag,\
@@ -25,7 +26,9 @@ def main():
     numTotalIterations, consecutiveErrors, iterationCounter, iterationTime = 0, 0, 0, 0
     iterationTimes, cameraFTs, featureFTs, objectDectFTs, disparityFTs = list(), list(), list(), list(), list()
     leftImage, rightImage, grayLeftImage, grayRightImage = None, None, None, None
-    leftPts, rightPts, leftKp, leftDesc, rightKp, rightDesc, matches = None, None, None, None, None, None, None
+    leftPts, rightPts, leftKp, leftDesc, rightKp, rightDesc = None, None, None, None, None, None
+    leftMatches, rightMatches = None, None
+    xTranslation, yTranslation = None, None
     featureDenseBoundingBoxes = None
     disparityMap = None
     while True:
@@ -41,7 +44,8 @@ def main():
             prevLeftPts, prevRightPts = leftPts, rightPts
             prevLeftKp, prevRightKp = leftKp, rightKp
             prevLeftDesc, prevRightDesc = leftDesc, rightDesc
-            prevFeatureDenseBoundingBoxes, prevMatches = featureDenseBoundingBoxes, matches
+            prevLeftMatches, prevRightMatches = leftMatches, rightMatches
+            prevFeatureDenseBoundingBoxes = featureDenseBoundingBoxes
 
             # save previous frame visual odometry information
             prevDisparityMap = disparityMap
@@ -53,12 +57,22 @@ def main():
                                                                                        threadedDisplay=THREADED_DISPLAY)
             cameraFTs.append(time.perf_counter() - cameraStartTime)
 
+            if numTotalIterations > 150:
+                print("debug point")
             featureStartTime = time.perf_counter()
             # feature points for left and right images
-            # the point at index [0], [1], [2], etc. in both is the same real life feature,
-            leftPts, rightPts, leftKp, leftDesc, rightKp, rightDesc, matches = \
-                computeMatchingPoints(grayLeftImage, grayRightImage, orb, matcher, ratio=1.0, show=not HEADLESS,
-                                      threadedDisplay=THREADED_DISPLAY)
+            # the point at index [0], [1], [2], etc. in both is the same real life feature
+            # COMPUTES MATCHING FEATURES ACROSS BOTH CURRENT IMAGES
+            prevLeftPts, leftPts, prevLeftKp, prevLeftDesc, leftKp, leftDesc, leftMatches = \
+                computeMatchingPoints(prevGrayLeftImage, grayLeftImage, orb, matcher,
+                                      ratio=featureParams['startingRatio'], show=not HEADLESS,
+                                      threadedDisplay=THREADED_DISPLAY, windowName="Left Matched Features")
+            prevRightPts, rightPts, prevRightKp, prevRightDesc, rightKp, rightDesc, rightMatches = \
+                computeMatchingPoints(prevGrayLeftImage, grayRightImage, orb, matcher,
+                                      ratio=featureParams['startingRatio'], show=not HEADLESS,
+                                      threadedDisplay=THREADED_DISPLAY, windowName="Right Matched Features")
+            # xTranslation, yTranslation = getAvgTranslationXY(leftMatches, prevLeftKp, leftKp, rightMatches, prevRightKp,
+            #                                                  rightKp)
             featureFTs.append(time.perf_counter() - featureStartTime)
 
             objectDectStartTime = time.perf_counter()
@@ -80,14 +94,7 @@ def main():
             # TODO
             # Fill in remainder of functionality
 
-            # TESTING
-            # pick a random point on the map and increment it
-            # Map.updatePoint(random.randrange(0, 100), random.randrange(0, 50), random.randrange(0, 255))
-
-            try:
-                _ = getTranslationXY(matches, leftKp, rightKp)
-            except Exception:
-                pass
+            # transXleft, transYleft = getTranslationXY()
 
             # ===========================================================================================================
             # redraws the map
@@ -115,6 +122,8 @@ def main():
             break
         except KeyboardInterrupt as e:
             raise e
+        except exceptions.CameraReadError:
+            break
         except Exception as e:
             # Possibly instead of restarting, we might want to look into
             Logger.log(
@@ -154,6 +163,7 @@ if __name__ == "__main__":
     iterationConstants = Config.getIterationConstantsDict()
     cameraPorts = Config.getCameraPortsDict()
     orbParams = Config.getOrbParamsDict()
+    featureParams = Config.getFeatureParamsDict()
     sgbmParams = Config.getSBGMParamsDict()
     hardwarePorts = Config.getHardwarePortsDict()
 
@@ -233,12 +243,14 @@ if __name__ == "__main__":
             Logger.log("Starting loop...")
             main()
             Logger.log("Shutdown loop...")
-            # sleep and then check for keyboardInterupt will fully kill program
+            # sleep and then check for keyboardInterrupt will fully kill program
             time.sleep(1)
             keyPressed = cv2.waitKey(1) & 0xFF
             if keyPressed == 27:
                 Logger.log("Starting Program shutdown...")
                 break
+        except exceptions.CameraReadError:
+            sys.exit(1)
         except KeyboardInterrupt:
             Logger.log("Keyboard Interrupt handled in main")
             print("Keyboard Interrupt handled in main")

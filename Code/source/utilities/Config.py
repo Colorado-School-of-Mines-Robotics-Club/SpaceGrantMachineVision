@@ -19,6 +19,7 @@ class Config:
     iterationConstants = dict()
     cameraPorts = dict()
     orbParams = dict()
+    featureParams = dict()
     sgbmParams = dict()
     filepaths = dict()
     hardwarePorts = dict()
@@ -33,6 +34,7 @@ class Config:
             cls.iterationConstants = cls.data['iteration_constants']
             cls.cameraPorts = cls.data['camera_ports']
             cls.orbParams = cls.data['orb_params']
+            cls.featureParams = cls.data['feature_params']
             cls.sgbmParams = cls.data['sgbm_params']
             cls.filepaths = cls.data['file_paths']
             cls.hardwarePorts = cls.data['hardware_ports']
@@ -66,6 +68,10 @@ class Config:
     @classmethod
     def getOrbParamsDict(cls) -> Dict:
         return cls.orbParams
+
+    @classmethod
+    def getFeatureParamsDict(cls) -> Dict:
+        return cls.featureParams
 
     @classmethod
     def getSBGMParamsDict(cls) -> Dict:

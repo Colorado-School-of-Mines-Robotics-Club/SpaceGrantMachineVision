@@ -46,40 +46,52 @@ def adaptiveRatioTest(kpMatches: np.ndarray, startingRatio: float, targetFeature
     # print(f"CurrentFeatureRatio: {currentFeatureRatio} with ratio: {startingRatio + (counter - 1) * stepSize}")
     return ratioPoints
 
-# actually gets average X
-@njit(fastmath=True)
-def getTranslationX(array_x):
-    x_val_sum = 0
-    for element in array_x:
-        x_val_sum += element
-    return x_val_sum / len(array_x)
 
-# actually gets average Y
-@njit(fastmath=True)
-def getTranslationY(array_y):
-    y_val_sum = 0
-    for element in array_y:
-        y_val_sum += element
-    return y_val_sum / len(array_y)
-
-
-def getTranslationXY(matchedKp: np.ndarray, prevKp: np.ndarray, currKp: np.ndarray) -> (float, float):
+@jit(forceobj=True)
+def getSrcDstPointsFromMatches(matchedKp, prevKp, currKp):
     # (x, y) coordinates from the first image.
-    dst_pts = np.float32([prevKp[m.trainIdx].pt for m in matchedKp]).reshape(-1, 1, 2)
+    prevPts = np.float32([prevKp[m.trainIdx].pt for m in matchedKp]).reshape(-1, 1, 2)
     # (x, y) coordinates from the second image.
-    src_pts = np.float32([currKp[m.trainIdx].pt for m in matchedKp]).reshape(-1, 1, 2)
+    currPts = np.float32([currKp[m.trainIdx].pt for m in matchedKp]).reshape(-1, 1, 2)
+    # converts to np.arrays
+    return np.array(prevPts), np.array(currPts)
 
-    dst_pts = np.array(dst_pts)
-    src_pts = np.array(src_pts)
 
-    # gets average x,y cordinates CURRENTLY
+# actually gets average X
+@jit(nopython=True)
+def getAvgCoordinate(array):
+    x_val_sum = 0
+    for element in array:
+        x_val_sum += element
+    return x_val_sum / len(array)
+
+
+@jit(forceobj=True)
+def getCoordinateAverage(array):
     # Grabs only the first column (x values)
-    dst_pts_x_translation = getTranslationX(dst_pts[:, 0][:, 0])
+    avgX = getAvgCoordinate(array[:, 0][:, 0])
     # Grabs only the second column (y values)
-    dst_pts_y_translation = getTranslationY(dst_pts[0, :][0, :])
-    # Apply the same process to the belows
-    src_pts_x_translation = getTranslationX(src_pts[:, 0][:, 0])
-    src_pts_y_translation = getTranslationY(src_pts[0, :][0, :])
+    avgY = getAvgCoordinate(array[0, :][0, :])
 
-    return 'mock and stubs'
+    return avgX, avgY
 
+
+@jit(forceobj=True)
+def getTranslationXY(matchedKp: np.ndarray, prevKp: np.ndarray, currKp: np.ndarray) -> (float, float):
+    prevPts, currPts = getSrcDstPointsFromMatches(matchedKp, prevKp, currKp)
+
+    prevAvgX, prevAvgY = getCoordinateAverage(prevPts)
+    currAvgX, currAvgY = getCoordinateAverage(currPts)
+
+    transX = currAvgX - prevAvgX
+    transY = currAvgY - prevAvgY
+
+    return transX, transY
+
+
+@jit(forceobj=True)
+def getAvgTranslationXY(leftMatches: np.ndarray, prevLeftKp: np.ndarray, leftKp: np.ndarray, rightMatches: np.ndarray,
+                        prevRightKp: np.ndarray, rightKp: np.ndarray) -> (float, float):
+    leftX, leftY = getTranslationXY(leftMatches, prevLeftKp, leftKp)
+    rightX, rightY = getTranslationXY(rightMatches, prevRightKp, rightKp)
+    return (leftX + rightX) / 2, (leftY + rightY) / 2

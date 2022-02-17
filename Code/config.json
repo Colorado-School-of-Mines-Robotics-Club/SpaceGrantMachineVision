@@ -31,6 +31,9 @@
     "firstLevel": 0,
     "patchSize": 31
   },
+  "feature_params": {
+    "startingRatio": 1.0
+  },
   "sgbm_params": {
     "minDisparity": 0,
     "numDisparities": 112,

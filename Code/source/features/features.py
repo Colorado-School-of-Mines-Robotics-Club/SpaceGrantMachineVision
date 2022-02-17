@@ -54,7 +54,9 @@ def getPointsFromMatches(matches: List, leftKp: List, rightKp: List) -> (List, L
 # takes two grayscale images, a feature detector, and a matcher
 # the showMatches optional parameter shows the total features and not the ones acquired through the ratio test
 def computeMatchingPoints(left: np.ndarray, right: np.ndarray, featureDetector: cv2.ORB, featureMatcher, ratio=1.0,
-                          show=False, threadedDisplay=True) -> (List, List, List, np.ndarray, List, np.ndarray):
+                          show=False, threadedDisplay=True, windowName="Matched Features") -> (List, List, List,
+                                                                                               np.ndarray, List,
+                                                                                               np.ndarray, np.ndarray):
     try:
         leftKp, leftDesc, rightKp, rightDesc = getImagePairKeyDesc(left, right, featureDetector)
         if leftDesc is None or rightDesc is None:
@@ -76,12 +78,11 @@ def computeMatchingPoints(left: np.ndarray, right: np.ndarray, featureDetector: 
         # show the output
         if show:
             try:
-                # uses 7% compute time on i7-7700k
                 matchedImg = cv2.drawMatches(left, leftKp, right, rightKp, ratioMatches, None, flags=2)
                 if threadedDisplay:
-                    DisplayManager.show("Matched Features", matchedImg)
+                    DisplayManager.show(windowName, matchedImg)
                 else:
-                    cv2.imshow("Matched Features", matchedImg)
+                    cv2.imshow(windowName, matchedImg)
             except Exception:
                 Logger.log("    computeMatchingPoints -> Failed to display matches")
                 raise exceptions.FeatureDrawingError()
