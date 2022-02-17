@@ -14,7 +14,7 @@ from source.utilities.Config import Config
 
 
 class Map:
-    def __init__(self, nodeLayout=(100, 50), scaleFactor=9):
+    def __init__(self, nodeLayout=(100, 51), scaleFactor=9):
         self.nodeLayout = nodeLayout
         self.scaleFactor = scaleFactor
         self.imageSize = (self.nodeLayout[0]*self.scaleFactor, self.nodeLayout[1]*self.scaleFactor, 3)

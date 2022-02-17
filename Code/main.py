@@ -14,7 +14,7 @@ from source.cameras import fetchAndShowCameras, initCameras, closeCameras, Displ
 from source.visualOdometry import computeDisparity
 from source.features import computeMatchingPoints, getPointsFromKeypoints
 from source.objectDetection import objectDetection
-from source.simulation import Map
+from source.simulation import Map, Robot
 from source.utilities import getAvgTimeArr, getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag,\
     handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag, Config, exceptions
 
@@ -81,15 +81,17 @@ def main():
 
             # TESTING
             # pick a random point on the map and increment it
-            Map.updatePoint(random.randrange(0, 100), random.randrange(0, 50), random.randrange(0, 255))
+            # Map.updatePoint(random.randrange(0, 100), random.randrange(0, 50), random.randrange(0, 255))
 
             # ===========================================================================================================
             # redraws the map
+            mapDisplay = Map.draw()
+            mapDisplay = Robot.draw(mapDisplay)
             if not HEADLESS:
                 if THREADED_DISPLAY:
-                    DisplayManager.show("Current Map", Map.draw())
+                    DisplayManager.show("Current Map", mapDisplay)
                 else:
-                    cv2.imshow("Current Map", Map.draw())
+                    cv2.imshow("Current Map", mapDisplay)
             # handles saving the video feed
             if RECORD:
                 leftWriter.write(leftImage)
@@ -209,6 +211,7 @@ if __name__ == "__main__":
 
     # define the map
     Map = Map()
+    Robot = Robot()
 
     # being primary loop
     Logger.log("Program starting...")
