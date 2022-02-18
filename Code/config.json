@@ -48,9 +48,9 @@
     "blockSize": 3,
     "P1": 27,
     "P2": 675,
-    "disp12MaxDiff": -1,
+    "disp12MaxDiff": 0,
     "preFilterCap": 0,
-    "uniquenessRatio": 15,
+    "uniquenessRatio": 0,
     "speckleWindowSize": 0,
     "speckleRange": 0
   },
@@ -59,9 +59,33 @@
     "calibrationPath": "Data/Calibration/"
   },
   "hardware_ports": {
-    "encoder1": 0,
-    "encoder2": 1,
-    "encoder3": 2,
-    "encoder4": 3
+    "motor_encoders": {
+      "encoder1": 0,
+      "encoder2": 1,
+      "encoder3": 2,
+      "encoder4": 3
+    },
+    "servo_ports": {
+      "wheel1": {
+        "servo1": 0,
+        "servo2": 0
+      },
+      "wheel2": {
+        "servo1": 0,
+        "servo2": 0
+      },
+      "wheel3": {
+        "servo1": 0,
+        "servo2": 0
+      },
+      "wheel4": {
+        "servo1": 0,
+        "servo2": 0
+      }
+    },
+    "sensors": {
+      "accelerometer": 0,
+      "xbee": 1
+    }
   }
 }

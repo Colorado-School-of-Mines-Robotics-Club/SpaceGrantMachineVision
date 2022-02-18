@@ -28,7 +28,7 @@ def logArguments(logger: Type[Logger], args: Dict):
         logger.log(f"    {arg}: {val}")
 
 
-def logConfiguration(logger: Type[Logger], config=None, spacing="    ", first=True):
+def logConfiguration(logger: Type[Logger], config=None, spacing="    ", first=True, level=1):
     if config is None:
         Config.init()
         config = Config.getConfig()
@@ -36,7 +36,7 @@ def logConfiguration(logger: Type[Logger], config=None, spacing="    ", first=Tr
         logger.log("CONFIGURATION:")
     for key, val in config.items():
         if isinstance(val, dict):
-            logger.log(f"{spacing}{key}")
-            logConfiguration(logger, config=val, spacing=2*spacing, first=False)
+            logger.log(f"{spacing*level}{key}")
+            logConfiguration(logger, config=val, spacing=spacing, first=False, level=level+1)
         else:
-            logger.log(f"{spacing}{key}: {val}")
+            logger.log(f"{spacing*level}{key}: {val}")

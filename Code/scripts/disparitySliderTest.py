@@ -14,15 +14,17 @@ def nothing(x):
     pass
 
 
-cv2.namedWindow('disp', cv2.WINDOW_NORMAL)
-
-cv2.createTrackbar('numDisparities', 'disp', 1, 17, nothing)
-cv2.createTrackbar('blockSize', 'disp', 5, 50, nothing)
-cv2.createTrackbar('uniquenessRatio', 'disp', 15, 100, nothing)
-cv2.createTrackbar('speckleRange', 'disp', 0, 100, nothing)
-cv2.createTrackbar('speckleWindowSize', 'disp', 3, 25, nothing)
-cv2.createTrackbar('disp12MaxDiff', 'disp', 5, 25, nothing)
-cv2.createTrackbar('minDisparity', 'disp', 5, 25, nothing)
+cv2.namedWindow("SliderWindow", cv2.WINDOW_NORMAL)
+cv2.createTrackbar('minDisparity', "SliderWindow", 5, 25, nothing)
+cv2.createTrackbar('numDisparities', "SliderWindow", 1, 17, nothing)
+cv2.createTrackbar('blockSize', "SliderWindow", 5, 50, nothing)
+cv2.createTrackbar('P1', "SliderWindow", 0, 1000, nothing)
+cv2.createTrackbar('P2', "SliderWindow", 0, 10000, nothing)
+cv2.createTrackbar('disp12MaxDiff', "SliderWindow", 5, 25, nothing)
+cv2.createTrackbar('preFilterCap', "SliderWindow", 0, 50, nothing)
+cv2.createTrackbar('uniquenessRatio', "SliderWindow", 15, 100, nothing)
+cv2.createTrackbar('speckleWindowSize', "SliderWindow", 3, 25, nothing)
+cv2.createTrackbar('speckleRange', "SliderWindow", 0, 100, nothing)
 
 # Creating an object of StereoBM algorithm
 stereo = cv2.StereoSGBM_create()
@@ -56,13 +58,17 @@ while True:
         Left_nice, Right_nice = imgL_gray, imgR_gray
 
         # Updating the parameters based on the trackbar positions
-        numDisparities = cv2.getTrackbarPos('numDisparities', 'disp') * 16
-        blockSize = cv2.getTrackbarPos('blockSize', 'disp') * 2 + 5
-        uniquenessRatio = cv2.getTrackbarPos('uniquenessRatio', 'disp')
-        speckleRange = cv2.getTrackbarPos('speckleRange', 'disp')
-        speckleWindowSize = cv2.getTrackbarPos('speckleWindowSize', 'disp') * 2
-        disp12MaxDiff = cv2.getTrackbarPos('disp12MaxDiff', 'disp')
-        minDisparity = cv2.getTrackbarPos('minDisparity', 'disp')
+        minDisparity = cv2.getTrackbarPos('minDisparity', "SliderWindow")
+        numDisparities = cv2.getTrackbarPos('numDisparities', "SliderWindow") * 16
+        blockSize = cv2.getTrackbarPos('blockSize', "SliderWindow") * 2 + 5
+        P1 = cv2.getTrackbarPos('P1', "SliderWindow")
+        P2 = cv2.getTrackbarPos('P2', "SliderWindow")
+        disp12MaxDiff = cv2.getTrackbarPos('disp12MaxDiff', "SliderWindow")
+        preFilterCap = cv2.getTrackbarPos('preFilterCap', "SliderWindow")
+        uniquenessRatio = cv2.getTrackbarPos('uniquenessRatio', "SliderWindow")
+        speckleWindowSize = cv2.getTrackbarPos('speckleWindowSize', "SliderWindow") * 2
+        speckleRange = cv2.getTrackbarPos('speckleRange', "SliderWindow")
+
 
         # Setting the updated parameters before computing disparity map
         stereo.setNumDisparities(numDisparities)
@@ -72,6 +78,9 @@ while True:
         stereo.setSpeckleWindowSize(speckleWindowSize)
         stereo.setDisp12MaxDiff(disp12MaxDiff)
         stereo.setMinDisparity(minDisparity)
+        stereo.setPreFilterCap(preFilterCap)
+        stereo.setP1(P1)
+        stereo.setP2(P2)
 
         # Calculating disparity using the StereoBM algorithm
         disparity = stereo.compute(Left_nice, Right_nice)
