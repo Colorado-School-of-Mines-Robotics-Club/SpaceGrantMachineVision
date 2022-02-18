@@ -12,7 +12,8 @@
     "logVideoInputInfo": true,
     "logFrameInfo": true,
     "logIterationStarts": true,
-    "logThreadedCaptureSetup": true
+    "logThreadedCaptureSetup": true,
+    "logCameraRectification": true
   },
   "iteration_constants": {
     "errorTolerance": 2,

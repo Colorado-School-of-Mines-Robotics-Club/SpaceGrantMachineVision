@@ -12,15 +12,12 @@ class ThreadedCapture:
         Class that continuously gets frames from a VideoCapture object
         with a dedicated thread.
     """
-
-    LOG_FRAME_INFO = True
-    LOG_VIDEO_INPUT_INFO = True
-
     def __init__(self, source, fps=None, delayOffset=1.0, K=None, distC=None, setExposure=False, autoExposure=1.0,
                  exposure=100.0, framesAutoFPS=5):
         self.LOG_SETUP = Config.getLoggingOptions()['logThreadedCaptureSetup']
         self.LOG_FRAME_INFO = Config.getLoggingOptions()['logFrameInfo']
         self.LOG_VIDEO_INPUT_INFO = Config.getLoggingOptions()['logVideoInputInfo']
+        self.LOG_CAMERA_RECTIFICATION = Config.getLoggingOptions()['logCameraRectification']
         # define delay from fps
         # if fps does not exist then define it automatically at the end of init
         if fps is not None:
@@ -97,6 +94,14 @@ class ThreadedCapture:
                 h, w = frame.shape[:2]
                 self.newK, self.roi = cv2.getOptimalNewCameraMatrix(self.K, self.distC, (w, h), 1, (w, h))
                 self.x, self.y, self.w, self.h = self.roi
+                if self.LOG_CAMERA_RECTIFICATION:
+                    printK = str(self.K).replace('\n', '')
+                    printNewK = str(self.newK).replace('\n', '')
+                    printDistC = str(self.distC).replace('\n', '')
+                    Logger.log(f"   K: {printK}")
+                    Logger.log(f"   New K: {printNewK}")
+                    Logger.log(f"   Distortion Coefficients: {printDistC}")
+                    Logger.log(f"   Width: {self.w}, Height: {self.h}")
         except Exception as e:
             raise Exception(f'Error computing new K matrix for video source: {self.source} -> {e}')
         # automatic fps calibration

@@ -17,6 +17,7 @@ class CaptureManager:
     """
     # generate a dict indexed by source to aggregate the threads
     sources = dict()
+
     # sources is a list of lists formed where each entry should be created by createSourceData
     @classmethod
     def init(cls, sources: List):
@@ -24,6 +25,13 @@ class CaptureManager:
         for src in sources:
             cls.sources[src[0]] = ThreadedCapture(src[0], src[1], src[2], src[3], src[4], src[5], src[6], src[7],
                                                   src[8]).start()
+
+    @classmethod
+    def haveCamerasRead(cls):
+        for source, thread in cls.sources.items():
+            if thread.getFrame() is None:
+                return False
+        return True
 
     # gets the frame from a specific source
     @classmethod
