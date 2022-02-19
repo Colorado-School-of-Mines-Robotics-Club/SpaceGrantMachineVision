@@ -26,7 +26,7 @@
     "rightPort" : 1
   },
   "orb_params": {
-    "nfeatures": 250,
+    "nfeatures": 500,
     "scaleFactor": 1.2,
     "nlevels": 8,
     "edgeThreshold": 31,
@@ -45,7 +45,7 @@
   },
   "sgbm_params": {
     "minDisparity": 0,
-    "numDisparities": 16,
+    "numDisparities": 32,
     "blockSize": 3,
     "P1": 27,
     "P2": 675,
