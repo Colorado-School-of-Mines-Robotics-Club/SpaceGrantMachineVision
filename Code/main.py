@@ -97,15 +97,15 @@ def main():
             # TODO
             # Fill in remainder of functionality
 
-            # ===========================================================================================================
-            # redraws the map
-            mapDisplay = Map.draw()
+            # # ===========================================================================================================
+            # # redraws the map
+            # mapDisplay = Map.draw()
             # mapDisplay = Robot.draw(mapDisplay)
-            if not HEADLESS:
-                if THREADED_DISPLAY:
-                    DisplayManager.show("Current Map", mapDisplay)
-                else:
-                    cv2.imshow("Current Map", mapDisplay)
+            # if not HEADLESS:
+            #     if THREADED_DISPLAY:
+            #         DisplayManager.show("Current Map", mapDisplay)
+            #     else:
+            #         cv2.imshow("Current Map", mapDisplay)
             # handles saving the video feed
             if RECORD:
                 leftWriter.write(leftImage)
