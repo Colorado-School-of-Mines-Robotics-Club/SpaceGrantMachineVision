@@ -13,7 +13,7 @@ from numba import jit, njit
 # Custom  imports
 from source.logger.Logger import Logger
 from source.utilities import exceptions
-from source.utilities.boundingBoxes import drawBoundingBoxes, cv2npContourBoxes
+from source.utilities.boundingBoxes import drawBoundingBoxes, cv2RectToNpBoxes
 from source.features.features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
 from .featureDensity import findFeatureDenseBoundingBoxes
 from .contourDetection import getContourBoundingBoxes
