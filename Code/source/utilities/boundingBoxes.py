@@ -15,14 +15,12 @@ from source.cameras import DisplayManager
 # gets the coordinates out of the bounding box list/array
 # bounding box must be a np.array
 # np.array([[x1, y1], [x2, y2]])
-@jit(nopython=True)
 def getBoundingBoxCords(box: np.ndarray) -> (int, int, int, int):
     #      x1 [0]          y1 [1]          x2 [2]          y2 [3]
     return int(box[0][0]), int(box[0][1]), int(box[1][0]), int(box[1][1])
 
 
 # makes points out of the bounding box coordinates
-@jit(nopython=True)
 def getBoundingBoxPoints(box: np.ndarray) -> np.ndarray:
     x1, y1, x2, y2 = getBoundingBoxCords(box)
     return np.array([(x1, y1), (x2, y1), (x2, y2), (x1, y2)])
@@ -50,7 +48,6 @@ def drawBoundingBoxes(rawImage: np.ndarray, boundingBoxes: List, color=(0, 0, 25
 
 
 # checks each point in a boundingBox and determines they are equal if each point is equal
-@jit(nopython=True)
 def boundingBoxEquals(box1: np.ndarray, box2: np.ndarray) -> bool:
     if not (box1[0][0] == box2[0][0] and box1[0][1] == box2[0][1] and
             box1[1][0] == box2[1][0] and box1[1][1] == box2[1][1]):
@@ -59,7 +56,6 @@ def boundingBoxEquals(box1: np.ndarray, box2: np.ndarray) -> bool:
 
 
 # determine if there is a connection between two bounding boxes
-@jit(nopython=True)
 def determineConnection(box1: np.ndarray, box2: np.ndarray) -> bool:
     (x11, y11, x12, y12) = getBoundingBoxCords(box1)
     (x21, y21, x22, y22) = getBoundingBoxCords(box2)
@@ -75,7 +71,6 @@ def determineConnection(box1: np.ndarray, box2: np.ndarray) -> bool:
 
 
 # determines the new corners of the bounding box encapsulating two other bounding boxes
-@jit(nopython=True)
 def determineMaxMinCorners(boundingBoxes: List) -> np.ndarray:
     if len(boundingBoxes) == 1:
         return boundingBoxes[0]
@@ -98,7 +93,6 @@ def determineMaxMinCorners(boundingBoxes: List) -> np.ndarray:
 
 
 # functions that given bounding box data combines connected bounding boxes
-@jit(nopython=True)
 def simplifyBoundingBoxes(boundingBoxes: List) -> List:
     if len(boundingBoxes) <= 1:
         return boundingBoxes
