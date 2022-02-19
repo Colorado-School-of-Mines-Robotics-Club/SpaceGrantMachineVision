@@ -29,8 +29,10 @@ class CaptureManager:
     @classmethod
     def haveCamerasRead(cls):
         for source, thread in cls.sources.items():
-            if thread.getFrame() is None:
+            frame = thread.getFrame()
+            if frame is None:
                 return False
+            thread.addFrame(frame)
         return True
 
     # gets the frame from a specific source

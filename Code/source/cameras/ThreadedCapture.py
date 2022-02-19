@@ -143,6 +143,10 @@ class ThreadedCapture:
             time.sleep(self.delay)
         self.capture.release()
 
+    def addFrame(self, frame):
+        if self.frameQ is not None:
+            self.frameQ.append(frame)
+
     # returns the current frame
     def getFrame(self):
         if self.frameQ is not None:
