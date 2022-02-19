@@ -14,6 +14,7 @@ from source.logger.Logger import Logger
 from source.cameras import fetchCameraImages
 from .Config import Config
 
+
 def getArguments() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument("-H", "--headless", help="Do not show debug windows", action='store_true', required=False)
@@ -29,6 +30,7 @@ def getArguments() -> Namespace:
                         nargs='?', const='config.json', required=False)
     args = parser.parse_args()
     return args
+
 
 def getArgDict() -> Dict:
     # gets the arguments for the program
@@ -58,9 +60,11 @@ def getArgDict() -> Dict:
         argDict['config'] = args.config
     return argDict
 
+
 def getArgFlags(argDict: Dict) -> (bool, bool, bool, bool):
     # HEADLESS, CLEAR_LOG, RECORD, THREADED_DISPLAY
     return argDict['headless'], argDict['clearlog'], argDict['record'], argDict['threadeddisplay']
+
 
 # make video writers for record flag
 def handleRecordFlag(RECORD: bool, leftCam: int, rightCam: int) -> (cv2.VideoWriter, cv2.VideoWriter):
@@ -80,11 +84,13 @@ def handleRecordFlag(RECORD: bool, leftCam: int, rightCam: int) -> (cv2.VideoWri
         rightWriter = cv2.VideoWriter(f"{videoPath}rightOutput.wmv", fourcc=fourcc, fps=fps, frameSize=(width, height))
     return leftWriter, rightWriter
 
+
 def handleRecordFlagClose(leftWriter: cv2.VideoWriter, rightWriter: cv2.VideoWriter):
     if leftWriter is not None:
         leftWriter.release()
     if rightWriter is not None:
         rightWriter.release()
+
 
 # wipes the log ahead of the logger being restarted
 def handleClearLogFlag(CLEAR_LOG: bool, logFile="log.log"):
@@ -92,6 +98,7 @@ def handleClearLogFlag(CLEAR_LOG: bool, logFile="log.log"):
         with open(logFile, 'r+') as f:
             f.truncate(0)
             f.seek(0)
+
 
 def handleVideoFlag(video: str, use_cap_dshow: bool, leftPort: int, rightPort: int) -> (str, str):
     # loading data for cameras and starting the camera process
@@ -105,6 +112,7 @@ def handleVideoFlag(video: str, use_cap_dshow: bool, leftPort: int, rightPort: i
         leftCam = f"{video}stereo_left.avi"
         rightCam = f"{video}stereo_right.avi"
     return leftCam, rightCam
+
 
 def handleThreadedDisplayFlag(THREADED_DISPLAY: bool):
     # if the displays are in threaded mode then we need a new screen to capture the keyboard

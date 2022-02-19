@@ -1,3 +1,4 @@
+# attempt to import packages upwards, if it fails for circular import then just ignore it
 try:
     from cameras import *
 except ImportError:

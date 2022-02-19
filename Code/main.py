@@ -48,6 +48,7 @@ def main():
             prevObjectBoundingBoxes = objectBoundingBoxes
 
             # save previous frame visual odometry information
+            prevXTranslation, prevYTranslation = xTranslation, yTranslation
             prevDisparityMap = disparityMap
 
             cameraStartTime = time.perf_counter()
