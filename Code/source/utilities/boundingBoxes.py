@@ -11,6 +11,7 @@ from source.logger.Logger import Logger
 from source.utilities import exceptions
 from source.cameras import DisplayManager
 
+
 # gets the coordinates out of the bounding box list/array
 # bounding box must be a np.array
 # np.array([[x1, y1], [x2, y2]])
@@ -59,42 +60,22 @@ def boundingBoxEquals(box1: np.ndarray, box2: np.ndarray) -> bool:
 
 # determine if there is a connection between two bounding boxes
 @jit(nopython=True)
-def determineConnection(box1: np.ndarray, box2: np.ndarray, connectedness: int) -> bool:
-    pts1 = getBoundingBoxPoints(box1)
-    pts2 = getBoundingBoxPoints(box2)
-    if connectedness == 4:
-        # check that any of the two sides are shared
-        # append the first point to the end for checking the last side
-        pts1 = np.append(pts1, pts1[0])  # pts1.append(pts1[0])
-        pts2 = np.append(pts2, pts2[0])  # pts2.append(pts2[0])
-        # cycle over each point in points 1 then cycle over each point in
-        for i in range(len(pts1) - 1):
-            for j in range(len(pts2) - 1):
-                if pts1[i] == pts2[j] and pts1[i+1] == pts2[j+1]:
-                    return True
-        return False
-    elif connectedness == 8:
-        # check if any point is the same
-        for pt1 in pts1:
-            for pt2 in pts2:
-                if pt1[0] == pt2[0] and pt1[1] == pt2[1]:
-                    return True
-        return False
+def determineConnection(box1: np.ndarray, box2: np.ndarray) -> bool:
+    (x11, y11, x12, y12) = getBoundingBoxCords(box1)
+    (x21, y21, x22, y22) = getBoundingBoxCords(box2)
 
+    leftInside: bool = (x11 <= x21 <= x12)
+    rightInside: bool = (x11 <= x22 <= x12)
+    topInside: bool = (y11 <= y21 <= y12)
+    bottomInside: bool = (y11 <= y22 <= y12)
 
-# need a function to loop over bounding boxes for a bbox, and determine if each one has a connection or not
-# when a box has a connection, that boundingBox must also be iterated over.
-@jit(nopython=True)
-def findConnectedBoundingBoxes(startingBox: np.ndarray, boundingBoxes: List, connectedness: int) -> np.ndarray:
-    connectedBoxes = np.array(startingBox)
-    for box in connectedBoxes:
-        for newBox in boundingBoxes:
-            if not boundingBoxEquals(box, newBox) and determineConnection(box, newBox, connectedness):
-                connectedBoxes = np.append(connectedBoxes, newBox)
-    return connectedBoxes
+    if (leftInside or rightInside) and (topInside or bottomInside):
+        return True
+    return False
 
 
 # determines the new corners of the bounding box encapsulating two other bounding boxes
+@jit(nopython=True)
 def determineMaxMinCorners(boundingBoxes: List) -> np.ndarray:
     if len(boundingBoxes) == 1:
         return boundingBoxes[0]
@@ -113,35 +94,38 @@ def determineMaxMinCorners(boundingBoxes: List) -> np.ndarray:
     minY = min(y1s)
     maxY = max(y2s)
     # construct a new boundingBox
-    return np.array([[minX, minY], [maxX, maxY]])
+    return np.double([[minX, minY], [maxX, maxY]])
 
 
 # functions that given bounding box data combines connected bounding boxes
-# @jit(nopython=True)
-def combineBoundingBoxes(boundingBoxes: List, connectedness=8) -> List:
+@jit(nopython=True)
+def simplifyBoundingBoxes(boundingBoxes: List) -> List:
     if len(boundingBoxes) <= 1:
         return boundingBoxes
-    # copy first element to back for circular checking
     connectedBoxes = list()
     simplifiedBoxes = list()
-    for i, box1 in enumerate(boundingBoxes):
-        connectedBoxes.append(box1)
-        for j, box2 in enumerate(boundingBoxes):
-            if i == j:
-                continue
-            if determineConnection(box1, box2, connectedness):
-                connectedBoxes.append(boundingBoxes.pop(j))
-                # need to erase the box that is appended or else it is double counted
+    for i, box in enumerate(boundingBoxes):
+        connectedBoxes.append(box)
+        for j, currBox in enumerate(connectedBoxes):
+            for k, nextBox in enumerate(boundingBoxes):
+                if not boundingBoxEquals(currBox, nextBox):
+                    if determineConnection(currBox, nextBox):
+                        connectedBoxes.append(nextBox)
+                        boundingBoxes.pop(k)
         simplifiedBoxes.append(determineMaxMinCorners(connectedBoxes))
         connectedBoxes = list()
     return simplifiedBoxes
 
-def cv2npContourBoxes(contourBoxes):
-    npContourBoxes = []
-    for (x, y, w, h) in contourBoxes:
-        npContourBoxes.append(np.array([(x, y), (x + w, y + h)]))
-        #cv2.rectangle(rightImage, (x, y), (x + w, y + h), color=(0, 255, 0), thickness=2)
-    # for i in range(len(contourBoxes)):
-    #     npContourBoxes.append(np.array([[contourBoxes[i, 0], contourBoxes[i, 1]],
-    #                                     [contourBoxes[i, 0] + contourBoxes[i, 2]], [contourBoxes[i, 1] + contourBoxes[i, 3]]]))
-    return npContourBoxes
+
+def cv2RectToNpBoxes(boundingBoxes):
+    npBoxes = []
+    for (x, y, w, h) in boundingBoxes:
+        npBoxes.append(np.array([(x, y), (x + w, y + h)]))
+    return npBoxes
+
+
+def npToCv2RectBoxes(boundingBoxes):
+    cv2RectBoxes = []
+    for (x1, y1, x2, y2) in boundingBoxes:
+        cv2RectBoxes.append((x1, y1, (x2 - x1), (y2 - y1)))
+    return cv2RectBoxes
