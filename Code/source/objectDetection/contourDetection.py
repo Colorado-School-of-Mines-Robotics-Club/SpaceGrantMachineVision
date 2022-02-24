@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 import cv2
 from source.cameras.DisplayManager import DisplayManager
-from source.utilities.boundingBoxes import cv2RectToNpBoxes, drawBoundingBoxes
+from source.utilities.boundingBoxes import cv2RectToNpBoxes, drawBoundingBoxes, simplifyBoundingBoxes
 
 
 def generateContourImage(image: np.ndarray, show=True, threadedDisplay=False) -> (np.ndarray, np.ndarray):
@@ -43,6 +43,7 @@ def getContourBoundingBoxes(image: np.ndarray, show=True, threadedDisplay=False)
     _, contours = generateContourImage(image, show=False, threadedDisplay=False)
     _, _, contourBoxes, _ = mabbec(contours)
     npContourBoxes = cv2RectToNpBoxes(contourBoxes)
+    npContourBoxes = simplifyBoundingBoxes(npContourBoxes)
 
     if show:
         drawBoundingBoxes(image, npContourBoxes, windowName="Contour Bounding Boxes", show=show,

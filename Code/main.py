@@ -88,8 +88,8 @@ def main():
 
             disparityStartTime = time.perf_counter()
             # this disparity map calculation should maybe get removed since we ??only?? care about the depth values
-            disparityMap = computeDisparity(stereo, grayLeftImage, grayRightImage, show=not HEADLESS,
-                                            threadedDisplay=THREADED_DISPLAY)
+            disparityMap = computeDisparity(leftStereo, rightStereo, wlsFilter, grayLeftImage, grayRightImage,
+                                            show=not HEADLESS, threadedDisplay=THREADED_DISPLAY)
             disparityFTs.append(time.perf_counter() - disparityStartTime)
 
             # all additional functionality should be present within the === comments
@@ -173,6 +173,7 @@ if __name__ == "__main__":
     featureParams = Config.getFeatureParamsDict()
     objectDetectionParams = Config.getObjectDetectionDict()
     sgbmParams = Config.getSBGMParamsDict()
+    wlsParams = Config.getWLSParamsDict()
     hardwarePorts = Config.getHardwarePortsDict()
 
     LOG_ITERATION_INFO = loggingOptions['logIterationStarts']
@@ -215,12 +216,16 @@ if __name__ == "__main__":
                          firstLevel=orbParams['firstLevel'], patchSize=orbParams['patchSize'])
     matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)  # matcher object
     # stereo object
-    stereo = cv2.StereoSGBM_create(minDisparity=sgbmParams['minDisparity'], numDisparities=sgbmParams['numDisparities'],
+    leftStereo = cv2.StereoSGBM_create(minDisparity=sgbmParams['minDisparity'], numDisparities=sgbmParams['numDisparities'],
                                    blockSize=sgbmParams['blockSize'], P1=sgbmParams['P1'], P2=sgbmParams['P2'],
                                    disp12MaxDiff=sgbmParams['disp12MaxDiff'], preFilterCap=sgbmParams['preFilterCap'],
                                    uniquenessRatio=sgbmParams['uniquenessRatio'],
                                    speckleWindowSize=sgbmParams['speckleWindowSize'],
                                    speckleRange=sgbmParams['speckleRange'])
+    rightStereo = cv2.ximgproc.createRightMatcher(leftStereo)
+    wlsFilter = cv2.ximgproc.createDisparityWLSFilter(leftStereo)
+    wlsFilter.setLambda(wlsParams['lambda'])
+    wlsFilter.setSigmaColor(wlsParams['sigma'])
 
     # inits the DisplayManager
     DisplayManager.init()

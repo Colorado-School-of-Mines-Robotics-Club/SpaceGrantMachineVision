@@ -40,12 +40,12 @@
     "timeout": 20
   },
   "object_detection_params": {
-    "binSize": 30.0,
-    "featuresPerPixel": 0.03
+    "binSize": 20.0,
+    "featuresPerPixel": 0.0225
   },
   "sgbm_params": {
     "minDisparity": 0,
-    "numDisparities": 32,
+    "numDisparities": 16,
     "blockSize": 3,
     "P1": 27,
     "P2": 675,
@@ -54,6 +54,10 @@
     "uniquenessRatio": 0,
     "speckleWindowSize": 0,
     "speckleRange": 0
+  },
+  "wls_filter_params": {
+    "lambda": 8000.0,
+    "sigma": 1.75
   },
   "file_paths": {
     "videoPath": "Data/Cameras/RawOutput/",

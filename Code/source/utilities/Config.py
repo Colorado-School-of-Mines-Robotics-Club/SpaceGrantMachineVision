@@ -22,6 +22,7 @@ class Config:
     featureParams = dict()
     objectDetectionParams = dict()
     sgbmParams = dict()
+    wlsParams = dict()
     filepaths = dict()
     hardwarePorts = dict()
 
@@ -38,6 +39,7 @@ class Config:
             cls.featureParams = cls.data['feature_params']
             cls.objectDetectionParams = cls.data['object_detection_params']
             cls.sgbmParams = cls.data['sgbm_params']
+            cls.wlsParams = cls.data['wls_filter_params']
             cls.filepaths = cls.data['file_paths']
             cls.hardwarePorts = cls.data['hardware_ports']
         except FileNotFoundError:
@@ -82,6 +84,10 @@ class Config:
     @classmethod
     def getSBGMParamsDict(cls) -> Dict:
         return cls.sgbmParams
+
+    @classmethod
+    def getWLSParamsDict(cls) -> Dict:
+        return cls.wlsParams
 
     @classmethod
     def getFilepathsDict(cls) -> Dict:

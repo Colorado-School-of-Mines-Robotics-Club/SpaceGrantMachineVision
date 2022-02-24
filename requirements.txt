@@ -1,5 +1,5 @@
 numba
 numpy
-opencv-python
+opencv-contrib-python
 smbus2
 psutil
