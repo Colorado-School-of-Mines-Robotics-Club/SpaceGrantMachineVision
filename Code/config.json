@@ -88,5 +88,23 @@
       "accelerometer": 0,
       "xbee": 1
     }
+  },
+  "dimensions": {
+    "wheel" : {
+      "radius": 1.0,
+      "thickness": 1.0,
+      "minTheta": -30.0,
+      "maxTheta": 30.0
+    },
+    "suspension" : {
+      "length": 1.0,
+      "minTheta": -30.0,
+      "maxTheta": 30.0
+    },
+    "chassis": {
+      "width": 1.0,
+      "depth": 1.0,
+      "height": 1.0
+    }
   }
 }
