@@ -40,8 +40,8 @@
     "timeout": 20
   },
   "object_detection_params": {
-    "binSize": 30.0,
-    "featuresPerPixel": 0.03
+    "binSize": 10.0,
+    "featuresPerPixel": 0.005
   },
   "sgbm_params": {
     "minDisparity": 0,
