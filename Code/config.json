@@ -40,8 +40,8 @@
     "timeout": 20
   },
   "object_detection_params": {
-    "binSize": 20.0,
-    "featuresPerPixel": 0.0225
+    "binSize": 10.0,
+    "featuresPerPixel": 0.005
   },
   "sgbm_params": {
     "minDisparity": 0,
@@ -91,6 +91,24 @@
     "sensors": {
       "accelerometer": 0,
       "xbee": 1
+    }
+  },
+  "dimensions": {
+    "wheel" : {
+      "radius": 1.0,
+      "thickness": 1.0,
+      "minTheta": -30.0,
+      "maxTheta": 30.0
+    },
+    "suspension" : {
+      "length": 1.0,
+      "minTheta": -30.0,
+      "maxTheta": 30.0
+    },
+    "chassis": {
+      "width": 1.0,
+      "depth": 1.0,
+      "height": 1.0
     }
   }
 }
