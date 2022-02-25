@@ -114,8 +114,8 @@ def handleVideoFlag(video: str, use_cap_dshow: bool, leftPort: int, rightPort: i
     return leftCam, rightCam
 
 
-def handleThreadedDisplayFlag(THREADED_DISPLAY: bool):
+def handleThreadedDisplayFlag(THREADED_DISPLAY: bool, HEADLESS: bool):
     # if the displays are in threaded mode then we need a new screen to capture the keyboard
-    if THREADED_DISPLAY:
+    if not HEADLESS and THREADED_DISPLAY:
         input_image = np.zeros((300, 300))
         cv2.imshow("Input Screen", input_image)
