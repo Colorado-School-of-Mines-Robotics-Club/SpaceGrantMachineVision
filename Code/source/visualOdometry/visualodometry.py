@@ -6,9 +6,11 @@ import numpy as np
 import cv2
 from numba import jit
 from multiprocessing import Queue, Process
+import time
 
 # Custom  imports
 from source.cameras import DisplayManager
+from source.utilities import Config
 
 
 # compute the disparity map of the two grayscale images given
@@ -17,7 +19,6 @@ from source.cameras import DisplayManager
 def computeDisparity(leftStereo: cv2.StereoSGBM, rightStereo: cv2.StereoMatcher,
                      wlsFilter: cv2.ximgproc_DisparityWLSFilter, left: np.ndarray, right: np.ndarray, show=False,
                      threadedDisplay=False):
-
     left_disp = leftStereo.compute(left, right)
     right_disp = rightStereo.compute(right, left)
     filtered_disp = wlsFilter.filter(left_disp, left, disparity_map_right=right_disp)
@@ -31,13 +32,29 @@ def computeDisparity(leftStereo: cv2.StereoSGBM, rightStereo: cv2.StereoMatcher,
     return disparity
 
 
-def disparityProcess(q: Queue, leftStereo, rightStereo, wlsFilter, left, right, show=False, threadedDisplay=False):
-    disparity = computeDisparity(leftStereo, rightStereo, wlsFilter, left, right, show, threadedDisplay)
-    q.put(disparity)
+def disparityProcess(imageQueue: Queue, mapQueue: Queue):
+    Config.init()
+    sbgmPs = Config.getSBGMParamsDict()
+    wlsParams = Config.getWLSParamsDict()
+    leftStereo = cv2.StereoSGBM_create(minDisparity=sbgmPs['minDisparity'], numDisparities=sbgmPs['numDisparities'],
+                                       blockSize=sbgmPs['blockSize'], P1=sbgmPs['P1'], P2=sbgmPs['P2'],
+                                       disp12MaxDiff=sbgmPs['disp12MaxDiff'], preFilterCap=sbgmPs['preFilterCap'],
+                                       uniquenessRatio=sbgmPs['uniquenessRatio'],
+                                       speckleWindowSize=sbgmPs['speckleWindowSize'],
+                                       speckleRange=sbgmPs['speckleRange'])
+    rightStereo = cv2.ximgproc.createRightMatcher(leftStereo)
+    wlsFilter = cv2.ximgproc.createDisparityWLSFilter(leftStereo)
+    wlsFilter.setLambda(wlsParams['lambda'])
+    wlsFilter.setSigmaColor(wlsParams['sigma'])
+
+    while True:
+        left = imageQueue.get()
+        right = imageQueue.get()
+        disparity = computeDisparity(leftStereo, rightStereo, wlsFilter, left, right)
+        mapQueue.put(disparity)
 
 
-def generateDisparity(queue: Queue, leftStereo, rightStereo, wlsFilter, left, right, show=False, threadedDisplay=False):
-    p = Process(target=computeDisparity, args=(queue, leftStereo, rightStereo, wlsFilter, left, right, show,
-                                               threadedDisplay,), daemon=True)
+def startDisparityProcess(imageQueue: Queue, mapQueue: Queue) -> Process:
+    p = Process(target=disparityProcess, args=(imageQueue, mapQueue,), daemon=True)
     p.start()
     return p

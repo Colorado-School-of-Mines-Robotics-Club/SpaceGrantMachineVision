@@ -8,12 +8,12 @@ import time
 # Additional libs
 import numpy as np
 import cv2
-from multiprocessing import Queue
+from multiprocessing import Queue, Process
 
 # Custom imports
 from source.logger import Logger, logArguments, logSystemInfo, logConfiguration
 from source.cameras import fetchAndShowCameras, initCameras, closeCameras, DisplayManager, CaptureManager
-from source.visualOdometry import computeDisparity
+from source.visualOdometry import computeDisparity, startDisparityProcess, disparityProcess
 from source.features import computeMatchingPoints, getPointsFromKeypoints, getAvgTranslationXY
 from source.objectDetection import objectDetection
 from source.simulation import Map, Robot
@@ -57,6 +57,8 @@ def main():
             leftImage, rightImage, grayLeftImage, grayRightImage = fetchAndShowCameras(leftCam, rightCam,
                                                                                        show=not HEADLESS,
                                                                                        threadedDisplay=THREADED_DISPLAY)
+            disparityImageQueue.put(grayLeftImage)
+            disparityImageQueue.put(grayRightImage)
             cameraFTs.append(time.perf_counter() - cameraStartTime)
 
             featureStartTime = time.perf_counter()
@@ -89,8 +91,10 @@ def main():
 
             disparityStartTime = time.perf_counter()
             # this disparity map calculation should maybe get removed since we ??only?? care about the depth values
-            disparityMap = computeDisparity(leftStereo, rightStereo, wlsFilter, grayLeftImage, grayRightImage,
-                                            show=not HEADLESS, threadedDisplay=THREADED_DISPLAY)
+            # disparityMap = computeDisparity(leftStereo, rightStereo, wlsFilter, grayLeftImage, grayRightImage,
+            #                                 show=not HEADLESS, threadedDisplay=THREADED_DISPLAY)
+            disparityMap = disparityMapQueue.get()
+            cv2.imshow("disparity map", disparityMap)
             disparityFTs.append(time.perf_counter() - disparityStartTime)
 
             # all additional functionality should be present within the === comments
@@ -245,7 +249,12 @@ if __name__ == "__main__":
     Robot = Robot()
 
     # multiprocessing stuff
-    q = Queue()
+    objectQueue = Queue()
+    disparityImageQueue = Queue()
+    disparityMapQueue = Queue()
+
+    # launch disparity process
+    disparityProcess = startDisparityProcess(disparityImageQueue, disparityMapQueue)
 
     # being primary loop
     Logger.log("Program starting...")
@@ -278,4 +287,8 @@ if __name__ == "__main__":
         cv2.destroyWindow("Input Screen")
     Logger.log("    Shutting down logger...")
     Logger.shutdown()  # Shuts down the logging system and prints a closing message to the file
+
+    # join processes
+    disparityProcess.join()
+
     sys.exit(0)
