@@ -115,8 +115,8 @@ def main():
             consecutiveErrors = 0
             # cv2.waitKey is needed for opencv to properly display images (think of it like a timer or interrupt)
             if not HEADLESS:
-                keyPressed = cv2.waitKey(1) & 0xFF
-                if keyPressed == 27:
+                mainLoopKeyPressed = cv2.waitKey(1) & 0xFF
+                if mainLoopKeyPressed == 27:
                     raise exceptions.CustomKeyboardInterrupt("ESC")  # Quit on ESC
             iterationTime = time.perf_counter() - iterationStartTime
         except exceptions.CustomKeyboardInterrupt as e:  # Kills the loop if a keyboardInterrupt occurs
@@ -172,7 +172,7 @@ if __name__ == "__main__":
     orbParams = Config.getOrbParamsDict()
     featureParams = Config.getFeatureParamsDict()
     objectDetectionParams = Config.getObjectDetectionDict()
-    sgbmParams = Config.getSBGMParamsDict()
+    sbgmPs = Config.getSBGMParamsDict()
     wlsParams = Config.getWLSParamsDict()
     hardwarePorts = Config.getHardwarePortsDict()
 
@@ -216,12 +216,12 @@ if __name__ == "__main__":
                          firstLevel=orbParams['firstLevel'], patchSize=orbParams['patchSize'])
     matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)  # matcher object
     # stereo object
-    leftStereo = cv2.StereoSGBM_create(minDisparity=sgbmParams['minDisparity'], numDisparities=sgbmParams['numDisparities'],
-                                   blockSize=sgbmParams['blockSize'], P1=sgbmParams['P1'], P2=sgbmParams['P2'],
-                                   disp12MaxDiff=sgbmParams['disp12MaxDiff'], preFilterCap=sgbmParams['preFilterCap'],
-                                   uniquenessRatio=sgbmParams['uniquenessRatio'],
-                                   speckleWindowSize=sgbmParams['speckleWindowSize'],
-                                   speckleRange=sgbmParams['speckleRange'])
+    leftStereo = cv2.StereoSGBM_create(minDisparity=sbgmPs['minDisparity'], numDisparities=sbgmPs['numDisparities'],
+                                       blockSize=sbgmPs['blockSize'], P1=sbgmPs['P1'], P2=sbgmPs['P2'],
+                                       disp12MaxDiff=sbgmPs['disp12MaxDiff'], preFilterCap=sbgmPs['preFilterCap'],
+                                       uniquenessRatio=sbgmPs['uniquenessRatio'],
+                                       speckleWindowSize=sbgmPs['speckleWindowSize'],
+                                       speckleRange=sbgmPs['speckleRange'])
     rightStereo = cv2.ximgproc.createRightMatcher(leftStereo)
     wlsFilter = cv2.ximgproc.createDisparityWLSFilter(leftStereo)
     wlsFilter.setLambda(wlsParams['lambda'])
