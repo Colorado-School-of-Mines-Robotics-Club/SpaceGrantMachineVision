@@ -94,7 +94,6 @@ def main():
             # disparityMap = computeDisparity(leftStereo, rightStereo, wlsFilter, grayLeftImage, grayRightImage,
             #                                 show=not HEADLESS, threadedDisplay=THREADED_DISPLAY)
             disparityMap = disparityMapQueue.get()
-            cv2.imshow("disparity map", disparityMap)
             disparityFTs.append(time.perf_counter() - disparityStartTime)
 
             # all additional functionality should be present within the === comments
@@ -254,7 +253,7 @@ if __name__ == "__main__":
     disparityMapQueue = Queue()
 
     # launch disparity process
-    disparityProcess = startDisparityProcess(disparityImageQueue, disparityMapQueue)
+    disparityProcess = startDisparityProcess(disparityImageQueue, disparityMapQueue, not HEADLESS, THREADED_DISPLAY)
 
     # being primary loop
     Logger.log("Program starting...")

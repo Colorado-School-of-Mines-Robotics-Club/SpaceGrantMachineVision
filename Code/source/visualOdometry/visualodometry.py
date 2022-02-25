@@ -32,7 +32,7 @@ def computeDisparity(leftStereo: cv2.StereoSGBM, rightStereo: cv2.StereoMatcher,
     return disparity
 
 
-def disparityProcess(imageQueue: Queue, mapQueue: Queue):
+def disparityProcess(imageQueue: Queue, mapQueue: Queue, show=False, threadedDisplay=False):
     Config.init()
     sbgmPs = Config.getSBGMParamsDict()
     wlsParams = Config.getWLSParamsDict()
@@ -52,9 +52,15 @@ def disparityProcess(imageQueue: Queue, mapQueue: Queue):
         right = imageQueue.get()
         disparity = computeDisparity(leftStereo, rightStereo, wlsFilter, left, right)
         mapQueue.put(disparity)
+        if show:
+            if threadedDisplay:
+                DisplayManager.show("Disparity", disparity)
+            else:
+                cv2.imshow("Disparity", disparity)
+        cv2.waitKey(1)
 
 
-def startDisparityProcess(imageQueue: Queue, mapQueue: Queue) -> Process:
-    p = Process(target=disparityProcess, args=(imageQueue, mapQueue,), daemon=True)
+def startDisparityProcess(imageQueue: Queue, mapQueue: Queue, show=False, threadedDisplay=False) -> Process:
+    p = Process(target=disparityProcess, args=(imageQueue, mapQueue, show, threadedDisplay,), daemon=True)
     p.start()
     return p
