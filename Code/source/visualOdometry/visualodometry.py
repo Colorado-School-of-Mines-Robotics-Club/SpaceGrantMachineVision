@@ -5,6 +5,7 @@ import os
 import numpy as np
 import cv2
 from numba import jit
+from multiprocessing import Queue, Process
 
 # Custom  imports
 from source.cameras import DisplayManager
@@ -13,7 +14,10 @@ from source.cameras import DisplayManager
 # compute the disparity map of the two grayscale images given
 # takes a stereo matcher object and two grayscale images
 # @jit(forceobj=True)
-def computeDisparity(leftStereo, rightStereo, wlsFilter, left, right, show=False, threadedDisplay=True):
+def computeDisparity(leftStereo: cv2.StereoSGBM, rightStereo: cv2.StereoMatcher,
+                     wlsFilter: cv2.ximgproc_DisparityWLSFilter, left: np.ndarray, right: np.ndarray, show=False,
+                     threadedDisplay=False):
+
     left_disp = leftStereo.compute(left, right)
     right_disp = rightStereo.compute(right, left)
     filtered_disp = wlsFilter.filter(left_disp, left, disparity_map_right=right_disp)
@@ -25,3 +29,15 @@ def computeDisparity(leftStereo, rightStereo, wlsFilter, left, right, show=False
         else:
             cv2.imshow("Disparity map", disparity)
     return disparity
+
+
+def disparityProcess(q: Queue, leftStereo, rightStereo, wlsFilter, left, right, show=False, threadedDisplay=False):
+    disparity = computeDisparity(leftStereo, rightStereo, wlsFilter, left, right, show, threadedDisplay)
+    q.put(disparity)
+
+
+def generateDisparity(queue: Queue, leftStereo, rightStereo, wlsFilter, left, right, show=False, threadedDisplay=False):
+    p = Process(target=computeDisparity, args=(queue, leftStereo, rightStereo, wlsFilter, left, right, show,
+                                               threadedDisplay,), daemon=True)
+    p.start()
+    return p

@@ -8,6 +8,7 @@ import time
 # Additional libs
 import numpy as np
 import cv2
+from multiprocessing import Queue
 
 # Custom imports
 from source.logger import Logger, logArguments, logSystemInfo, logConfiguration
@@ -237,12 +238,14 @@ if __name__ == "__main__":
 
     leftWriter, rightWriter = handleRecordFlag(RECORD, leftCam, rightCam)
 
-    if not HEADLESS:
-        handleThreadedDisplayFlag(THREADED_DISPLAY)
+    handleThreadedDisplayFlag(THREADED_DISPLAY, HEADLESS)
 
     # define the map
     Map = Map()
     Robot = Robot()
+
+    # multiprocessing stuff
+    q = Queue()
 
     # being primary loop
     Logger.log("Program starting...")
