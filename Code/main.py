@@ -63,13 +63,13 @@ def main():
             # the point at index [0], [1], [2], etc. in both is the same real life feature
             # COMPUTES MATCHING FEATURES ACROSS BOTH CURRENT IMAGES
             prevLeftPts, leftPts, prevLeftKp, prevLeftDesc, leftKp, leftDesc, leftMatches = \
-                computeMatchingPoints(prevGrayLeftImage, grayLeftImage, orb, matcher,
+                computeMatchingPoints(prevGrayLeftImage, grayLeftImage, orb, matcher, prevLeftKp, prevLeftDesc,
                                       ratio=featureParams['startingRatio'],
                                       featureRatio=featureParams["featureRatio"], stepSize=featureParams["stepSize"],
                                       timeout=featureParams["timeout"], show=not HEADLESS,
                                       threadedDisplay=THREADED_DISPLAY, windowName="LeftCaptures Matched Features")
             prevRightPts, rightPts, prevRightKp, prevRightDesc, rightKp, rightDesc, rightMatches = \
-                computeMatchingPoints(prevGrayRightImage, grayRightImage, orb, matcher,
+                computeMatchingPoints(prevGrayRightImage, grayRightImage, orb, matcher, prevRightKp, prevRightDesc,
                                       ratio=featureParams['startingRatio'],
                                       featureRatio=featureParams["featureRatio"], stepSize=featureParams["stepSize"],
                                       timeout=featureParams["timeout"], show=not HEADLESS,

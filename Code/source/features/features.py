@@ -1,5 +1,5 @@
 # Built in python libs
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Union
 
 # Additional libs
 import numpy as np
@@ -53,15 +53,19 @@ def getPointsFromMatches(matches: List, leftKp: List, rightKp: List) -> (List, L
 # funtion that computes the matching features between two images and returns the corresponding points
 # takes two grayscale images, a feature detector, and a matcher
 # the showMatches optional parameter shows the total features and not the ones acquired through the ratio test
-def computeMatchingPoints(left: np.ndarray, right: np.ndarray, featureDetector: cv2.ORB, featureMatcher, ratio=1.0,
-                          featureRatio=0.1, stepSize=0.04, timeout=1000, show=False, threadedDisplay=True,
-                          windowName="Matched Features") -> (List, List, List, np.ndarray, List, np.ndarray,
-                                                             np.ndarray):
+def computeMatchingPoints(prevImg: np.ndarray, currImg: np.ndarray, featureDetector: cv2.ORB,
+                          featureMatcher: cv2.BFMatcher, prevKp: Union[List, None] = None,
+                          prevDesc: Union[np.ndarray, None] = None, ratio=1.0, featureRatio=0.1, stepSize=0.04,
+                          timeout=1000, show=False, threadedDisplay=True, windowName="Matched Features") ->\
+        (List, List, List, np.ndarray, List, np.ndarray, np.ndarray):
     try:
-        leftKp, leftDesc, rightKp, rightDesc = getImagePairKeyDesc(left, right, featureDetector)
-        if leftDesc is None or rightDesc is None:
-            return [], [], leftKp, leftDesc, rightKp, rightDesc, list()
-        matches = featureMatcher.match(leftDesc, rightDesc)
+        if prevKp is None or prevDesc is None:
+            prevKp, prevDesc, currKp, currDesc = getImagePairKeyDesc(prevImg, currImg, featureDetector)
+        else:
+            currKp, currDesc = getImageKeyDesc(currImg, featureDetector)
+        if prevDesc is None or currDesc is None:
+            return [], [], prevKp, prevDesc, currKp, currDesc, list()
+        matches = featureMatcher.match(prevDesc, currDesc)
         # sort the matches
         sortedMatches = sortMatches(matches)
         # perform ratio test on matching key points
@@ -71,15 +75,15 @@ def computeMatchingPoints(left: np.ndarray, right: np.ndarray, featureDetector: 
             ratioMatches = sortedMatches
         # extract image coordinates of matches
         try:
-            left_pts, right_pts = getPointsFromMatches(ratioMatches, leftKp, rightKp)
+            left_pts, right_pts = getPointsFromMatches(ratioMatches, prevKp, currKp)
         except Exception:
             Logger.log("Warning: Could not pull points from features. No features?")
-            return [], [], leftKp, leftDesc, rightKp, rightDesc, ratioMatches
+            return [], [], prevKp, prevDesc, currKp, currDesc, ratioMatches
             pass
         # show the output
         if show:
             try:
-                matchedImg = cv2.drawMatches(left, leftKp, right, rightKp, ratioMatches, None, flags=2)
+                matchedImg = cv2.drawMatches(prevImg, prevKp, currImg, currKp, ratioMatches, None, flags=2)
                 if threadedDisplay:
                     DisplayManager.show(windowName, matchedImg)
                 else:
@@ -87,6 +91,6 @@ def computeMatchingPoints(left: np.ndarray, right: np.ndarray, featureDetector: 
             except Exception:
                 Logger.log("    computeMatchingPoints -> Failed to display matches")
                 raise exceptions.FeatureDrawingError()
-        return left_pts, right_pts, leftKp, leftDesc, rightKp, rightDesc, ratioMatches
+        return left_pts, right_pts, prevKp, prevDesc, currKp, currDesc, ratioMatches
     except Exception as e:  # generic exception catcher, just return no list of points
         raise e
