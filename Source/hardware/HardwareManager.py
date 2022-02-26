@@ -57,11 +57,11 @@ class HardwareManager:
         writes_counter = 0
 
         #Write PWM for each motor
-        writes_counter = self.write_pwm_helper(motor_reg, writes_counter, writes)
+        writes_counter = self.write_pwm_helper(self.motor_reg, writes_counter, writes)
         #Write PWM for each servo
-        writes_counter = self.write_pwm_helper(servo_reg, writes_counter, writes)
+        writes_counter = self.write_pwm_helper(self.servo_reg, writes_counter, writes)
         #Write PWM for each LED
-        writes_counter = self.write_pwm_helper(LED_reg, writes_counter, writes)
+        writes_counter = self.write_pwm_helper(self.LED_reg, writes_counter, writes)
 
         self.write_GPIO(self, dir1, dir2,dir3,dir4)
 
@@ -94,13 +94,13 @@ class HardwareManager:
 
             # write the 4 registers, data = [reg, byte_to_write]
             data = [reg[0][0], high1]  # first register is the first byte of high
-            bus.write_I2C_block_data(pwm_address, 0, data)
+            bus.write_I2C_block_data(self.pwm_address, 0, data)
             data = [reg[0][1], high2]  # second register is the second byte of high
-            bus.write_IC2_block_data(pwm_address, 0, data)
+            bus.write_IC2_block_data(self.pwm_address, 0, data)
             data = [reg[1][0], low1]  # 3rd register is the first byte of low
-            bus.write_IC2_block_data(pwm_address, 0, data)
+            bus.write_IC2_block_data(self.pwm_address, 0, data)
             data = [reg[1][1], low2]  # 4th register is the second byte of low
-            bus.write_IC2_block_data(pwm_address, 0, data)
+            bus.write_IC2_block_data(self.pwm_address, 0, data)
 
             # increment the writes_counter by one; only one value in the writes array was used
             writes_counter += 1
