@@ -1,5 +1,5 @@
 from .QueuePipe import QueuePipe
-from multiprocessing import Process
+from multiprocessing import Process, Queue
 from typing import List, Tuple, Union, Any
 from collections.abc import Callable
 import time
@@ -9,18 +9,22 @@ class PayloadProcess:
     def __init__(self, payload: Tuple[str, Callable, Tuple, float]):
         self.name, self.target, self.args, self.qTimeout = payload
         self.queue = QueuePipe(timeout=self.qTimeout)
-        # self.args = (self.queue,) + self.args
-        self.process = Process(name=self.name, target=self.run, args=self.args, daemon=True)
+        self.args = (self.queue,) + self.args
+        self.process = Process(name=self.name, target=self.run, args=(), daemon=True)
         self.stopped = False
-        self.sleeping = False
-        self.sleepTime = self.qTimeout
+        self.actionQueue = Queue()
 
     def run(self):
         while not self.stopped:
-            if self.sleeping:
-                time.sleep(self.sleepTime)
-                self.sleeping = False
-                continue
+            if not self.actionQueue.empty():
+                action = self.actionQueue.get()
+                if isinstance(action, float) or isinstance(action, int):
+                    time.sleep(action)
+                    continue
+                if isinstance(action, str):
+                    if action == 'stop':
+                        self.stopped = True
+                        continue
             self.putOutputs(self.target(self.args))
 
     def start(self) -> 'PayloadProcess':
@@ -33,11 +37,10 @@ class PayloadProcess:
         return alive, running
 
     def sleep(self, delay: float):
-        self.sleeping = True
-        self.sleepTime = delay
+        self.actionQueue.put(delay)
 
     def stop(self):
-        self.stopped = True
+        self.actionQueue.put('stop')
 
     def join(self):
         self.process.join()

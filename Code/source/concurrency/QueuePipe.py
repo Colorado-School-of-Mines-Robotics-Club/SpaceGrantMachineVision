@@ -1,6 +1,7 @@
 import queue
 from multiprocessing import Queue
 from typing import Any, List, Union
+import numpy as np
 
 
 class QueuePipe:
@@ -35,6 +36,8 @@ class QueuePipe:
     # adds items to either queue
     def addToQueue(self, items: Union[List[Any], Any], output=False):
         try:
+            if isinstance(items, np.ndarray) and len(items.shape) == 2:
+                raise TypeError("np.ndarray is iterable, but should b")
             for item in items:
                 if output:
                     self.outputQ.put(item)

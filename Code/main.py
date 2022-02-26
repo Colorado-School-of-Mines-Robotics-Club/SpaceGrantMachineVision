@@ -13,14 +13,14 @@ from multiprocessing import Queue, Process
 # Custom imports
 from source.logger import Logger, logArguments, logSystemInfo, logConfiguration
 from source.cameras import fetchAndShowCameras, initCameras, closeCameras, DisplayManager, CaptureManager
-from source.visualOdometry import computeDisparity, startDisparityProcess, disparityProcess
+from source.visualOdometry import PTcomputeDisparity
 from source.features import computeMatchingPoints, getPointsFromKeypoints, getAvgTranslationXY
 from source.objectDetection import objectDetection
 from source.simulation import Map, Robot
 from source.utilities import getAvgTimeArr, getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag,\
     handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag, Config, exceptions
 
-from source.concurrency.payloadTesting import testPayloads
+from source.concurrency import PayloadManager
 
 
 # Primary function where our main control flow will happen
@@ -59,8 +59,8 @@ def main():
             leftImage, rightImage, grayLeftImage, grayRightImage = fetchAndShowCameras(leftCam, rightCam,
                                                                                        show=not HEADLESS,
                                                                                        threadedDisplay=THREADED_DISPLAY)
-            disparityImageQueue.put(grayLeftImage)
-            disparityImageQueue.put(grayRightImage)
+            PayloadManager.addInputs('disparity', [grayLeftImage, grayRightImage])
+            # disparityImageQueue.put(grayRightImage)
             cameraFTs.append(time.perf_counter() - cameraStartTime)
 
             featureStartTime = time.perf_counter()
@@ -95,7 +95,8 @@ def main():
             # this disparity map calculation should maybe get removed since we ??only?? care about the depth values
             # disparityMap = computeDisparity(leftStereo, rightStereo, wlsFilter, grayLeftImage, grayRightImage,
             #                                 show=not HEADLESS, threadedDisplay=THREADED_DISPLAY)
-            disparityMap = disparityMapQueue.get()
+            disparityMap = PayloadManager.getOutput('disparity')
+            # cv2.imshow("disparity", disparityMap)
             disparityFTs.append(time.perf_counter() - disparityStartTime)
 
             # all additional functionality should be present within the === comments
@@ -164,9 +165,6 @@ def main():
 
 # denotes program entered in this file, the main thread
 if __name__ == "__main__":
-
-    testPayloads()
-
     # get dictionary with cli args
     argDict = getArgDict()
     # sets global flags from boolean arguments
@@ -252,13 +250,16 @@ if __name__ == "__main__":
     Map = Map()
     Robot = Robot()
 
-    # multiprocessing stuff
-    objectQueue = Queue()
-    disparityImageQueue = Queue()
-    disparityMapQueue = Queue()
+    # # multiprocessing stuff
+    # objectQueue = Queue()
+    # disparityImageQueue = Queue()
+    # disparityMapQueue = Queue()
 
     # launch disparity process
-    disparityProcess = startDisparityProcess(disparityImageQueue, disparityMapQueue, not HEADLESS, THREADED_DISPLAY)
+    # disparityProcess = startDisparityProcess(disparityImageQueue, disparityMapQueue, not HEADLESS, THREADED_DISPLAY)
+    payloads = list()
+    payloads.append(("disparity", PTcomputeDisparity, (), 1))
+    PayloadManager.initStart(payloads)
 
     # being primary loop
     Logger.log("Program starting...")

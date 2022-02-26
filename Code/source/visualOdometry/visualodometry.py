@@ -7,6 +7,7 @@ import cv2
 from numba import jit
 from multiprocessing import Queue, Process
 import time
+from typing import List, Any, Union, Dict
 
 # Custom  imports
 from source.cameras import DisplayManager
@@ -33,7 +34,10 @@ def computeDisparity(leftStereo: cv2.StereoSGBM, rightStereo: cv2.StereoMatcher,
     return disparity
 
 
-def PTcomputeDisparity(queue: QueuePipe):
+def PTcomputeDisparity(args: List[Any]):
+    queue = args[0]
+    assert isinstance(queue, QueuePipe)
+
     Config.init()
     sbgmPs = Config.getSBGMParamsDict()
     wlsParams = Config.getWLSParamsDict()
