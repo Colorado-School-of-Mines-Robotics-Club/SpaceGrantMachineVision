@@ -5,6 +5,7 @@ from cv2 import error as cv2Error
 import time
 import numpy as np
 
+
 class ThreadedDisplay:
     """
     Class that continuously shows a frame using a dedicated thread.
@@ -19,9 +20,8 @@ class ThreadedDisplay:
         self.delay = 1.0 / fps
         self.thread = None
 
-    # TODO: figure out to how strongly type return value of self for class
-    def start(self):
-        self.thread = Thread(target=self.show, args=())
+    def start(self) -> 'ThreadedDisplay':
+        self.thread = Thread(target=self.show, args=(), name=f"{self.windowName} Display Thread")
         self.thread.setDaemon(True)
         self.thread.start()
         return self
