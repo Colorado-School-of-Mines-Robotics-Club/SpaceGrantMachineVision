@@ -11,6 +11,7 @@ import time
 # Custom  imports
 from source.cameras import DisplayManager
 from source.utilities import Config
+from source.concurrency import QueuePipe
 
 
 # compute the disparity map of the two grayscale images given
@@ -29,6 +30,29 @@ def computeDisparity(leftStereo: cv2.StereoSGBM, rightStereo: cv2.StereoMatcher,
             DisplayManager.show("Disparity map", disparity)
         else:
             cv2.imshow("Disparity map", disparity)
+    return disparity
+
+
+def PTcomputeDisparity(queue: QueuePipe):
+    Config.init()
+    sbgmPs = Config.getSBGMParamsDict()
+    wlsParams = Config.getWLSParamsDict()
+    leftStereo = cv2.StereoSGBM_create(minDisparity=sbgmPs['minDisparity'], numDisparities=sbgmPs['numDisparities'],
+                                       blockSize=sbgmPs['blockSize'], P1=sbgmPs['P1'], P2=sbgmPs['P2'],
+                                       disp12MaxDiff=sbgmPs['disp12MaxDiff'], preFilterCap=sbgmPs['preFilterCap'],
+                                       uniquenessRatio=sbgmPs['uniquenessRatio'],
+                                       speckleWindowSize=sbgmPs['speckleWindowSize'],
+                                       speckleRange=sbgmPs['speckleRange'])
+    rightStereo = cv2.ximgproc.createRightMatcher(leftStereo)
+    wlsFilter = cv2.ximgproc.createDisparityWLSFilter(leftStereo)
+    wlsFilter.setLambda(wlsParams['lambda'])
+    wlsFilter.setSigmaColor(wlsParams['sigma'])
+
+    left = queue.getInput()
+    right = queue.getInput()
+
+    disparity = computeDisparity(leftStereo, rightStereo, wlsFilter, left, right)
+
     return disparity
 
 

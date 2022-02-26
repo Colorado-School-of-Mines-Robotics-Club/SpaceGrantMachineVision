@@ -7,12 +7,13 @@ import time
 
 class PayloadProcess:
     def __init__(self, payload: Tuple[str, Callable, Tuple, float]):
-        self.name, self.target, self.args, self.qTimeout, self.sleepTime = payload
+        self.name, self.target, self.args, self.qTimeout = payload
         self.queue = QueuePipe(timeout=self.qTimeout)
-        self.args = (self.queue,) + self.args
+        # self.args = (self.queue,) + self.args
         self.process = Process(name=self.name, target=self.run, args=self.args, daemon=True)
         self.stopped = False
         self.sleeping = False
+        self.sleepTime = self.qTimeout
 
     def run(self):
         while not self.stopped:
@@ -50,6 +51,9 @@ class PayloadProcess:
     # Queue functionality and interactivity
     def putInputs(self, inputs: Union[List[Any], Any]):
         self.queue.addInputs(inputs)
+
+    def putOutputs(self, outputs: Union[List[Any], Any]):
+        self.queue.addOutputs(outputs)
 
     def getOutputs(self) -> List[Any]:
         return self.queue.getOutputs()

@@ -20,6 +20,8 @@ from source.simulation import Map, Robot
 from source.utilities import getAvgTimeArr, getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag,\
     handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag, Config, exceptions
 
+from source.concurrency.payloadTesting import testPayloads
+
 
 # Primary function where our main control flow will happen
 # Contains a while true loop for continous iteration
@@ -162,6 +164,9 @@ def main():
 
 # denotes program entered in this file, the main thread
 if __name__ == "__main__":
+
+    testPayloads()
+
     # get dictionary with cli args
     argDict = getArgDict()
     # sets global flags from boolean arguments
