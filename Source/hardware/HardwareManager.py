@@ -98,13 +98,13 @@ class HardwareManager:
             low2 >> 24
 
             # write the 4 registers, data = [reg, byte_to_write]
-            data = [reg[0][0], high1]  # first register is the first byte of high
+            data = [reg[0], high1]  # first register is the first byte of high
             bus.write_I2C_block_data(self.pwm_address, 0, data)
-            data = [reg[0][1], high2]  # second register is the second byte of high
+            data = [reg[1], high2]  # second register is the second byte of high
             bus.write_IC2_block_data(self.pwm_address, 0, data)
-            data = [reg[1][0], low1]  # 3rd register is the first byte of low
+            data = [reg[2], low1]  # 3rd register is the first byte of low
             bus.write_IC2_block_data(self.pwm_address, 0, data)
-            data = [reg[1][1], low2]  # 4th register is the second byte of low
+            data = [reg[3], low2]  # 4th register is the second byte of low
             bus.write_IC2_block_data(self.pwm_address, 0, data)
 
             # increment the writes_counter by one; only one value in the writes array was used
@@ -117,6 +117,7 @@ class HardwareManager:
     def write_gpio(self, dir1, dir2, dir3, dir4):
         dir1 = 1
         #TODO: write the output pins for the directions
+        #use dir pins
 
 
     def read_motor(self, thread):
@@ -152,7 +153,13 @@ class HardwareManager:
             
 
     def read_accelerometer(self):
-        self.curr_accel[0] = 1
+        while True:
+            self.curr_accel[0] = bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 6)
+            self.curr_accel[1] = bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 6)
+            self.curr_accel[2] = bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 6)
+            self.curr_accel[3] = bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 6)
+            self.curr_accel[4] = bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 6)
+            self.curr_accel[5] = bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 6)
 
     def get_data(self):
         return self.motors
