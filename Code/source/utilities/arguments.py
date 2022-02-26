@@ -95,9 +95,12 @@ def handleRecordFlagClose(leftWriter: cv2.VideoWriter, rightWriter: cv2.VideoWri
 # wipes the log ahead of the logger being restarted
 def handleClearLogFlag(CLEAR_LOG: bool, logFile="log.log"):
     if CLEAR_LOG:
-        with open(logFile, 'r+') as f:
-            f.truncate(0)
-            f.seek(0)
+        try:
+            with open(logFile, 'r+') as f:
+                f.truncate(0)
+                f.seek(0)
+        except:
+            pass
 
 
 def handleVideoFlag(video: str, use_cap_dshow: bool, leftPort: int, rightPort: int) -> (str, str):
