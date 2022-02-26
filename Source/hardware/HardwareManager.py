@@ -11,7 +11,7 @@ class HardwareManager:
             pass
 
         self.pwm_address = 0x00
-        self.accelerometer_address = 0x00
+        self.accelerometer_address = 0x1D
 
         self.curr_motors = [0, 0, 0, 0]
         self.past_motors = [0, 0, 0, 0]
@@ -31,6 +31,11 @@ class HardwareManager:
         self.motor_pins = [[11, 13], [15, 36], [38, 12], [16, 18]]
         self.servo_pins = [19, 21, 23, 37, 22, 24, 26, 32]
         self.dir_pins = [29, 31, 33, 35]
+
+
+        self.motor_reg = [[7,6,9,8],[11,10,13,12],[15,14,17,16],[19,18,21,20]]
+        self.servo_reg = [[23,22,25,24],[27,26,29,28],[31,30,33,32],[35,34,37,36],[39,38,41,40],[43,42,45,44],[47,46,49,48],[51,50,53,52]]
+        self.led_reg = [[55,54,57,56],[59,58,61,60],[63,62,65,64],[67,66,69,68]]
 
         #Split encoder reading into 4 threads for speed and accuracy
         motor1 = threading.Thread(target=self.read_motor, args=(0,))
