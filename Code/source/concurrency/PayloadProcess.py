@@ -6,9 +6,11 @@ import time
 
 
 class PayloadProcess:
-    def __init__(self, payload: Tuple[str, Callable, Tuple, float]):
+    def __init__(self, payload: Tuple[str, Callable, Tuple, Union[float, None]]):
         self.name, self.target, self.args, self.qTimeout = payload
-        self.queue = QueuePipe(timeout=self.qTimeout)
+        self.queue = QueuePipe()
+        if self.qTimeout is not None:
+            self.queue = QueuePipe(timeout=self.qTimeout)
         self.args = (self.queue,) + self.args
         self.process = Process(name=self.name, target=self.run, args=(), daemon=True)
         self.stopped = False

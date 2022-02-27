@@ -7,7 +7,7 @@ class PayloadManager:
     payloads: Dict = dict()
 
     @classmethod
-    def init(cls, payloads: List[Tuple[str, Callable, Tuple, float]]):
+    def init(cls, payloads: List[Tuple[str, Callable, Tuple, Union[float, None]]]):
         for payload in payloads:
             cls.payloads[payload[0]] = PayloadProcess(payload)
 

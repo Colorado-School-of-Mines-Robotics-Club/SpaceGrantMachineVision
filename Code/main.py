@@ -263,7 +263,7 @@ if __name__ == "__main__":
     # launch disparity process
     # disparityProcess = startDisparityProcess(disparityImageQueue, disparityMapQueue, not HEADLESS, THREADED_DISPLAY)
     payloads = list()
-    payloads.append(("disparity", PTcomputeDisparity, (), 2))
+    payloads.append(("disparity", PTcomputeDisparity, (), None))
     PayloadManager.initStart(payloads)
 
     # being primary loop
@@ -286,6 +286,8 @@ if __name__ == "__main__":
             print("Keyboard Interrupt handled in main")
             break
 
+    Logger.log("    Closing processes through PayloadManager")
+    PayloadManager.joinAll()
     Logger.log("    Closing cameras...")
     closeCameras()
     Logger.log("    Closing video writers...")
@@ -297,9 +299,5 @@ if __name__ == "__main__":
         cv2.destroyWindow("Input Screen")
     Logger.log("    Shutting down logger...")
     Logger.shutdown()  # Shuts down the logging system and prints a closing message to the file
-
-    # join processes
-    PayloadManager.stopAll()
-    PayloadManager.joinAll()
 
     sys.exit(0)
