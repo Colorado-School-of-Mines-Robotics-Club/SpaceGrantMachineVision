@@ -96,8 +96,13 @@ def main():
             # disparityMap = computeDisparity(leftStereo, rightStereo, wlsFilter, grayLeftImage, grayRightImage,
             #                                 show=not HEADLESS, threadedDisplay=THREADED_DISPLAY)
             disparityMap = PayloadManager.getOutput('disparity')
-            cv2.imshow("disparity", disparityMap)
             disparityFTs.append(time.perf_counter() - disparityStartTime)
+            if not HEADLESS:
+                if THREADED_DISPLAY:
+                    DisplayManager.show("disparity", disparityMap)
+                else:
+                    cv2.imshow("disparity", disparityMap)
+
 
             # all additional functionality should be present within the === comments
             # additional data that needs to be stored for each iteration should be handled above
@@ -258,7 +263,7 @@ if __name__ == "__main__":
     # launch disparity process
     # disparityProcess = startDisparityProcess(disparityImageQueue, disparityMapQueue, not HEADLESS, THREADED_DISPLAY)
     payloads = list()
-    payloads.append(("disparity", PTcomputeDisparity, (), 10))
+    payloads.append(("disparity", PTcomputeDisparity, (), 2))
     PayloadManager.initStart(payloads)
 
     # being primary loop
@@ -294,6 +299,7 @@ if __name__ == "__main__":
     Logger.shutdown()  # Shuts down the logging system and prints a closing message to the file
 
     # join processes
-    disparityProcess.join()
+    PayloadManager.stopAll()
+    PayloadManager.joinAll()
 
     sys.exit(0)
