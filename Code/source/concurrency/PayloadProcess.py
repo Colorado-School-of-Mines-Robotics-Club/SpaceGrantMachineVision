@@ -24,10 +24,13 @@ class PayloadProcess:
         while not self.stopped:
             self.handleSignals()
             self.parseActionQueue()
+            if self.stopped:
+                break
             self.putOutputs(self.target(targetArgs))
 
     def parseActionQueue(self):
         if not self.actionQueue.empty():
+            print("SOMETHING IN THE QUUEE")
             action = self.actionQueue.get()
             if isinstance(action, float) or isinstance(action, int):
                 time.sleep(action)
@@ -51,16 +54,20 @@ class PayloadProcess:
         self.actionQueue.put('stop')
 
     def join(self, timeout: Union[float, None] = None):
+        if not self.process.is_alive():
+            return
         if timeout is not None:
             self.process.join(timeout=timeout)
         else:
             self.process.join()
 
     def terminate(self):
-        self.process.terminate()
+        if self.process.is_alive():
+            self.process.terminate()
 
     def kill(self):
-        self.process.kill()
+        if self.process.is_alive():
+            self.process.kill()
 
     def handleSignals(self):
         signal.signal(signal.SIGINT, self.handle_sigint)

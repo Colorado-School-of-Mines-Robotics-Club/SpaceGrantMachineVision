@@ -86,15 +86,13 @@ class PayloadManager:
             cls.kill(name)
 
     @classmethod
-    def close(cls, name: str, timeout: Union[float, None] = None):
-        cls.stop(name)
-        cls.join(name, timeout)
-        cls.terminate(name)
-
-    @classmethod
-    def closeAll(cls, timeout: Union[float, None] = None):
+    def close(cls, timeout: Union[float, None] = None):
         for name in cls.payloads:
-            cls.close(name, timeout)
+            cls.stop(name)
+        for name in cls.payloads:
+            cls.join(name, timeout)
+        for name in cls.payloads:
+            cls.terminate(name)
 
     # methods for adding and getting data from the process queues
     @classmethod

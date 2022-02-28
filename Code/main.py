@@ -232,7 +232,7 @@ if __name__ == "__main__":
 
     # multiprocessing, defines payloads to be run in parallel
     payloads = list()
-    payloads.append(("disparity", PTcomputeDisparity, (not HEADLESS, THREADED_DISPLAY), makeStereoObjects, (), None))
+    payloads.append(("disparity", PTcomputeDisparity, (not HEADLESS, THREADED_DISPLAY), makeStereoObjects, (), 0.5))
     # payloads.append(("featureAndObjects", PTobjectAndFeatures, (), None))
     PayloadManager.initStart(payloads)
 
@@ -257,7 +257,8 @@ if __name__ == "__main__":
             break
 
     Logger.log("    Closing processes through PayloadManager")
-    PayloadManager.closeAll(timeout=0.1)
+    # PayloadManager.close(timeout=1)
+    PayloadManager.terminateAll()
     Logger.log("    Closing cameras...")
     closeCameras()
     Logger.log("    Closing video writers...")

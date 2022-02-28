@@ -44,6 +44,9 @@ def PTcomputeDisparity(args: Tuple):
     left = queue.getInput()
     right = queue.getInput()
 
+    if left is None or right is None:
+        return np.zeros((640, 480))
+
     disparity = computeDisparity(leftStereo, rightStereo, wlsFilter, left, right, show=show, threadedDisplay=td)
 
     return disparity
