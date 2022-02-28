@@ -1,19 +1,14 @@
 # Built in python libs
-import os
-import random
-import signal
 import sys
 import time
 
 # Additional libs
-import numpy as np
 import cv2
-from multiprocessing import Queue, Process
 
 # Custom imports
 from source.logger import Logger, logArguments, logSystemInfo, logConfiguration
 from source.cameras import fetchAndShowCameras, initCameras, closeCameras, DisplayManager, CaptureManager
-from source.visualOdometry import PTcomputeDisparity
+from source.visualOdometry import PTcomputeDisparity, makeStereoObjects
 from source.features import computeMatchingPoints, getPointsFromKeypoints, getAvgTranslationXY
 from source.objectDetection import objectDetection
 from source.simulation import Map, Robot
@@ -60,7 +55,6 @@ def main():
                                                                                        show=not HEADLESS,
                                                                                        threadedDisplay=THREADED_DISPLAY)
             PayloadManager.addInputs('disparity', [grayLeftImage, grayRightImage])
-            # disparityImageQueue.put(grayRightImage)
             cameraFTs.append(time.perf_counter() - cameraStartTime)
 
             featureStartTime = time.perf_counter()
@@ -92,16 +86,8 @@ def main():
             objectDectFTs.append(time.perf_counter() - objectDectStartTime)
 
             disparityStartTime = time.perf_counter()
-            # this disparity map calculation should maybe get removed since we ??only?? care about the depth values
-            # disparityMap = computeDisparity(leftStereo, rightStereo, wlsFilter, grayLeftImage, grayRightImage,
-            #                                 show=not HEADLESS, threadedDisplay=THREADED_DISPLAY)
             disparityMap = PayloadManager.getOutput('disparity')
             disparityFTs.append(time.perf_counter() - disparityStartTime)
-            if not HEADLESS:
-                if THREADED_DISPLAY:
-                    DisplayManager.show("disparity", disparityMap)
-                else:
-                    cv2.imshow("disparity", disparityMap)
 
 
             # all additional functionality should be present within the === comments
@@ -227,17 +213,6 @@ if __name__ == "__main__":
                          nlevels=orbParams['nlevels'], edgeThreshold=orbParams['edgeThreshold'],
                          firstLevel=orbParams['firstLevel'], patchSize=orbParams['patchSize'])
     matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)  # matcher object
-    # stereo object
-    leftStereo = cv2.StereoSGBM_create(minDisparity=sbgmPs['minDisparity'], numDisparities=sbgmPs['numDisparities'],
-                                       blockSize=sbgmPs['blockSize'], P1=sbgmPs['P1'], P2=sbgmPs['P2'],
-                                       disp12MaxDiff=sbgmPs['disp12MaxDiff'], preFilterCap=sbgmPs['preFilterCap'],
-                                       uniquenessRatio=sbgmPs['uniquenessRatio'],
-                                       speckleWindowSize=sbgmPs['speckleWindowSize'],
-                                       speckleRange=sbgmPs['speckleRange'])
-    rightStereo = cv2.ximgproc.createRightMatcher(leftStereo)
-    wlsFilter = cv2.ximgproc.createDisparityWLSFilter(leftStereo)
-    wlsFilter.setLambda(wlsParams['lambda'])
-    wlsFilter.setSigmaColor(wlsParams['sigma'])
 
     # inits the DisplayManager
     DisplayManager.init()
@@ -255,15 +230,10 @@ if __name__ == "__main__":
     Map = Map()
     Robot = Robot()
 
-    # # multiprocessing stuff
-    # objectQueue = Queue()
-    # disparityImageQueue = Queue()
-    # disparityMapQueue = Queue()
-
-    # launch disparity process
-    # disparityProcess = startDisparityProcess(disparityImageQueue, disparityMapQueue, not HEADLESS, THREADED_DISPLAY)
+    # multiprocessing, defines payloads to be run in parallel
     payloads = list()
-    payloads.append(("disparity", PTcomputeDisparity, (), None))
+    payloads.append(("disparity", PTcomputeDisparity, (not HEADLESS, THREADED_DISPLAY), makeStereoObjects, (), None))
+    # payloads.append(("featureAndObjects", PTobjectAndFeatures, (), None))
     PayloadManager.initStart(payloads)
 
     # being primary loop
@@ -287,7 +257,7 @@ if __name__ == "__main__":
             break
 
     Logger.log("    Closing processes through PayloadManager")
-    PayloadManager.joinAll()
+    PayloadManager.closeAll(timeout=0.5)
     Logger.log("    Closing cameras...")
     closeCameras()
     Logger.log("    Closing video writers...")

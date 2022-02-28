@@ -7,12 +7,12 @@ class PayloadManager:
     payloads: Dict = dict()
 
     @classmethod
-    def init(cls, payloads: List[Tuple[str, Callable, Tuple, Union[float, None]]]):
+    def init(cls, payloads: List[Tuple[str, Callable, Tuple, Callable, Tuple, Union[float, None]]]):
         for payload in payloads:
             cls.payloads[payload[0]] = PayloadProcess(payload)
 
     @classmethod
-    def initStart(cls, payloads: List[Tuple[str, Callable, Tuple, float]]):
+    def initStart(cls, payloads: List[Tuple[str, Callable, Tuple, Callable, Tuple, Union[float, None]]]):
         cls.init(payloads)
         cls.startAll()
 
@@ -56,13 +56,16 @@ class PayloadManager:
             cls.sleep(name, delay)
 
     @classmethod
-    def join(cls, name: str):
-        cls.payloads[name].join()
+    def join(cls, name: str, timeout: Union[float, None] = None):
+        if timeout is not None:
+            cls.payloads[name].join(timeout=timeout)
+        else:
+            cls.payloads[name].join()
 
     @classmethod
-    def joinAll(cls):
+    def joinAll(cls, timeout: Union[float, None] = None):
         for name in cls.payloads:
-            cls.join(name)
+            cls.join(name, timeout)
 
     @classmethod
     def terminate(cls, name: str):
@@ -81,6 +84,17 @@ class PayloadManager:
     def killAll(cls):
         for name in cls.payloads:
             cls.kill(name)
+
+    @classmethod
+    def close(cls, name: str, timeout: Union[float, None] = None):
+        cls.stop(name)
+        cls.join(name, timeout)
+        cls.terminate(name)
+
+    @classmethod
+    def closeAll(cls, timeout: Union[float, None] = None):
+        for name in cls.payloads:
+            cls.close(name, timeout)
 
     # methods for adding and getting data from the process queues
     @classmethod

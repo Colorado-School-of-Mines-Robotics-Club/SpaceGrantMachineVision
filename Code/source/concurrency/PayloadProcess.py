@@ -6,28 +6,35 @@ import time
 
 
 class PayloadProcess:
-    def __init__(self, payload: Tuple[str, Callable, Tuple, Union[float, None]]):
-        self.name, self.target, self.args, self.qTimeout = payload
+    def __init__(self, payload: Tuple[str, Callable, Tuple, Callable, Tuple, Union[float, None]]):
+        self.name, self.target, self.args, self.staticObjBuilder, self.staticObjBuilderArgs, self.qTimeout = payload
         self.queue = QueuePipe()
+        self.actionQueue = Queue()
         if self.qTimeout is not None:
             self.queue = QueuePipe(timeout=self.qTimeout)
-        self.args = (self.queue,) + self.args
         self.process = Process(name=self.name, target=self.run, args=(), daemon=True)
         self.stopped = False
-        self.actionQueue = Queue()
 
     def run(self):
+        # build the static arguments
+        if len(self.staticObjBuilderArgs) == 0:
+            staticObjects = self.staticObjBuilder()
+        else:
+            staticObjects = self.staticObjBuilder(self.staticObjBuilderArgs)
+        targetArgs = (self.queue, ) + tuple(staticObjects) + self.args
+        # run the loop for the target function
         while not self.stopped:
-            if not self.actionQueue.empty():
-                action = self.actionQueue.get()
-                if isinstance(action, float) or isinstance(action, int):
-                    time.sleep(action)
-                    continue
-                if isinstance(action, str):
-                    if action == 'stop':
-                        self.stopped = True
-                        continue
-            self.putOutputs(self.target(self.args))
+            self.parseActionQueue()
+            self.putOutputs(self.target(targetArgs))
+
+    def parseActionQueue(self):
+        if not self.actionQueue.empty():
+            action = self.actionQueue.get()
+            if isinstance(action, float) or isinstance(action, int):
+                time.sleep(action)
+            elif isinstance(action, str):
+                if action == 'stop':
+                    self.stopped = True
 
     def start(self) -> 'PayloadProcess':
         self.process.start()
@@ -44,8 +51,11 @@ class PayloadProcess:
     def stop(self):
         self.actionQueue.put('stop')
 
-    def join(self):
-        self.process.join()
+    def join(self, timeout: Union[float, None] = None):
+        if timeout is not None:
+            self.process.join(timeout=timeout)
+        else:
+            self.process.join()
 
     def terminate(self):
         self.process.terminate()
