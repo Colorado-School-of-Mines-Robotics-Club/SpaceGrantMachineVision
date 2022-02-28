@@ -2,6 +2,7 @@ from threading import Thread
 from collections import deque
 import cv2
 from cv2 import error as cv2Error
+from typing import Union
 import time
 import numpy as np
 
@@ -36,17 +37,15 @@ class ThreadedDisplay:
             except IndexError:
                 pass
             time.sleep(self.delay)
-        try:
-            if cv2.getWindowProperty(self.windowName, 0) >= 0:
-                cv2.destroyWindow(self.windowName)
-        except cv2Error:
-            pass
 
     def updateFPS(self, fps: float):
         self.delay = 1.0 / fps
 
     def update(self, newFrame: np.ndarray):
         self.queue.append(newFrame)
+
+    def join(self, timeout: Union[float, None] = None):
+        self.thread.join(timeout=timeout)
 
     def stop(self):
         self.stopped = True

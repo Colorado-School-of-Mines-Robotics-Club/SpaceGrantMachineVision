@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Union
 import numpy as np
 import cv2
 from cv2 import error as cv2Error
@@ -16,6 +16,7 @@ class DisplayManager:
     """
     # generate a dict indexed by source to aggregate the threads
     displays = dict()
+
     # inits the DisplayMananger
     @classmethod
     def init(cls):
@@ -47,17 +48,17 @@ class DisplayManager:
 
     # stops a threadedDisplay from window name
     @classmethod
-    def stopDisplay(cls, windowName: str):
-        if cls.displays[windowName].isAlive():
-            cls.displays[windowName].stop()
+    def stopDisplay(cls, windowName: str, timeout: Union[float, None] = None):
+        cls.displays[windowName].stop()
         try:
             if cv2.getWindowProperty(windowName, 0) >= 0:
                 cv2.destroyWindow(windowName)
         except cv2Error:
             pass
+        cls.displays[windowName].join(timeout=timeout)
 
     # stops all displays
     @classmethod
-    def stopDisplays(cls):
+    def stopDisplays(cls, timeout: Union[float, None] = None):
         for source, thread in cls.displays.items():
-            cls.stopDisplay(source)
+            cls.stopDisplay(source, timeout)
