@@ -3,6 +3,7 @@ from multiprocessing import Process, Queue
 from typing import List, Tuple, Union, Any
 from collections.abc import Callable
 import time
+import signal
 
 
 class PayloadProcess:
@@ -17,13 +18,11 @@ class PayloadProcess:
 
     def run(self):
         # build the static arguments
-        if len(self.staticObjBuilderArgs) == 0:
-            staticObjects = self.staticObjBuilder()
-        else:
-            staticObjects = self.staticObjBuilder(self.staticObjBuilderArgs)
+        staticObjects = self.staticObjBuilder(self.staticObjBuilderArgs)
         targetArgs = (self.queue, ) + tuple(staticObjects) + self.args
         # run the loop for the target function
         while not self.stopped:
+            self.handleSignals()
             self.parseActionQueue()
             self.putOutputs(self.target(targetArgs))
 
@@ -62,6 +61,16 @@ class PayloadProcess:
 
     def kill(self):
         self.process.kill()
+
+    def handleSignals(self):
+        signal.signal(signal.SIGINT, self.handle_sigint)
+        signal.signal(signal.SIGTERM, self.handle_sigterm)
+
+    def handle_sigint(self, sig, frame):
+        self.stopped = True
+
+    def handle_sigterm(self, sig, frame):
+        self.stopped = True
 
     # Queue functionality and interactivity
     def putInputs(self, inputs: Union[List[Any], Any]):

@@ -253,17 +253,17 @@ if __name__ == "__main__":
             sys.exit(1)
         except KeyboardInterrupt:
             Logger.log("Keyboard Interrupt handled in main")
-            print("Keyboard Interrupt handled in main")
+            # print("Keyboard Interrupt handled in main")
             break
 
     Logger.log("    Closing processes through PayloadManager")
-    PayloadManager.closeAll(timeout=0.5)
+    PayloadManager.closeAll(timeout=0.1)
     Logger.log("    Closing cameras...")
     closeCameras()
     Logger.log("    Closing video writers...")
     handleRecordFlagClose(leftWriter, rightWriter)
     Logger.log("    Closing displays through DisplayManager...")
-    DisplayManager.stopDisplays(0.5)
+    DisplayManager.stopDisplays(timeout=0.1)
     Logger.log("    Closing main process displays...")
     if not HEADLESS and THREADED_DISPLAY:
         cv2.destroyWindow("Input Screen")

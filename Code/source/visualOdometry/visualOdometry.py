@@ -14,7 +14,7 @@ from source.cameras import DisplayManager
 from source.utilities import Config
 
 
-def makeStereoObjects():
+def makeStereoObjects(args: Tuple):
     Config.init()
     sbgmPs = Config.getSBGMParamsDict()
     wlsParams = Config.getWLSParamsDict()
