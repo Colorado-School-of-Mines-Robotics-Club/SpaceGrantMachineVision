@@ -280,7 +280,7 @@ if __name__ == "__main__":
     Logger.log("    Closing video writers...")
     handleRecordFlagClose(leftWriter, rightWriter)
     Logger.log("    Closing displays through DisplayManager...")
-    DisplayManager.stopDisplays()
+    DisplayManager.stopDisplays(0.5)
     Logger.log("    Closing main process displays...")
     if not HEADLESS and THREADED_DISPLAY:
         cv2.destroyWindow("Input Screen")
