@@ -13,7 +13,7 @@ class PayloadProcess:
         self.actionQueue = Queue()
         if self.qTimeout is not None:
             self.queue = QueuePipe(timeout=self.qTimeout)
-        self.process = Process(name=self.name, target=self.run, args=(), daemon=True)
+        self.process = Process(name=self.name, target=self.run, args=())
         self.stopped = False
 
     def run(self):
