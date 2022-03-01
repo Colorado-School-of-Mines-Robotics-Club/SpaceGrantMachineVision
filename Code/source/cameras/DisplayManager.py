@@ -50,13 +50,10 @@ class DisplayManager:
     # stops a threadedDisplay from window name
     @classmethod
     def stopDisplay(cls, windowName: str, timeout: Union[float, None] = None):
-        # cls.displays[windowName].stop()
-        try:
-            if cv2.getWindowProperty(windowName, 0) >= 0:
-                cv2.destroyWindow(windowName)
-        except cv2Error:
-            pass
-        # cls.displays[windowName].join(timeout=timeout)
+        cls.displays[windowName].stop()
+        if cv2.getWindowProperty(windowName, 0) >= 0:
+            cv2.destroyWindow(windowName)
+        cls.displays[windowName].join(timeout=timeout)
 
     # stops all displays
     @classmethod
