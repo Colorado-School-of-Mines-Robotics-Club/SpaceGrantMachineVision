@@ -268,7 +268,6 @@ if __name__ == "__main__":
     if not HEADLESS and THREADED_DISPLAY:
         cv2.destroyWindow("Input Screen")
     Logger.log("    Shutting down logger...")
-    print("SHUTTING DOWN THE LOGGER")
     Logger.shutdown()  # Shuts down the logging system and prints a closing message to the file
 
     print("FINISHED SHUTDOWN, NEXT LINE IS sys.exit(0)")
