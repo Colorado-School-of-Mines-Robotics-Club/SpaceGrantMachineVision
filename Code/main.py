@@ -270,5 +270,5 @@ if __name__ == "__main__":
     Logger.log("    Shutting down logger...")
     Logger.shutdown()  # Shuts down the logging system and prints a closing message to the file
 
-    print("FINISHED SHUTDOWN, NEXT LINE IS sys.exit(0)")
+    print("FULLY CLOSED PROGRAM, NOW sys.exit(0)")
     sys.exit(0)

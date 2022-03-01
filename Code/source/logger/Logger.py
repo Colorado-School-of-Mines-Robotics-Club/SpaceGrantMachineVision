@@ -81,7 +81,7 @@ class Logger:
         cls.buffer.put(("shouldThreadJoin", False))
         cls.filepath = filepath
         Logger.openFile(filepath)
-        cls.logThread = Process(target=Logger.runLogThread, args=(cls.buffer,))
+        cls.logThread = Process(target=Logger.runLogThread, args=(cls.buffer,), daemon=True)
         cls.logThread.start()
         return
     
@@ -90,6 +90,7 @@ class Logger:
         """Stops the logger thread
         """
         cls.buffer.put(("shouldThreadJoin", True))
+        print(f"LOGGER QUEUE EMPTY: {cls.buffer.empty()}")
         if cls.logThread.is_alive():
             cls.logThread.join()
 
