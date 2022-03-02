@@ -51,8 +51,10 @@ class DisplayManager:
     @classmethod
     def stopDisplay(cls, windowName: str, timeout: Union[float, None] = None):
         cls.displays[windowName].stop()
+        cv2.waitKey(1)
         if cv2.getWindowProperty(windowName, 0) >= 0:
             cv2.destroyWindow(windowName)
+            cv2.waitKey(1)
         cls.displays[windowName].join(timeout=timeout)
 
     # stops all displays
@@ -60,3 +62,4 @@ class DisplayManager:
     def stopDisplays(cls, timeout: Union[float, None] = None):
         for source, thread in cls.displays.items():
             cls.stopDisplay(source, timeout)
+            cv2.waitKey(1)
