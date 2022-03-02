@@ -1,7 +1,7 @@
-from .Kinematic import Kinematic
+from .KinematicObject import KinematicObject
 
 
-class Suspension(Kinematic):
+class Suspension(KinematicObject):
     def __init__(self):
         return
 
