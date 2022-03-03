@@ -1,4 +1,5 @@
 from .QueuePipe import QueuePipe
+import multiprocessing
 from multiprocessing import Process, Queue
 from typing import List, Tuple, Union, Any
 from collections.abc import Callable
@@ -13,7 +14,7 @@ class PayloadProcess:
         self.actionQueue = Queue()
         if self.qTimeout is not None:
             self.queue = QueuePipe(timeout=self.qTimeout)
-        self.process = Process(name=self.name, target=self.run, args=(), daemon=True)
+        self.process = Process(name=self.name, target=self.run, args=())
         self.stopped = False
 
     def run(self):

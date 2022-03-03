@@ -24,10 +24,7 @@ class QueuePipe:
         items = list()
         while not targetEmpty:
             try:
-                if self.timeout is None:
-                    items.append(targetQueue.get())
-                else:
-                    items.append(targetQueue.get(timeout=self.timeout))
+                items.append(targetQueue.get(self.timeout))
                 if output:
                     self.currentOutputs -= 1
                 else:
@@ -70,10 +67,7 @@ class QueuePipe:
     # acquires just the first item from the input queue
     def getInput(self) -> Any:
         try:
-            if self.timeout is None:
-                item = self.inputQ.get()
-            else:
-                item = self.inputQ.get(timeout=self.timeout)
+            item = self.inputQ.get(timeout=self.timeout)
             self.currentInputs -= 1
             return item
         except queue.Empty:
@@ -86,10 +80,7 @@ class QueuePipe:
     # gets the first item from the output queue
     def getOutput(self) -> Any:
         try:
-            if self.timeout is None:
-                item = self.outputQ.get()
-            else:
-                item = self.outputQ.get(timeout=self.timeout)
+            item = self.outputQ.get(timeout=self.timeout)
             self.currentOutputs -= 1
             return item
         except queue.Empty:
