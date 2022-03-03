@@ -1,4 +1,5 @@
 from typing import Tuple, Union
+from source.utilities.Config import Config
 
 
 class Fourbar:
@@ -12,3 +13,4 @@ class Fourbar:
     def update(self, angle: Union[float, None] = None):
         if angle is not None:
             self.angle = angle
+
