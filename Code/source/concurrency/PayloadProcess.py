@@ -74,12 +74,8 @@ class PayloadProcess:
 
     def handleSignals(self):
         signal.signal(signal.SIGINT, self.handle_sigint)
-        signal.signal(signal.SIGTERM, self.handle_sigterm)
 
     def handle_sigint(self, sig, frame):
-        self.stop()
-
-    def handle_sigterm(self, sig, frame):
         self.stop()
 
     # Queue functionality and interactivity
