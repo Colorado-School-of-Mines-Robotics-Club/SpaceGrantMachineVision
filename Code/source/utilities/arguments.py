@@ -2,7 +2,7 @@
 import sys
 import os
 from argparse import ArgumentParser, Namespace
-from typing import Dict
+from typing import Dict, Tuple
 
 # Additional libs
 import cv2
@@ -61,13 +61,13 @@ def getArgDict() -> Dict:
     return argDict
 
 
-def getArgFlags(argDict: Dict) -> (bool, bool, bool, bool):
+def getArgFlags(argDict: Dict) -> Tuple[bool, bool, bool, bool]:
     # HEADLESS, CLEAR_LOG, RECORD, THREADED_DISPLAY
     return argDict['headless'], argDict['clearlog'], argDict['record'], argDict['threadeddisplay']
 
 
 # make video writers for record flag
-def handleRecordFlag(RECORD: bool, leftCam: int, rightCam: int) -> (cv2.VideoWriter, cv2.VideoWriter):
+def handleRecordFlag(RECORD: bool, leftCam: int, rightCam: int) -> Tuple[cv2.VideoWriter, cv2.VideoWriter]:
     # initiate writers
     leftWriter = None
     rightWriter = None
@@ -103,7 +103,7 @@ def handleClearLogFlag(CLEAR_LOG: bool, logFile="log.log"):
             pass
 
 
-def handleVideoFlag(video: str, use_cap_dshow: bool, leftPort: int, rightPort: int) -> (str, str):
+def handleVideoFlag(video: str, use_cap_dshow: bool, leftPort: int, rightPort: int) -> Tuple[str, str]:
     # loading data for cameras and starting the camera process
     if video is None:
         leftCam = leftPort
