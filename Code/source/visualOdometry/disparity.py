@@ -30,6 +30,7 @@ def computeDisparity(leftStereo: cv2.StereoSGBM, rightStereo: cv2.StereoMatcher,
             DisplayManager.show("Disparity map", disparity)
         else:
             cv2.imshow("Disparity map", disparity)
+            cv2.waitKey(1)
     return disparity
 
 

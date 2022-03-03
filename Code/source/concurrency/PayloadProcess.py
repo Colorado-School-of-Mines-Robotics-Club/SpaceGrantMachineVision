@@ -31,7 +31,6 @@ class PayloadProcess:
             if self.stopped:
                 break
             outputs = self.target(targetArgs)
-            print(outputs)
             self.putOutputs(outputs)
 
     def parseActionQueue(self, actionQueue: Union[Queue, None] = None):
