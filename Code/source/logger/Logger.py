@@ -90,7 +90,6 @@ class Logger:
         """Stops the logger thread
         """
         cls.buffer.put(("shouldThreadJoin", True))
-        print(f"LOGGER QUEUE EMPTY: {cls.buffer.empty()}")
         if cls.logThread.is_alive():
             cls.logThread.join()
 

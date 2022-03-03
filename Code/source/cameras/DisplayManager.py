@@ -56,6 +56,7 @@ class DisplayManager:
             cv2.destroyWindow(windowName)
             cv2.waitKey(1)
         cls.displays[windowName].join(timeout=timeout)
+        cv2.waitKey(1)
 
     # stops all displays
     @classmethod
@@ -63,3 +64,6 @@ class DisplayManager:
         for source, thread in cls.displays.items():
             cls.stopDisplay(source, timeout)
             cv2.waitKey(1)
+        cv2.waitKey(1)
+        cv2.destroyAllWindows()
+        cv2.waitKey(1)

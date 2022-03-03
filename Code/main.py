@@ -233,7 +233,6 @@ if __name__ == "__main__":
     # multiprocessing, defines payloads to be run in parallel
     payloads = list()
     payloads.append(("disparity", PTcomputeDisparity, (not HEADLESS, THREADED_DISPLAY), makeStereoObjects, (), 0.5))
-    # payloads.append(("featureAndObjects", PTobjectAndFeatures, (), None))
     PayloadManager.initStart(payloads)
 
     # being primary loop
@@ -263,14 +262,10 @@ if __name__ == "__main__":
     Logger.log("    Closing video writers...")
     handleRecordFlagClose(leftWriter, rightWriter)
     Logger.log("    Closing displays through DisplayManager...")
+    Logger.log("        & Closing main process displays...")
     DisplayManager.stopDisplays(timeout=0.5)
+    cv2.destroyAllWindows()
     cv2.waitKey(1)
-    Logger.log("    Closing main process displays...")
-    if not HEADLESS and THREADED_DISPLAY:
-        cv2.destroyWindow("Input Screen")
-        cv2.waitKey(1)
     Logger.log("    Shutting down logger...")
     Logger.shutdown()  # Shuts down the logging system and prints a closing message to the file
-
-    print("FULLY CLOSED PROGRAM, NOW sys.exit(0)")
     sys.exit(0)
