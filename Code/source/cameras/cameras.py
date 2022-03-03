@@ -1,6 +1,7 @@
 # Built in python libs
 import os
 import time
+from typing import Tuple
 
 # Additional libs
 import numpy as np
@@ -18,7 +19,7 @@ from source.utilities.Config import Config
 
 
 # gets the camera frames from the captureManager
-def fetchCameraImages(leftSource: int, rightSource: int) -> (np.ndarray, np.ndarray):
+def fetchCameraImages(leftSource: int, rightSource: int) -> Tuple[np.ndarray, np.ndarray]:
     left, right = CaptureManager.getFrame(leftSource), CaptureManager.getFrame(rightSource)
     if left.shape != right.shape:
         minHeight = min(left.shape[0], right.shape[0])
@@ -32,7 +33,7 @@ def fetchCameraImages(leftSource: int, rightSource: int) -> (np.ndarray, np.ndar
 
 # makes grayscale images of the bgr_images returned by readCameras
 # @jit(forceobj=True)
-def getGrayscaleImages(left: np.ndarray, right: np.ndarray) -> (np.ndarray, np.ndarray):
+def getGrayscaleImages(left: np.ndarray, right: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     return cv2.cvtColor(left, cv2.COLOR_BGR2GRAY), cv2.cvtColor(right, cv2.COLOR_BGR2GRAY)
 
 
@@ -52,7 +53,7 @@ def showCameras(left: np.ndarray, right: np.ndarray, threadedDisplay=True):
 # converts the images to grayscale
 # shows the images
 def fetchAndShowCameras(leftSource: int, rightSource: int, show=True, threadedDisplay=True) ->\
-        (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+        Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     try:
         left, right = fetchCameraImages(leftSource, rightSource)
         if left is None:
@@ -90,7 +91,7 @@ def closeCameras():
 
 
 # loads all files from data that the robot needs
-def loadUndistortionFiles() -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+def loadUndistortionFiles() -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     # one time file loading for the camera intrinsic matrices and undistortion coeff
     Config.init()
     calibrationPath = Config.getFilepathsDict()["calibrationPath"]
