@@ -5,9 +5,9 @@ import numpy as np
 
 
 class QueuePipe:
-    def __init__(self, timeout=None):
-        self.inputQ = Queue()
-        self.outputQ = Queue()
+    def __init__(self, inputQueue: Union[Queue, None] = None, outputQueue: Union[Queue, None] = None, timeout=None):
+        self.inputQ = Queue() if inputQueue is None else inputQueue
+        self.outputQ = Queue() if outputQueue is None else outputQueue
         self.totalInputs = 0
         self.totalOutputs = 0
         self.currentInputs = 0

@@ -14,25 +14,27 @@ class PayloadProcess:
         self.actionQueue = Queue()
         if self.qTimeout is not None:
             self.queue = QueuePipe(timeout=self.qTimeout)
-        self.process = Process(name=self.name, target=self.run, args=(), daemon=True)
+        self.process = Process(name=self.name, target=self.run, args=(self.queue.inputQ, self.queue.outputQ,
+                                                                      self.actionQueue), daemon=True)
         self.stopped = False
 
-    def run(self):
+    def run(self, inputQ, outputQ, actionQ):
         # build the static arguments
         staticObjects = self.staticObjBuilder(self.staticObjBuilderArgs)
-        targetArgs = (self.queue, ) + tuple(staticObjects) + self.args
+        targetArgs = (QueuePipe(inputQ, outputQ), ) + tuple(staticObjects) + self.args
         # define signal catches
         self.handleSignals()
         # run the loop for the target function
         while not self.stopped:
-            self.parseActionQueue()
+            self.parseActionQueue(actionQ)
             if self.stopped:
                 break
             self.putOutputs(self.target(targetArgs))
 
-    def parseActionQueue(self):
-        if not self.actionQueue.empty():
-            action = self.actionQueue.get()
+    def parseActionQueue(self, actionQueue: Union[Queue, None] = None):
+        actionQ = self.actionQueue if actionQueue is None else actionQueue
+        if not actionQ.empty():
+            action = actionQ.get()
             if isinstance(action, float) or isinstance(action, int):
                 time.sleep(action)
             elif isinstance(action, str):

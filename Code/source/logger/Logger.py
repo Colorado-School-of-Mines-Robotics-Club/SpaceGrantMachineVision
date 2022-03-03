@@ -81,7 +81,7 @@ class Logger:
         cls.buffer.put(("shouldThreadJoin", False))
         cls.filepath = filepath
         Logger.openFile(filepath)
-        cls.logThread = Process(target=Logger.runLogThread, args=(cls.buffer,))
+        cls.logThread = Process(target=Logger.runLogThread, args=(cls.buffer,), daemon=True)
         cls.logThread.start()
         return
     
