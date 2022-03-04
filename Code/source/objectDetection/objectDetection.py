@@ -33,3 +33,10 @@ def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, fea
     objectBoundingBoxes = contourBoundingBoxes + featureDenseBoundingBoxes
 
     return objectBoundingBoxes
+
+
+def compile_object_detection():
+    points = np.random.randint(100, 200, (20, 1)).astype('uint64')
+    dummy_image = np.random.randint(0, 255, (640, 480)).astype('uint8')
+
+    _ = findFeatureDenseBoundingBoxes(dummy_image, points)
