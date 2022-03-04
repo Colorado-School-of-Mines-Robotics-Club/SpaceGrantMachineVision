@@ -1,24 +1,21 @@
 # Built in python libs
-import os
-import random
-import signal
 import sys
 import time
 
 # Additional libs
-import numpy as np
 import cv2
-from multiprocessing import Queue, Process
 
 # Custom imports
 from source.logger import Logger, logArguments, logSystemInfo, logConfiguration
 from source.cameras import fetchAndShowCameras, initCameras, closeCameras, DisplayManager, CaptureManager
-from source.visualOdometry import computeDisparity, startDisparityProcess, disparityProcess
+from source.visualOdometry import PTcomputeDisparity, makeStereoObjects
 from source.features import computeMatchingPoints, getPointsFromKeypoints, getAvgTranslationXY
 from source.objectDetection import objectDetection
 from source.simulation import Map, Robot
 from source.utilities import getAvgTimeArr, getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag,\
     handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag, Config, exceptions
+
+from source.concurrency import PayloadManager
 
 
 # Primary function where our main control flow will happen
@@ -57,8 +54,7 @@ def main():
             leftImage, rightImage, grayLeftImage, grayRightImage = fetchAndShowCameras(leftCam, rightCam,
                                                                                        show=not HEADLESS,
                                                                                        threadedDisplay=THREADED_DISPLAY)
-            disparityImageQueue.put(grayLeftImage)
-            disparityImageQueue.put(grayRightImage)
+            PayloadManager.addInputs('disparity', [grayLeftImage, grayRightImage])
             cameraFTs.append(time.perf_counter() - cameraStartTime)
 
             featureStartTime = time.perf_counter()
@@ -90,11 +86,9 @@ def main():
             objectDectFTs.append(time.perf_counter() - objectDectStartTime)
 
             disparityStartTime = time.perf_counter()
-            # this disparity map calculation should maybe get removed since we ??only?? care about the depth values
-            # disparityMap = computeDisparity(leftStereo, rightStereo, wlsFilter, grayLeftImage, grayRightImage,
-            #                                 show=not HEADLESS, threadedDisplay=THREADED_DISPLAY)
-            disparityMap = disparityMapQueue.get()
+            disparityMap = PayloadManager.getOutput('disparity')
             disparityFTs.append(time.perf_counter() - disparityStartTime)
+
 
             # all additional functionality should be present within the === comments
             # additional data that needs to be stored for each iteration should be handled above
@@ -219,17 +213,6 @@ if __name__ == "__main__":
                          nlevels=orbParams['nlevels'], edgeThreshold=orbParams['edgeThreshold'],
                          firstLevel=orbParams['firstLevel'], patchSize=orbParams['patchSize'])
     matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)  # matcher object
-    # stereo object
-    leftStereo = cv2.StereoSGBM_create(minDisparity=sbgmPs['minDisparity'], numDisparities=sbgmPs['numDisparities'],
-                                       blockSize=sbgmPs['blockSize'], P1=sbgmPs['P1'], P2=sbgmPs['P2'],
-                                       disp12MaxDiff=sbgmPs['disp12MaxDiff'], preFilterCap=sbgmPs['preFilterCap'],
-                                       uniquenessRatio=sbgmPs['uniquenessRatio'],
-                                       speckleWindowSize=sbgmPs['speckleWindowSize'],
-                                       speckleRange=sbgmPs['speckleRange'])
-    rightStereo = cv2.ximgproc.createRightMatcher(leftStereo)
-    wlsFilter = cv2.ximgproc.createDisparityWLSFilter(leftStereo)
-    wlsFilter.setLambda(wlsParams['lambda'])
-    wlsFilter.setSigmaColor(wlsParams['sigma'])
 
     # inits the DisplayManager
     DisplayManager.init()
@@ -247,13 +230,10 @@ if __name__ == "__main__":
     Map = Map()
     Robot = Robot()
 
-    # multiprocessing stuff
-    objectQueue = Queue()
-    disparityImageQueue = Queue()
-    disparityMapQueue = Queue()
-
-    # launch disparity process
-    disparityProcess = startDisparityProcess(disparityImageQueue, disparityMapQueue, not HEADLESS, THREADED_DISPLAY)
+    # multiprocessing, defines payloads to be run in parallel
+    payloads = list()
+    payloads.append(("disparity", PTcomputeDisparity, (not HEADLESS, THREADED_DISPLAY), makeStereoObjects, (), None))
+    PayloadManager.initStart(payloads)
 
     # being primary loop
     Logger.log("Program starting...")
@@ -272,22 +252,20 @@ if __name__ == "__main__":
             sys.exit(1)
         except KeyboardInterrupt:
             Logger.log("Keyboard Interrupt handled in main")
-            print("Keyboard Interrupt handled in main")
+            # print("Keyboard Interrupt handled in main")
             break
 
+    Logger.log("    Closing processes through PayloadManager")
+    PayloadManager.closeAll(timeout=0.5)
     Logger.log("    Closing cameras...")
     closeCameras()
     Logger.log("    Closing video writers...")
     handleRecordFlagClose(leftWriter, rightWriter)
     Logger.log("    Closing displays through DisplayManager...")
-    DisplayManager.stopDisplays(0.5)
-    Logger.log("    Closing main process displays...")
-    if not HEADLESS and THREADED_DISPLAY:
-        cv2.destroyWindow("Input Screen")
+    Logger.log("        & Closing main process displays...")
+    DisplayManager.stopDisplays(timeout=0.5)
+    cv2.destroyAllWindows()
+    cv2.waitKey(1)
     Logger.log("    Shutting down logger...")
     Logger.shutdown()  # Shuts down the logging system and prints a closing message to the file
-
-    # join processes
-    disparityProcess.join()
-
     sys.exit(0)

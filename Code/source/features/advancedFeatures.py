@@ -79,7 +79,7 @@ def getCoordinateAverage(array):
 
 
 @jit(forceobj=True)
-def getTranslationXY(matchedKp: np.ndarray, prevKp: np.ndarray, currKp: np.ndarray) -> (float, float):
+def getTranslationXY(matchedKp: np.ndarray, prevKp: np.ndarray, currKp: np.ndarray) -> Tuple[float, float]:
     prevPts, currPts = getSrcDstPointsFromMatches(matchedKp, prevKp, currKp)
     prevAvgX, prevAvgY = getCoordinateAverage(prevPts)
     currAvgX, currAvgY = getCoordinateAverage(currPts)
@@ -89,7 +89,7 @@ def getTranslationXY(matchedKp: np.ndarray, prevKp: np.ndarray, currKp: np.ndarr
 
 
 def getAvgTranslationXY(leftMatches: np.ndarray, prevLeftKp: np.ndarray, leftKp: np.ndarray, rightMatches: np.ndarray,
-                        prevRightKp: np.ndarray, rightKp: np.ndarray) -> (float, float):
+                        prevRightKp: np.ndarray, rightKp: np.ndarray) -> Tuple[float, float]:
     leftX, leftY = 0.0, 0.0
     rightX, rightY = 0.0, 0.0
     numErrors = 0

@@ -110,7 +110,7 @@ class Logger:
         """Function used by the logger thread
 
         Args:
-            bugger (Queue): queue for putting the messages when using .log method
+            buffer (Queue): queue for putting the messages when using .log method
         """
         cls.buffer = buffer
 
