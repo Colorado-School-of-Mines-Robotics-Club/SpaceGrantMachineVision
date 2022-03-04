@@ -220,7 +220,12 @@ if __name__ == "__main__":
     leftCam, rightCam = handleVideoFlag(VIDEO_PATH, cameraParams["useCapDShow"], cameraParams['leftPort'],
                                         cameraParams['rightPort'])
 
-    initCameras(leftCam, rightCam, setExposure=cameraParams['setExposure'])
+    try:
+        initCameras(leftCam, rightCam, setExposure=cameraParams['setExposure'])
+    except exceptions.CameraReadError:
+        Logger.log("Could not open one or more of the cameras")
+        time.sleep(1)
+        sys.exit(1)
 
     leftWriter, rightWriter = handleRecordFlag(RECORD, leftCam, rightCam)
 

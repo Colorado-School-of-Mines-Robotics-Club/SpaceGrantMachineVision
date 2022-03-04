@@ -7,6 +7,7 @@ import numpy as np
 from typing import Union
 from source.logger.Logger import Logger
 from source.utilities.Config import Config
+from source.utilities.exceptions import CameraReadError
 
 
 class ThreadedCapture:
@@ -55,7 +56,7 @@ class ThreadedCapture:
         except Exception:
             raise Exception(f'Error defining cv2.videoCapture object for source: {self.source}')
         if not self.capture.isOpened():
-            raise Exception(f"Could not open video source: {self.source}")
+            raise CameraReadError(f"Could not open video source: {self.source}")
 
         try:
             startTime = time.time()
