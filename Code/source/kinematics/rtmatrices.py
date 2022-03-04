@@ -49,7 +49,3 @@ def compile_rtmatrices(verbose=False):
     getTransformationMatrix(thetaX=1, thetaY=1, thetaZ=1, deltaX=1, deltaY=1, deltaZ=1)
     if verbose:
         print(f'   Compiling took: {time.time() - startTime} seconds')
-
-
-# this is here so upon import the code will compile
-compile_rtmatrices()
