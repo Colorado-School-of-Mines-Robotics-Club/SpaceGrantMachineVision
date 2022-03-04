@@ -7,13 +7,13 @@
     "video": ""
   },
   "logging_options": {
-    "logSystemInfo": false,
-    "logParameters": false,
-    "logVideoInputInfo": false,
-    "logFrameInfo": false,
-    "logIterationStarts": false,
-    "logThreadedCaptureSetup": false,
-    "logCameraRectification": false
+    "logSystemInfo": true,
+    "logParameters": true,
+    "logVideoInputInfo": true,
+    "logFrameInfo": true,
+    "logIterationStarts": true,
+    "logThreadedCaptureSetup": true,
+    "logCameraRectification": true
   },
   "iteration_constants": {
     "errorTolerance": 2,

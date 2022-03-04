@@ -30,7 +30,6 @@ def computeDisparity(leftStereo: cv2.StereoSGBM, rightStereo: cv2.StereoMatcher,
             DisplayManager.show("Disparity map", disparity)
         else:
             cv2.imshow("Disparity map", disparity)
-            cv2.waitKey(1)
     return disparity
 
 
@@ -49,5 +48,7 @@ def PTcomputeDisparity(args: Tuple):
         return np.zeros((640, 480))
 
     disparity = computeDisparity(leftStereo, rightStereo, wlsFilter, left, right, show=show, threadedDisplay=td)
+    if show:
+        cv2.waitKey(1)
 
     return disparity
