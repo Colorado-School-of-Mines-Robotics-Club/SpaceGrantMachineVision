@@ -10,7 +10,7 @@ from numba import jit
 from source.logger.Logger import Logger
 from source.utilities import exceptions
 from source.cameras import DisplayManager
-from .advancedFeatures import adaptiveRatioTest
+from .advancedFeatures import adaptiveRatioTest, getAvgTranslationXY
 
 
 # function that given to images computes their features
@@ -39,13 +39,11 @@ def getPointsFromKeypoints(kp: List) -> np.ndarray:
 
 # sorts matched keypoints returned directly from the cv2.matcher object
 # this sorts them by distance
-# @jit(forceobj=True)
 def sortMatches(matches: List) -> np.ndarray:
     return np.array(sorted(matches, key=lambda x: x.distance))
 
 
 # gets the image cordinates out of the matched keypoints
-@jit(forceobj=True)
 def getPointsFromMatches(matches: List, leftKp: List, rightKp: List) -> Tuple[List, List]:
     return [leftKp[mat.queryIdx].pt for mat in matches], [rightKp[mat.trainIdx].pt for mat in matches]
 
@@ -94,3 +92,17 @@ def computeMatchingPoints(prevImg: np.ndarray, currImg: np.ndarray, featureDetec
         return left_pts, right_pts, prevKp, prevDesc, currKp, currDesc, ratioMatches
     except Exception as e:  # generic exception catcher, just return no list of points
         raise e
+
+
+def compile_features():
+    dummy_image = np.random.randint(0, 255, (640, 480, 1)).astype('uint8')
+    dummy_image_2 = np.random.randint(0, 255, (640, 480, 1)).astype('uint8')
+    # defining opencv objects
+    # orb feature detector object
+    orb = cv2.ORB_create()
+    matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)  # matcher object
+    left_pts, right_pts, prevKp, prevDesc, currKp, currDesc, ratioMatches =\
+        computeMatchingPoints(dummy_image, dummy_image_2, orb, matcher)
+
+    # run getAvgTranslationXY to compile it
+    _, _ = getAvgTranslationXY(ratioMatches, prevKp, currKp, ratioMatches, prevKp, currKp)
