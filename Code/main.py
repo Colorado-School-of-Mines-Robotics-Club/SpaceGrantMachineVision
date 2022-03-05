@@ -155,7 +155,7 @@ def main():
 
 # denotes program entered in this file, the main thread
 if __name__ == "__main__":
-    jit_compile_all()
+    jit_compile_all(verbose=True)
     # get dictionary with cli args
     argDict = getArgDict()
     # sets global flags from boolean arguments
