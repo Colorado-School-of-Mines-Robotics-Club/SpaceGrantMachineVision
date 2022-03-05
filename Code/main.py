@@ -13,8 +13,7 @@ from source.features import computeMatchingPoints, getPointsFromKeypoints, getAv
 from source.objectDetection import objectDetection
 from source.simulation import Map, Robot
 from source.utilities import getAvgTimeArr, getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag,\
-    handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag, Config, exceptions
-
+    handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag, Config, exceptions, jit_compile_all
 from source.concurrency import PayloadManager
 
 
@@ -156,6 +155,7 @@ def main():
 
 # denotes program entered in this file, the main thread
 if __name__ == "__main__":
+    jit_compile_all()
     # get dictionary with cli args
     argDict = getArgDict()
     # sets global flags from boolean arguments
