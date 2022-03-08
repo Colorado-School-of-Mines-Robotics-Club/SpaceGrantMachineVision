@@ -1,4 +1,4 @@
-from .Wheel import Wheel
+from Code.source.kinematics.elements.Wheel import Wheel
 from .Suspension import Suspension
 
 
