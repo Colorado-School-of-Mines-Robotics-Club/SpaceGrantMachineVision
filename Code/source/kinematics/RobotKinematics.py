@@ -1,5 +1,5 @@
 from .WheelAssembly import WheelAssembly
-from .KinematicObject import KinematicObject
+from Code.source.kinematics.elements.KinematicObject import KinematicObject
 from typing import Tuple
 
 
