@@ -1,5 +1,6 @@
 import time
 from typing import Tuple, Union
+import numpy as np
 
 
 class KinematicObject:
@@ -52,3 +53,9 @@ class KinematicObject:
         if acceleration is not None:
             self.acc = acceleration
         self.lastUpdatedPos = time.perf_counter()
+
+    @staticmethod
+    def constrain(N: float, minN: Union[float, None] = None, maxN: Union[float, None] = None):
+        if minN is not None and maxN is not None:
+            return np.clip(N, minN, maxN)
+        return N
