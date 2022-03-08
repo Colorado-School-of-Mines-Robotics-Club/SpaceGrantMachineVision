@@ -22,9 +22,12 @@ class KinematicObject:
         self.lastUpdatedPos = time.perf_counter()
         self.lastUpdatedAngles = time.perf_counter()
 
-    def setPose(self, position: Tuple[float, float, float], angles: Tuple[float, float, float]):
-        self.pos = position
-        self.angles = angles
+    def setPose(self, position: Union[Tuple[float, float, float], None] = None,
+                angles: Union[Tuple[float, float, float], None] = None):
+        if position is not None:
+            self.pos = position
+        if angles is not None:
+            self.angles = angles
 
     def updateRotation(self, angularVelocity: Union[Tuple[float, float, float], None] = None,
                        angularAcceleration: Union[Tuple[float, float, float], None] = None):
