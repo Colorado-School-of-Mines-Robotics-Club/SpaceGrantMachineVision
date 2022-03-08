@@ -14,13 +14,21 @@ class ParallelogramFourBar(KinematicObject):
         self.height = height
         self.offsetHeight = 0.0
         self.offsetWidth = self.length
-        self.update()
+        self.forwardUpdate()
 
-    def update(self, angle: Union[float, None] = None) -> None:
+    def forwardUpdate(self, angle: Union[float, None] = None) -> None:
         if angle is not None:
             super().setPose(angles=(0.0, super().constrain(angle, self.minAngle, self.maxAngle), 0.0))
         self.offsetHeight = math.sin(super().angles[1]) * self.length
         self.offsetWidth = math.sin(90.0 - super().angles[1]) * self.length
+
+    def inverseUpdate(self, offsetHeight: Union[float, None] = None, offsetWidth: Union[float, None] = None) -> None:
+        targetAngle = None
+        if offsetHeight is not None:
+            targetAngle = math.asin(offsetHeight / self.length)
+        elif offsetWidth is not None:
+            targetAngle = -1.0 * (math.asin(offsetWidth / self.length) - 90)
+        self.forwardUpdate(targetAngle)
 
     def getPos(self) -> Tuple[float, float]:
         return self.offsetWidth, self.offsetHeight

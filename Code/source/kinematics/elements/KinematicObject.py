@@ -24,14 +24,14 @@ class KinematicObject:
         self.lastUpdatedAngles = time.perf_counter()
 
     def setPose(self, position: Union[Tuple[float, float, float], None] = None,
-                angles: Union[Tuple[float, float, float], None] = None):
+                angles: Union[Tuple[float, float, float], None] = None) -> None:
         if position is not None:
             self.pos = position
         if angles is not None:
             self.angles = angles
 
     def updateRotation(self, angularVelocity: Union[Tuple[float, float, float], None] = None,
-                       angularAcceleration: Union[Tuple[float, float, float], None] = None):
+                       angularAcceleration: Union[Tuple[float, float, float], None] = None) -> None:
         deltaT = time.perf_counter() - self.lastUpdatedAngles
         self.angles = (self.angles[0] + 6.0 * deltaT * self.angVel[0] + 6.0 * deltaT ** 2 * self.angAcc[0],
                        self.angles[1] + 6.0 * deltaT * self.angVel[1] + 6.0 * deltaT ** 2 * self.angAcc[1],
@@ -43,7 +43,7 @@ class KinematicObject:
         self.lastUpdatedAngles = time.perf_counter()
 
     def updatePosition(self, velocity: Union[Tuple[float, float, float], None] = None,
-                       acceleration: Union[Tuple[float, float, float], None] = None):
+                       acceleration: Union[Tuple[float, float, float], None] = None) -> None:
         deltaT = time.perf_counter() - self.lastUpdatedPos
         self.pos = (self.pos[0] + deltaT * self.vel[0] + deltaT ** 2 * self.acc[0],
                     self.pos[1] + deltaT * self.vel[1] + deltaT ** 2 * self.acc[1],
@@ -55,7 +55,7 @@ class KinematicObject:
         self.lastUpdatedPos = time.perf_counter()
 
     @staticmethod
-    def constrain(N: float, minN: Union[float, None] = None, maxN: Union[float, None] = None):
+    def constrain(N: float, minN: Union[float, None] = None, maxN: Union[float, None] = None) -> float:
         if minN is not None and maxN is not None:
             return np.clip(N, minN, maxN)
         return N
