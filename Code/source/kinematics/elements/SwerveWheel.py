@@ -4,7 +4,8 @@ from Wheel import Wheel
 
 
 class SwerveWheel(Wheel):
-    def __init__(self, radius: float, thickness: float, startingAngle: float = 0.0, swerveAngularVelocity: float = 0.0):
+    def __init__(self, radius: float, thickness: float, startingAngle: float = 0.0,
+                 startingAngularVelocity: float = 0.0):
         super().__init__(radius, thickness)
         self.swerveAngle = startingAngle
         self.swerveAngularVelocity = swerveAngularVelocity

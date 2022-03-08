@@ -1,7 +1,7 @@
 from typing import Union
-from .elements.FourBar import FourBar
+from .elements.ParallelogramFourBar import ParallelogramFourBar
 
 
-class Suspension(FourBar):
+class Suspension(ParallelogramFourBar):
     def __init__(self, length: float, height: float):
         super().__init__(length, height)

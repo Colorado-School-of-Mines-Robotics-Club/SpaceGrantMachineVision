@@ -1,12 +1,13 @@
-from typing import Union
+from typing import Union, Tuple
 import math
 from KinematicObject import KinematicObject
 import numpy as np
 
 
-class FourBar(KinematicObject):
+class ParallelogramFourBar(KinematicObject):
     def __init__(self, length: float, height: float, angle: float = 0.0, maxAngle: Union[float, None] = None,
                  minAngle: Union[float, None] = None):
+        angle = self.constrainAngleInput(angle) if (angle is not None) else 0.0
         super().__init__(angles=(0.0, angle, 0.0))
         self.length = length
         self.height = height
@@ -26,3 +27,6 @@ class FourBar(KinematicObject):
         if self.minAngle is not None and self.maxAngle is not None:
             return np.clip(angle, self.minAngle, self.maxAngle)
         return angle
+
+    def getPos(self) -> Tuple[float, float]:
+        return self.offsetWidth, self.offsetHeight
