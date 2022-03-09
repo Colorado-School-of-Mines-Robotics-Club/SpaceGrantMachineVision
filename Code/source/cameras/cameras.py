@@ -40,7 +40,6 @@ def getGrayscaleImages(left: np.ndarray, right: np.ndarray) -> Tuple[np.ndarray,
 # Function makes a window which displays both camera feeds next to each other
 # Takes the images as two arguments: left, right images
 # Has no return value
-@jit(forceobj=True)
 def showCameras(left: np.ndarray, right: np.ndarray, threadedDisplay=True):
     displayImg = np.concatenate((left, right), axis=1)
     if threadedDisplay:
