@@ -54,6 +54,13 @@ class KinematicObject:
             self.acc = acceleration
         self.lastUpdatedPos = time.perf_counter()
 
+    def updateAll(self, velocity: Union[Tuple[float, float, float], None] = None,
+                  acceleration: Union[Tuple[float, float, float], None] = None,
+                  angularVelocity: Union[Tuple[float, float, float], None] = None,
+                  angularAcceleration: Union[Tuple[float, float, float], None] = None) -> None:
+        self.updatePosition(velocity=velocity, acceleration=acceleration)
+        self.updateRotation(angularVelocity=angularVelocity, angularAcceleration=angularAcceleration)
+
     @staticmethod
     def constrain(N: float, minN: Union[float, None] = None, maxN: Union[float, None] = None) -> float:
         if minN is not None and maxN is not None:
