@@ -9,11 +9,4 @@ class Suspension(ParallelogramFourBar):
 
     def update(self, angle: Union[float, None], height: Union[float, None] = None, width: Union[float, None] = None,
                inverse: bool = True):
-        if inverse:
-            if height is None and width is None:
-                print("WARNING -> Suspension -> update: Inverse is True, but height and width targets not given")
-            super().inverseUpdate(offsetHeight=height, offsetWidth=width)
-        else:
-            if angle is None:
-                print("WARNING -> Suspension -> update: Inverse is False, but angle not given")
-            super().forwardUpdate(angle=angle)
+        super().update(angle=angle, offsetHeight=height, offsetWidth=width)
