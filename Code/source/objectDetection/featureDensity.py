@@ -1,6 +1,6 @@
 # Built in python libs
 import math
-from typing import List
+from typing import List, Tuple
 
 # Additional libs
 import numpy as np
@@ -19,7 +19,7 @@ from source.utilities.boundingBoxes import drawBoundingBoxes, simplifyBoundingBo
 # if the boolean is False the points are all -1
 @jit(nopython=True)
 def isFeatureDense(x: int, y: int, iwidth: int, iheight: int, kp: np.ndarray, width: int, height: int,
-                   featurePerPixel: float) -> (int, int, int, int):
+                   featurePerPixel: float) -> Tuple[bool, int, int, int, int]:
     # check if x and y are inside of the image
     # determine the top left and bottom right bounding box coordinates for the region
     leftBound = x - width / 2

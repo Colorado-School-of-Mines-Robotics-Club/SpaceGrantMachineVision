@@ -2,6 +2,7 @@ from typing import List, Dict, Union
 import numpy as np
 import cv2
 from cv2 import error as cv2Error
+import time
 
 from .ThreadedDisplay import ThreadedDisplay
 
@@ -50,15 +51,19 @@ class DisplayManager:
     @classmethod
     def stopDisplay(cls, windowName: str, timeout: Union[float, None] = None):
         cls.displays[windowName].stop()
-        try:
-            if cv2.getWindowProperty(windowName, 0) >= 0:
-                cv2.destroyWindow(windowName)
-        except cv2Error:
-            pass
+        cv2.waitKey(1)
+        if cv2.getWindowProperty(windowName, 0) >= 0:
+            cv2.destroyWindow(windowName)
+            cv2.waitKey(1)
         cls.displays[windowName].join(timeout=timeout)
+        cv2.waitKey(1)
 
     # stops all displays
     @classmethod
     def stopDisplays(cls, timeout: Union[float, None] = None):
         for source, thread in cls.displays.items():
             cls.stopDisplay(source, timeout)
+            cv2.waitKey(1)
+        cv2.waitKey(1)
+        cv2.destroyAllWindows()
+        cv2.waitKey(1)

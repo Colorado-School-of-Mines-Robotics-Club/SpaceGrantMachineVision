@@ -3,8 +3,11 @@ from collections import deque
 import cv2
 import os
 import time
+import numpy as np
+from typing import Union
 from source.logger.Logger import Logger
 from source.utilities.Config import Config
+from source.utilities.exceptions import CameraReadError
 
 
 class ThreadedCapture:
@@ -53,7 +56,7 @@ class ThreadedCapture:
         except Exception:
             raise Exception(f'Error defining cv2.videoCapture object for source: {self.source}')
         if not self.capture.isOpened():
-            raise Exception(f"Could not open video source: {self.source}")
+            raise CameraReadError(f"Could not open video source: {self.source}")
 
         try:
             startTime = time.time()
@@ -148,7 +151,7 @@ class ThreadedCapture:
             self.frameQ.append(frame)
 
     # returns the current frame
-    def getFrame(self):
+    def getFrame(self) -> Union[np.ndarray, None]:
         if self.frameQ is not None:
             try:
                 return self.frameQ.popleft()
@@ -156,10 +159,9 @@ class ThreadedCapture:
                 return None
         return self.frame
 
-    # TODO: figure out to how strongly type return value of self for class
     # starts the capture thread
-    def start(self):
-        thread = Thread(target=self.readFrames, args=())
+    def start(self) -> 'ThreadedCapture':
+        thread = Thread(target=self.readFrames, args=(), name=f"{self.capture} Capture Thread")
         thread.setDaemon(True)
         thread.start()
         return self

@@ -22,7 +22,7 @@ class ThreadedDisplay:
         self.thread = None
 
     def start(self) -> 'ThreadedDisplay':
-        self.thread = Thread(target=self.show, args=())
+        self.thread = Thread(target=self.show, args=(), name=f"{self.windowName} Display Thread")
         self.thread.setDaemon(True)
         self.thread.start()
         return self

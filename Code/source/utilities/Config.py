@@ -1,7 +1,7 @@
 # Built in python libs
 import sys
 import os
-from typing import Dict
+from typing import Dict, Tuple
 import json
 
 # Additional libs
@@ -66,7 +66,7 @@ class Config:
         return cls.cameraPorts
 
     @classmethod
-    def getCameraPorts(cls) -> (int, int):
+    def getCameraPorts(cls) -> Tuple[int, int]:
         return cls.cameraPorts['leftPort'], cls.cameraPorts['rightPort']
 
     @classmethod

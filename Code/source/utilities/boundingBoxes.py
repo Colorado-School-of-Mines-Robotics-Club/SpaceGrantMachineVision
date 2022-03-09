@@ -1,5 +1,5 @@
 # Built in python libs
-from typing import List
+from typing import List, Tuple
 
 # Additional libs
 import numpy as np
@@ -15,7 +15,7 @@ from source.cameras import DisplayManager
 # gets the coordinates out of the bounding box list/array
 # bounding box must be a np.array
 # np.array([[x1, y1], [x2, y2]])
-def getBoundingBoxCords(box: np.ndarray) -> (int, int, int, int):
+def getBoundingBoxCords(box: np.ndarray) -> Tuple[int, int, int, int]:
     #      x1 [0]          y1 [1]          x2 [2]          y2 [3]
     return int(box[0][0]), int(box[0][1]), int(box[1][0]), int(box[1][1])
 

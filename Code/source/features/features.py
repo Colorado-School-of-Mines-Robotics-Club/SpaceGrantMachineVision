@@ -10,15 +10,15 @@ from numba import jit
 from source.logger.Logger import Logger
 from source.utilities import exceptions
 from source.cameras import DisplayManager
-from .advancedFeatures import adaptiveRatioTest
+from .advancedFeatures import adaptiveRatioTest, getAvgTranslationXY
 
 
 # function that given to images computes their features
 # this does not do any filtering
 # takes two grayscale images and a cv2 feature detector
 # @jit(forceobj=True)
-def getImagePairKeyDesc(left: np.ndarray, right: np.ndarray, featureDetector: cv2.ORB) -> (List, np.ndarray, List,
-                                                                                           np.ndarray):
+def getImagePairKeyDesc(left: np.ndarray, right: np.ndarray, featureDetector: cv2.ORB) -> Tuple[List, np.ndarray, List,
+                                                                                           np.ndarray]:
     kp1, des1 = getImageKeyDesc(left, featureDetector)
     kp2, des2 = getImageKeyDesc(right, featureDetector)
     return kp1, des1, kp2, des2
@@ -28,7 +28,7 @@ def getImagePairKeyDesc(left: np.ndarray, right: np.ndarray, featureDetector: cv
 # this does not do any filtering
 # takes a single greyscale image
 # @jit(forceobj=True)
-def getImageKeyDesc(image: np.ndarray, featureDetector: cv2.ORB) -> (List, np.ndarray):
+def getImageKeyDesc(image: np.ndarray, featureDetector: cv2.ORB) -> Tuple[List, np.ndarray]:
     return featureDetector.detectAndCompute(image, None)
 
 
@@ -39,14 +39,12 @@ def getPointsFromKeypoints(kp: List) -> np.ndarray:
 
 # sorts matched keypoints returned directly from the cv2.matcher object
 # this sorts them by distance
-# @jit(forceobj=True)
 def sortMatches(matches: List) -> np.ndarray:
     return np.array(sorted(matches, key=lambda x: x.distance))
 
 
 # gets the image cordinates out of the matched keypoints
-@jit(forceobj=True)
-def getPointsFromMatches(matches: List, leftKp: List, rightKp: List) -> (List, List):
+def getPointsFromMatches(matches: List, leftKp: List, rightKp: List) -> Tuple[List, List]:
     return [leftKp[mat.queryIdx].pt for mat in matches], [rightKp[mat.trainIdx].pt for mat in matches]
 
 
@@ -57,7 +55,7 @@ def computeMatchingPoints(prevImg: np.ndarray, currImg: np.ndarray, featureDetec
                           featureMatcher: cv2.BFMatcher, prevKp: Union[List, None] = None,
                           prevDesc: Union[np.ndarray, None] = None, ratio=1.0, featureRatio=0.1, stepSize=0.04,
                           timeout=1000, show=False, threadedDisplay=True, windowName="Matched Features") ->\
-        (List, List, List, np.ndarray, List, np.ndarray, np.ndarray):
+        Tuple[List, List, List, np.ndarray, List, np.ndarray, np.ndarray]:
     try:
         if prevKp is None or prevDesc is None:
             prevKp, prevDesc, currKp, currDesc = getImagePairKeyDesc(prevImg, currImg, featureDetector)
@@ -94,3 +92,17 @@ def computeMatchingPoints(prevImg: np.ndarray, currImg: np.ndarray, featureDetec
         return left_pts, right_pts, prevKp, prevDesc, currKp, currDesc, ratioMatches
     except Exception as e:  # generic exception catcher, just return no list of points
         raise e
+
+
+def compile_features():
+    dummy_image = np.random.randint(0, 255, (640, 480, 1)).astype('uint8')
+    dummy_image_2 = np.random.randint(0, 255, (640, 480, 1)).astype('uint8')
+    # defining opencv objects
+    # orb feature detector object
+    orb = cv2.ORB_create()
+    matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)  # matcher object
+    left_pts, right_pts, prevKp, prevDesc, currKp, currDesc, ratioMatches =\
+        computeMatchingPoints(dummy_image, dummy_image_2, orb, matcher)
+
+    # run getAvgTranslationXY to compile it
+    _, _ = getAvgTranslationXY(ratioMatches, prevKp, currKp, ratioMatches, prevKp, currKp)
