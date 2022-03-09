@@ -30,7 +30,7 @@ class ParallelogramFourBar(KinematicObject):
             targetAngle = -1.0 * (math.asin(offsetWidth / self.length) - 90)
         self.forwardUpdate(targetAngle)
 
-    def update(self, angle: Union[float, None], offsetHeight: Union[float, None] = None,
+    def update(self, angle: Union[float, None] = None, offsetHeight: Union[float, None] = None,
                offsetWidth: Union[float, None] = None, inverse: bool = True) -> None:
         if inverse:
             self.inverseUpdate(offsetHeight=offsetHeight, offsetWidth=offsetWidth)

@@ -12,6 +12,8 @@ class WheelAssembly:
         self.suspension = Suspension(length=susLength, height=susHeight, angle=susAngle, maxAngle=susMaxAngle,
                                      minAngle=susMinAngle)
 
-    def update(self):
-        self.wheel.update()
-        self.suspension.update()
+    def update(self, swerveAngle: Union[float, None] = None, wheelVelocity: Union[float, None] = None,
+               suspensionTarget: Union[float, None] = None, suspensionInverseUpdate=True, suspensionUseWidth=False):
+        self.wheel.update(swerveAngle=swerveAngle, wheelAngularVelocity=wheelVelocity)
+        self.suspension.update(angle=suspensionTarget, height=suspensionTarget if not suspensionUseWidth else None,
+                               width=suspensionTarget, inverse=suspensionInverseUpdate)

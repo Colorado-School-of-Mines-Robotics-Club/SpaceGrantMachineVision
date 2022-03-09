@@ -7,6 +7,6 @@ class Suspension(ParallelogramFourBar):
                  minAngle: Union[float, None] = None):
         super().__init__(length=length, height=height, angle=angle, maxAngle=maxAngle, minAngle=minAngle)
 
-    def update(self, angle: Union[float, None], height: Union[float, None] = None, width: Union[float, None] = None,
-               inverse: bool = True):
+    def update(self, angle: Union[float, None] = None, height: Union[float, None] = None,
+               width: Union[float, None] = None, inverse: bool = True, useHeight: bool = True):
         super().update(angle=angle, offsetHeight=height, offsetWidth=width)
