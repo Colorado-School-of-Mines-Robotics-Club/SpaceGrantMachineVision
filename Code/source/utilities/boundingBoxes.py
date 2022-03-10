@@ -13,26 +13,6 @@ from source.utilities import exceptions
 from source.cameras import DisplayManager
 
 
-# gets the coordinates out of the bounding box list/array
-# bounding box must be a np.array
-# np.array([[x1, y1], [x2, y2]])
-@jit(nopython=True)
-def getBoundingBoxCords(box: np.ndarray) -> Tuple[int, int, int, int]:
-    #      x1 [0]          y1 [1]          x2 [2]          y2 [3]
-    return int(box[0][0]), int(box[0][1]), int(box[1][0]), int(box[1][1])
-
-
-# makes points out of the bounding box coordinates
-@jit(nopython=True)
-def getBoundingBoxPoints(box: np.ndarray) -> np.ndarray:
-    pts = getBoundingBoxCords(box)
-    x1 = pts[0]
-    y1 = pts[1]
-    x2 = pts[2]
-    y2 = pts[3]
-    return np.array([(x1, y1), (x2, y1), (x2, y2), (x1, y2)]).astype('int64')
-
-
 # image is a cv2 image, which is a numpy array
 # boundingBoxes is as follows
 #        [ [x1, y1], [x2, y2] ]
@@ -52,6 +32,42 @@ def drawBoundingBoxes(rawImage: np.ndarray, boundingBoxes: List, color=(0, 0, 25
         else:
             cv2.imshow(windowName, image)
     return image
+
+
+@jit(nopython=True)
+def cv2RectToNpBoxes(boundingBoxes):
+    npBoxes = []
+    for (x, y, w, h) in boundingBoxes:
+        npBoxes.append(np.array([(x, y), (x + w, y + h)]).astype('int64'))
+    return npBoxes
+
+
+@jit(nopython=True)
+def npToCv2RectBoxes(boundingBoxes):
+    cv2RectBoxes = []
+    for (x1, y1, x2, y2) in boundingBoxes:
+        cv2RectBoxes.append((x1, y1, (x2 - x1), (y2 - y1)))
+    return cv2RectBoxes
+
+
+# gets the coordinates out of the bounding box list/array
+# bounding box must be a np.array
+# np.array([[x1, y1], [x2, y2]])
+@jit(nopython=True)
+def getBoundingBoxCords(box: np.ndarray) -> Tuple[int, int, int, int]:
+    #      x1 [0]          y1 [1]          x2 [2]          y2 [3]
+    return int(box[0][0]), int(box[0][1]), int(box[1][0]), int(box[1][1])
+
+
+# makes points out of the bounding box coordinates
+@jit(nopython=True)
+def getBoundingBoxPoints(box: np.ndarray) -> np.ndarray:
+    pts = getBoundingBoxCords(box)
+    x1 = pts[0]
+    y1 = pts[1]
+    x2 = pts[2]
+    y2 = pts[3]
+    return np.array([(x1, y1), (x2, y1), (x2, y2), (x1, y2)]).astype('int64')
 
 
 # checks each point in a boundingBox and determines they are equal if each point is equal
@@ -106,33 +122,20 @@ def determineMaxMinCorners(boundingBoxes: List) -> np.ndarray:
 @jit(nopython=True)
 def simplifyBoundingBoxes(boundingBoxes: List) -> List:
     if len(boundingBoxes) <= 1:
-        return boundingBoxes
-    connectedBoxes = []
-    simplifiedBoxes = []
+        return [boundingBoxes[0].astype('int64')]
+    connectedBoxes = [boundingBoxes[0].astype('int64')]
+    simplifiedBoxes = [boundingBoxes[0].astype('int64')]
+    connectedBoxes.remove(boundingBoxes[0].astype('int64'))
+    simplifiedBoxes.remove(boundingBoxes[0].astype('int64'))
     for i, box in enumerate(boundingBoxes):
-        connectedBoxes.append(box)
+        connectedBoxes.append(box.astype('int64'))
         for j, currBox in enumerate(connectedBoxes):
             for k, nextBox in enumerate(boundingBoxes):
                 if not boundingBoxEquals(currBox, nextBox):
                     if determineConnection(currBox, nextBox):
-                        connectedBoxes.append(nextBox)
+                        connectedBoxes.append(nextBox.astype('int64'))
                         boundingBoxes.pop(k)
         simplifiedBoxes.append(determineMaxMinCorners(connectedBoxes))
-        connectedBoxes = []
+        connectedBoxes = [boundingBoxes[0].astype('int64')]
+        connectedBoxes.remove(boundingBoxes[0].astype('int64'))
     return simplifiedBoxes
-
-
-@jit(nopython=True)
-def cv2RectToNpBoxes(boundingBoxes):
-    npBoxes = []
-    for (x, y, w, h) in boundingBoxes:
-        npBoxes.append(np.array([(x, y), (x + w, y + h)]).astype('int64'))
-    return npBoxes
-
-
-@jit(nopython=True)
-def npToCv2RectBoxes(boundingBoxes):
-    cv2RectBoxes = []
-    for (x1, y1, x2, y2) in boundingBoxes:
-        cv2RectBoxes.append((x1, y1, (x2 - x1), (y2 - y1)))
-    return cv2RectBoxes

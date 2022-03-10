@@ -6,5 +6,5 @@
 from .rtmatrices import compile_rtmatrices
 
 
-def compile_kinematics():
+def compile_kinematics() -> None:
     compile_rtmatrices()

@@ -94,9 +94,9 @@ def computeMatchingPoints(prevImg: np.ndarray, currImg: np.ndarray, featureDetec
         raise e
 
 
-def compile_features():
-    dummy_image = np.random.randint(0, 255, (640, 480, 1)).astype('uint8')
-    dummy_image_2 = np.random.randint(0, 255, (640, 480, 1)).astype('uint8')
+def compile_features() -> None:
+    dummy_image = cv2.imread("../Data/Calibration/LeftCaptures/0.png")
+    dummy_image_2 = cv2.imread("../Data/Calibration/RightCaptures/0.png")
     # defining opencv objects
     # orb feature detector object
     orb = cv2.ORB_create()

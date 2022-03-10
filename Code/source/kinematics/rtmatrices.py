@@ -42,7 +42,7 @@ def getTransformationMatrix(thetaX=0, thetaY=0, thetaZ=0, deltaX=0, deltaY=0, de
     return np.block([[getRotationMatrix(thetaX, thetaY, thetaZ), getTranslationVector(deltaX, deltaY, deltaZ)], [0, 0, 0, 1]])
 
 
-def compile_rtmatrices(verbose=False):
+def compile_rtmatrices(verbose=False) -> None:
     if verbose:
         Logger.log('Compiling rtmatrices...')
         startTime = time.time()
