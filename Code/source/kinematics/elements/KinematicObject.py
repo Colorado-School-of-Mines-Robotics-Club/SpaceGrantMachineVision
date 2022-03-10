@@ -1,19 +1,21 @@
 import time
 from typing import Tuple, Union
-import numpy as np
+from Updateable import Updateable
 
 
-class KinematicObject:
+class KinematicObject(Updateable):
     """ Stores 3D position, velocity, and acceleration data for translation and rotation
         Standard units for translation are m, m/s, m/s^2
         Standard units for rotation are deg, rpm, rpm/s
     """
+
     def __init__(self, position: Tuple[float, float, float] = (0.0, 0.0, 0.0),
                  angles: Tuple[float, float, float] = (0.0, 0.0, 0.0),
                  velocity: Tuple[float, float, float] = (0.0, 0.0, 0.0),
                  angularVelocity: Tuple[float, float, float] = (0.0, 0.0, 0.0),
                  acceleration: Tuple[float, float, float] = (0.0, 0.0, 0.0),
                  angularAcceleration: Tuple[float, float, float] = (0.0, 0.0, 0.0)):
+        super().__init__()
         self.pos = position
         self.angles = angles
         self.vel = velocity
@@ -54,10 +56,11 @@ class KinematicObject:
             self.acc = acceleration
         self.lastUpdatedPos = time.perf_counter()
 
-    def updateAll(self, velocity: Union[Tuple[float, float, float], None] = None,
-                  acceleration: Union[Tuple[float, float, float], None] = None,
-                  angularVelocity: Union[Tuple[float, float, float], None] = None,
-                  angularAcceleration: Union[Tuple[float, float, float], None] = None) -> None:
+    def update(self, velocity: Union[Tuple[float, float, float], None] = None,
+               acceleration: Union[Tuple[float, float, float], None] = None,
+               angularVelocity: Union[Tuple[float, float, float], None] = None,
+               angularAcceleration: Union[Tuple[float, float, float], None] = None) -> None:
+        super().update()
         self.updatePosition(velocity=velocity, acceleration=acceleration)
         self.updateRotation(angularVelocity=angularVelocity, angularAcceleration=angularAcceleration)
 

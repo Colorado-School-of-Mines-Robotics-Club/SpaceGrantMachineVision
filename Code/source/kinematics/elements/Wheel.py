@@ -26,9 +26,15 @@ class Wheel(KinematicObject):
         self.thickness = thickness
         self.circumference = 2.0 * pi * self.radius
 
-    def update(self, angularVelocity: Union[float, None] = None, angularAcceleration: Union[float, None] = None) -> None:
-        angularVelocity = (0.0, angularVelocity, 0.0) if (angularVelocity is not None) else None
-        angularAcceleration = (0.0, angularAcceleration, 0.0) if (angularAcceleration is not None) else None
+    def update(self, wheelAngularVelocity: Union[float, None] = None,
+               wheelAngularAcceleration: Union[float, None] = None,
+               velocity: Union[Tuple[float, float, float], None] = None,
+               acceleration: Union[Tuple[float, float, float], None] = None,
+               angularVelocity: Union[Tuple[float, float, float], None] = None,
+               angularAcceleration: Union[Tuple[float, float, float], None] = None) -> None:
+        angularVelocity = (0.0, angularVelocity, 0.0) if (wheelAngularVelocity is not None) else angularVelocity
+        angularAcceleration = (0.0, angularAcceleration, 0.0) if (wheelAngularAcceleration is not None) else\
+            angularAcceleration
         super().updateRotation(angularVelocity=angularVelocity, angularAcceleration=angularAcceleration)
 
     def getDistance(self) -> float:

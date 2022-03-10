@@ -32,8 +32,13 @@ class SwerveWheel(Wheel):
         return super().angles[2]
 
     def update(self, swerveAngle: Union[float, None] = None, wheelAngularVelocity: Union[float, None] = None,
-               wheelAngularAcceleration: Union[float, None] = None) -> None:
-        super().update(angularVelocity=wheelAngularVelocity, angularAcceleration=wheelAngularAcceleration)
+               wheelAngularAcceleration: Union[float, None] = None,
+               velocity: Union[Tuple[float, float, float], None] = None,
+               acceleration: Union[Tuple[float, float, float], None] = None,
+               angularVelocity: Union[Tuple[float, float, float], None] = None,
+               angularAcceleration: Union[Tuple[float, float, float], None] = None) -> None:
+        super().update(wheelAngularVelocity, wheelAngularAcceleration, velocity, acceleration, angularVelocity,
+                       angularAcceleration)
         if swerveAngle is not None:
             swerveAngle = super().constrain(swerveAngle, self.minA, self.maxA)
             x = math.sin(swerveAngle) * self.posOffset

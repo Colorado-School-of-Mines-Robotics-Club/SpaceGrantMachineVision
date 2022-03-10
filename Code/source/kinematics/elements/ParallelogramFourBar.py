@@ -32,6 +32,7 @@ class ParallelogramFourBar(KinematicObject):
 
     def update(self, angle: Union[float, None] = None, offsetHeight: Union[float, None] = None,
                offsetWidth: Union[float, None] = None, inverse: bool = True) -> None:
+        super().update()
         if inverse:
             self.inverseUpdate(offsetHeight=offsetHeight, offsetWidth=offsetWidth)
         else:
