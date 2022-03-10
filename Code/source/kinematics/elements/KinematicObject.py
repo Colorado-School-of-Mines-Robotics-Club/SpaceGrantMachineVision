@@ -64,5 +64,5 @@ class KinematicObject:
     @staticmethod
     def constrain(N: float, minN: Union[float, None] = None, maxN: Union[float, None] = None) -> float:
         if minN is not None and maxN is not None:
-            return np.clip(N, minN, maxN)
+            return minN if N < minN else maxN if N > maxN else N
         return N
