@@ -6,9 +6,6 @@ import math
 import numpy as np
 from numba import jit
 
-# Custom  imports
-from source.logger.Logger import Logger
-
 
 @jit(nopython=True)
 def getTranslationVector(deltaX=0, deltaY=0, deltaZ=0):
@@ -43,13 +40,9 @@ def getTransformationMatrix(thetaX=0, thetaY=0, thetaZ=0, deltaX=0, deltaY=0, de
 
 
 def compile_rtmatrices(verbose=False):
+    startTime = time.time()
     if verbose:
-        Logger.log('Compiling rtmatrices...')
-        startTime = time.time()
+        print('Compiling rtmatrices...')
     getTransformationMatrix(thetaX=1, thetaY=1, thetaZ=1, deltaX=1, deltaY=1, deltaZ=1)
     if verbose:
         print(f'   Compiling took: {time.time() - startTime} seconds')
-
-
-# this is here so upon import the code will compile
-compile_rtmatrices()
