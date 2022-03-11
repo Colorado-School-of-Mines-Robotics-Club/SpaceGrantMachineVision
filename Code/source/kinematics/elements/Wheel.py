@@ -37,5 +37,8 @@ class Wheel(KinematicObject):
             angularAcceleration
         super().updateRotation(angularVelocity=angularVelocity, angularAcceleration=angularAcceleration)
 
+    def overrideAngle(self, angle: float) -> None:
+        super().angles = (super().angles[0], angle, super().angles[2])
+
     def getDistance(self) -> float:
         return self.circumference * (super().angles[1] / 360.0)

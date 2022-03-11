@@ -38,5 +38,8 @@ class ParallelogramFourBar(KinematicObject):
         else:
             self.forwardUpdate(angle=angle)
 
+    def getAngle(self) -> float:
+        return super().angles[1]
+
     def getPos(self) -> Tuple[float, float]:
         return self.offsetWidth, self.offsetHeight
