@@ -1,5 +1,5 @@
 from typing import Union
-from .elements.ParallelogramFourBar import ParallelogramFourBar
+from elements import ParallelogramFourBar
 
 
 class Suspension(ParallelogramFourBar):
