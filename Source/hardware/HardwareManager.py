@@ -98,17 +98,18 @@ class HardwareManager:
             low2 >> 24
 
             # write the 4 registers, data = [reg, byte_to_write]
-            data = [reg[0], high1]  # first register is the first byte of high
-            bus.write_I2C_block_data(self.pwm_address, 0, data)
-            data = [reg[1], high2]  # second register is the second byte of high
-            bus.write_IC2_block_data(self.pwm_address, 0, data)
-            data = [reg[2], low1]  # 3rd register is the first byte of low
-            bus.write_IC2_block_data(self.pwm_address, 0, data)
-            data = [reg[3], low2]  # 4th register is the second byte of low
-            bus.write_IC2_block_data(self.pwm_address, 0, data)
+            # first register is the first byte of high
+            bus.write_I2C_block_data(self.pwm_address, reg[0], high1)
+            # second register is the second byte of high
+            bus.write_IC2_block_data(self.pwm_address, reg[1], high2)
+            # 3rd register is the first byte of low
+            bus.write_IC2_block_data(self.pwm_address, reg[2], high3)
+            # 4th register is the second byte of low
+            bus.write_IC2_block_data(self.pwm_address, reg[3], high4)
 
             # increment the writes_counter by one; only one value in the writes array was used
             writes_counter += 1
+            # finished loop, continue to next register
 
         #return the updated writes_counter for use in the other calls
         return writes_counter
@@ -161,8 +162,41 @@ class HardwareManager:
             self.curr_accel[4] = bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 6)
             self.curr_accel[5] = bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 6)
 
+    ''' 
+    Decided to break this method into several different methods
     def get_data(self):
         return self.motors
         #TODO: return all data in a reasonable format
+    '''
+
+    #Get the information on the motors
+    def get_past_motors(self):
+        return self.past_motors
+    def get_curr_motors(self):
+        return self.curr_motors
+
+    #Get the information on the encoders
+    def get_past_encoders(self):
+        return self.past_encoders
+    def get_curr_encoders(self):
+        return self.curr_encoders
+
+    #Get the information on the servos
+    def get_past_servos(self):
+        return self.past_servos
+    def get_curr_servos(self):
+        return self.curr_servos
+
+    #Get the information on the accelerometer
+    def get_past_accel(self):
+        return self.past_accel
+    def get_curr_accel(self):
+        return self.curr_accel
+
+    #Get the information on the gyro
+    def get_past_gyro(self):
+        return self.past_gyro
+    def get_curr_gyro(self):
+        return self.curr_gyro
 
 
