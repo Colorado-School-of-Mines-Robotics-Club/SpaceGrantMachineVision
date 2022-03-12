@@ -14,7 +14,6 @@ class HardwareManager:
         self.accelerometer_address = 0x1D
 
         self.curr_motors = [0, 0, 0, 0]
-        self.past_motors = [0, 0, 0, 0]
 
         self.curr_encoders = [[0,0], [0,0], [0,0], [0,0]]
         self.past_encoders = [0,0,0,0]
@@ -90,12 +89,10 @@ class HardwareManager:
 
             # same process for calculating the low data
             low1 = low
-            low1 << 20
-            low1 >> 28
+            low1 = (low1 << 20) >> 28
 
             low2 = low
-            low2 << 24
-            low2 >> 24
+            low2 = (low2 << 24) >> 24
 
             # write the 4 registers, data = [reg, byte_to_write]
             # first register is the first byte of high
@@ -103,9 +100,9 @@ class HardwareManager:
             # second register is the second byte of high
             bus.write_IC2_block_data(self.pwm_address, reg[1], high2)
             # 3rd register is the first byte of low
-            bus.write_IC2_block_data(self.pwm_address, reg[2], high3)
+            bus.write_IC2_block_data(self.pwm_address, reg[2], low1)
             # 4th register is the second byte of low
-            bus.write_IC2_block_data(self.pwm_address, reg[3], high4)
+            bus.write_IC2_block_data(self.pwm_address, reg[3], low2)
 
             # increment the writes_counter by one; only one value in the writes array was used
             writes_counter += 1
@@ -142,24 +139,52 @@ class HardwareManager:
             self.past_encoders[thread] = self.curr_encoders[thread][0]
 
     def read_servo(self):
+        #Read the new servo values, and store in curr_servo array. Save the original value to the past_servo
         while True:
+            self.past_servo[0] = self.curr_servo[0]
             self.curr_servo[0] = GPIO.input(self.servo_pins[0])
+
+            self.past_servo[1] = self.curr_servo[1]
             self.curr_servo[1] = GPIO.input(self.servo_pins[1])
+
+            self.past_servo[2] = self.curr_servo[2]
             self.curr_servo[2] = GPIO.input(self.servo_pins[2])
+
+            self.past_servo[3] = self.curr_servo[3]
             self.curr_servo[3] = GPIO.input(self.servo_pins[3])
+
+            self.past_servo[4] = self.curr_servo[4]
             self.curr_servo[4] = GPIO.input(self.servo_pins[4])
+
+            self.past_servo[5] = self.curr_servo[5]
             self.curr_servo[5] = GPIO.input(self.servo_pins[5])
+
+            self.past_servo[6] = self.curr_servo[6]
             self.curr_servo[6] = GPIO.input(self.servo_pins[6])
+
+            self.past_servo[7] = self.curr_servo[7]
             self.curr_servo[7] = GPIO.input(self.servo_pins[7])
             
 
     def read_accelerometer(self):
+        # Read the new accelerometer values, and store in curr_accel array. Save the original value to the past_accel
         while True:
+            self.past_accel[0] = self.curr_accel[0]
             self.curr_accel[0] = bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 6)
+
+            self.past_accel[1] = self.curr_accel[1]
             self.curr_accel[1] = bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 6)
+
+            self.past_accel[2] = self.curr_accel[2]
             self.curr_accel[2] = bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 6)
+
+            self.past_accel[3] = self.curr_accel[3]
             self.curr_accel[3] = bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 6)
+
+            self.past_accel[4] = self.curr_accel[4]
             self.curr_accel[4] = bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 6)
+
+            self.past_accel[5] = self.curr_accel[5]
             self.curr_accel[5] = bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 6)
 
     ''' 
@@ -170,16 +195,8 @@ class HardwareManager:
     '''
 
     #Get the information on the motors
-    def get_past_motors(self):
-        return self.past_motors
     def get_curr_motors(self):
         return self.curr_motors
-
-    #Get the information on the encoders
-    def get_past_encoders(self):
-        return self.past_encoders
-    def get_curr_encoders(self):
-        return self.curr_encoders
 
     #Get the information on the servos
     def get_past_servos(self):
