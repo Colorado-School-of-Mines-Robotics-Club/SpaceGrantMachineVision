@@ -35,8 +35,9 @@ def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, fea
     return objectBoundingBoxes
 
 
-def compile_object_detection():
-    points = np.random.randint(100, 200, (20, 1)).astype('uint64')
-    dummy_image = np.random.randint(0, 255, (640, 480)).astype('uint8')
+def compile_object_detection() -> None:
+    points = np.random.randint(100, 200, (200, 1)).astype('uint64')
 
-    _ = findFeatureDenseBoundingBoxes(dummy_image, points)
+    dummy_image = cv2.imread("../Data/Calibration/LeftCaptures/10.png")
+
+    _ = findFeatureDenseBoundingBoxes(dummy_image, points, binSize=10, featuresPerPixel=0.01, show=False)

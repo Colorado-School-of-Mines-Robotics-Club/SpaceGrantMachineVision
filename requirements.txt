@@ -1,4 +1,4 @@
-numba
+numba==0.55.1
 numpy
 opencv-contrib-python
 smbus2

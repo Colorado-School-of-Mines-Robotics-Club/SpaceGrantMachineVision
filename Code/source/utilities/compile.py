@@ -2,8 +2,17 @@ from source.features import compile_features
 from source.kinematics import compile_kinematics
 from source.objectDetection import compile_object_detection
 
+from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning
+import warnings
 
-def jit_compile_all(verbose=False):
+
+def suppress_numba_warnings() -> None:
+    warnings.simplefilter('ignore', category=NumbaDeprecationWarning)
+    warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
+
+
+def jit_compile_all(verbose=False) -> None:
+    suppress_numba_warnings()
     if verbose:
         print("Compiling all...")
         print("    Compiling features...")

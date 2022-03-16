@@ -87,6 +87,5 @@ def findFeatureDenseBoundingBoxes(image: np.ndarray, pts: np.ndarray, binSize=30
     if show:
         drawBoundingBoxes(image, boundingBoxes, windowName="Feature Dense Bounding Boxes", show=True,
                           threadedDisplay=threadedDisplay)
-        # drawBoundingBoxes(image, simplifiedBoundingBoxes, windowName="Simplified FeatureDense BB", show=True)
 
     return boundingBoxes
