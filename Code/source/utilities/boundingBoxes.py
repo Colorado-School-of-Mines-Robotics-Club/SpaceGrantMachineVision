@@ -4,7 +4,7 @@ from typing import List, Tuple
 # Additional libs
 import numpy as np
 import cv2
-from numba import jit
+from numba import jit, njit
 from numba.typed import List as tList
 
 # Custom  imports
@@ -119,14 +119,16 @@ def determineMaxMinCorners(boundingBoxes: List) -> np.ndarray:
 
 
 # functions that given bounding box data combines connected bounding boxes
-@jit(nopython=True)
+@jit(forceobj=True)
 def simplifyBoundingBoxes(boundingBoxes: List) -> List:
+    if len(boundingBoxes) == 0:
+        return [np.asarray([[0, 0], [0, 0]]).astype('int64')]
     if len(boundingBoxes) <= 1:
         return [boundingBoxes[0].astype('int64')]
     connectedBoxes = [boundingBoxes[0].astype('int64')]
     simplifiedBoxes = [boundingBoxes[0].astype('int64')]
-    connectedBoxes.remove(boundingBoxes[0].astype('int64'))
-    simplifiedBoxes.remove(boundingBoxes[0].astype('int64'))
+    connectedBoxes.pop(0)
+    simplifiedBoxes.pop(0)
     for i, box in enumerate(boundingBoxes):
         connectedBoxes.append(box.astype('int64'))
         for j, currBox in enumerate(connectedBoxes):
@@ -137,5 +139,5 @@ def simplifyBoundingBoxes(boundingBoxes: List) -> List:
                         boundingBoxes.pop(k)
         simplifiedBoxes.append(determineMaxMinCorners(connectedBoxes))
         connectedBoxes = [boundingBoxes[0].astype('int64')]
-        connectedBoxes.remove(boundingBoxes[0].astype('int64'))
+        connectedBoxes.pop(0)
     return simplifiedBoxes

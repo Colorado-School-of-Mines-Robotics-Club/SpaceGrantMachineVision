@@ -36,7 +36,7 @@ def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, fea
 
 
 def compile_object_detection() -> None:
-    points = np.random.randint(100, 200, (20, 1)).astype('uint64')
+    points = np.random.randint(100, 200, (200, 1)).astype('uint64')
 
     dummy_image = cv2.imread("../Data/Calibration/LeftCaptures/10.png")
 
