@@ -12,6 +12,7 @@ class RigidChassis(KinematicObject):
                  acceleration: Tuple[float, float, float] = (0.0, 0.0, 0.0),
                  angularAcceleration: Tuple[float, float, float] = (0.0, 0.0, 0.0)):
         super().__init__(position, angles, velocity, angularVelocity, acceleration, angularAcceleration)
+        self.dimensions = dimensions
         self.mountingPoints = mountingPoints
 
     def update(self, velocity: Tuple[float, float, float] = (0.0, 0.0, 0.0),
