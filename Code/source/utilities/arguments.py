@@ -28,6 +28,8 @@ def getArguments() -> Namespace:
                         nargs='?', const='Data/Cameras/DefaultVideo/')
     parser.add_argument("-C", "--config", help="Specify a different config file to use",
                         nargs='?', const='config.json', required=False)
+    parser.add_argument("-RC", "--remote", help="Run the robot using a remote control system.", action="store_true",
+                        required=False)
     args = parser.parse_args()
     return args
 
@@ -58,12 +60,13 @@ def getArgDict() -> Dict:
         if not os.path.isfile(args.config):
             raise Exception("Config Argument: Could not find specified config file")
         argDict['config'] = args.config
+    argDict['remote'] = args.remote
     return argDict
 
 
-def getArgFlags(argDict: Dict) -> Tuple[bool, bool, bool, bool]:
+def getArgFlags(argDict: Dict) -> Tuple[bool, bool, bool, bool, bool]:
     # HEADLESS, CLEAR_LOG, RECORD, THREADED_DISPLAY
-    return argDict['headless'], argDict['clearlog'], argDict['record'], argDict['threadeddisplay']
+    return argDict['headless'], argDict['clearlog'], argDict['record'], argDict['threadeddisplay'], argDict['remote']
 
 
 # make video writers for record flag
@@ -99,7 +102,7 @@ def handleClearLogFlag(CLEAR_LOG: bool, logFile="log.log"):
             with open(logFile, 'r+') as f:
                 f.truncate(0)
                 f.seek(0)
-        except:
+        except FileNotFoundError:
             pass
 
 
