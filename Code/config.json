@@ -97,8 +97,9 @@
     "wheel" : {
       "radius": 75.0,
       "thickness": 45.0,
-      "minTheta": 0.0,
-      "maxTheta": 90.0
+      "minTheta": -15.0,
+      "maxTheta": 90.0,
+      "offset": 10.0
     },
     "suspension" : {
       "length": 160.0,

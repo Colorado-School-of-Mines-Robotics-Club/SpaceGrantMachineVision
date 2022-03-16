@@ -3,7 +3,8 @@ from .KinematicObject import KinematicObject
 
 
 class RigidChassis(KinematicObject):
-    def __init__(self, mountingPoints: List[Tuple[float, float, float]] = None,
+    def __init__(self, dimensions: Tuple[float, float, float],
+                 mountingPoints: List[Tuple[float, float, float]] = None,
                  position: Tuple[float, float, float] = (0.0, 0.0, 0.0),
                  angles: Tuple[float, float, float] = (0.0, 0.0, 0.0),
                  velocity: Tuple[float, float, float] = (0.0, 0.0, 0.0),

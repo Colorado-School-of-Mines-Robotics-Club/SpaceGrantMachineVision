@@ -25,6 +25,7 @@ class Config:
     wlsParams = dict()
     filepaths = dict()
     hardwarePorts = dict()
+    dimensions = dict()
 
     @classmethod
     def init(cls, configFile="config.json"):
@@ -42,6 +43,7 @@ class Config:
             cls.wlsParams = cls.data['wls_filter_params']
             cls.filepaths = cls.data['file_paths']
             cls.hardwarePorts = cls.data['hardware_ports']
+            cls.dimensions = cls.data['dimensions']
         except FileNotFoundError:
             raise FileNotFoundError("Cannot read config file")
 
@@ -96,4 +98,8 @@ class Config:
     @classmethod
     def getHardwarePortsDict(cls) -> Dict:
         return cls.hardwarePorts
+
+    @classmethod
+    def getDimensionsDict(cls) -> Dict:
+        return cls.dimensions
 
