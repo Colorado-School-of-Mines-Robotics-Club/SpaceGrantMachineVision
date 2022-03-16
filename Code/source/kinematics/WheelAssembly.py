@@ -1,5 +1,5 @@
 from typing import Union
-from .elements.SwerveWheel import SwerveWheel
+from elements import SwerveWheel
 from Suspension import Suspension
 
 
