@@ -96,20 +96,22 @@
   },
   "dimensions": {
     "wheel" : {
-      "radius": 1.0,
-      "thickness": 1.0,
-      "minTheta": -30.0,
-      "maxTheta": 30.0
+      "radius": 75.0,
+      "thickness": 45.0,
+      "minTheta": -15.0,
+      "maxTheta": 90.0,
+      "offset": 10.0
     },
     "suspension" : {
-      "length": 1.0,
-      "minTheta": -30.0,
-      "maxTheta": 30.0
+      "length": 160.0,
+      "height": 50.0,
+      "minTheta": -50.0,
+      "maxTheta": 50.0
     },
     "chassis": {
-      "width": 1.0,
-      "depth": 1.0,
-      "height": 1.0
+      "width": 250.0,
+      "length": 350.0,
+      "height": 100.0
     }
   }
 }
