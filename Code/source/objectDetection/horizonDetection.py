@@ -20,7 +20,7 @@ def detectHorizonLine(image, show=True):
 
     # returns a line across the middle of the screen
     # PLACEHOLDER
-    horizonLine = [0, image.shape[1] / 2], [image.shape[0], image.shape[1] / 2]
+    horizonLine = (0, image.shape[1] / 2), (image.shape[0], image.shape[1] / 2)
 
     if show:
         lineImage = np.copy(image)
@@ -29,7 +29,7 @@ def detectHorizonLine(image, show=True):
 
     return horizonLine
 
-def detect_horizon_line(image_grayscaled):
+def detect_horizon_line(image_grayscaled, default_y=50):
     """Detect the horizon's starting and ending points in the given image
     The horizon line is detected by applying Otsu's threshold method to
     separate the sky from the remainder of the image.
@@ -56,19 +56,35 @@ def detect_horizon_line(image_grayscaled):
 
     horizon_x1 = 0
     horizon_x2 = image_grayscaled.shape[1] - 1
-    horizon_y1 = max(np.where(image_closed[:, horizon_x1] == 0)[0])
-    horizon_y2 = max(np.where(image_closed[:, horizon_x2] == 0)[0])
 
-    return horizon_x1, horizon_x2, horizon_y1, horizon_y2
+    where1 = np.where(image_closed[:, horizon_x1] == 0)[0]
+    where2 = np.where(image_closed[:, horizon_x2] == 0)[0]
+
+    if len(where1) == 0 or len(where2) == 0:
+        return (0, default_y), (image_grayscaled.shape[0], default_y)
+
+    horizon_y1 = max(where1)
+    horizon_y2 = max(where2)
+
+    return (horizon_x1, horizon_x2), (horizon_y1, horizon_y2)
 
 
-def filterBoundingBoxesByHorizon(image, boundingBoxes, horizonLine):
+def filterBoundingBoxesByHorizon(boundingBoxes, horizonLine):
     filteredBoundingBoxes = boundingBoxes
-    for i in range(len(filteredBoundingBoxes)):
+    i = 0
+    while i < len(filteredBoundingBoxes):
+    # for i in range(len(filteredBoundingBoxes)):
         if filteredBoundingBoxes[i][1][1] > horizonLine[0][1]:
-            np.delete(filteredBoundingBoxes, i)
+            filteredBoundingBoxes.pop(i)
+            i -= 1
+            continue
+            # np.delete(filteredBoundingBoxes, i)
         # yValue = boundingBoxes[i][1][1]
         if filteredBoundingBoxes[i][0][1] > horizonLine[0][1] and filteredBoundingBoxes[i][1][1] < horizonLine[0][1]:
-            np.delete(filteredBoundingBoxes, i)
+            # np.delete(filteredBoundingBoxes, i)
+            filteredBoundingBoxes.pop(i)
+            i -= 1
+            continue
         #if yValue > horizonLine
+        i += 1
     return filteredBoundingBoxes
