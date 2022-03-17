@@ -119,7 +119,7 @@ def determineMaxMinCorners(boundingBoxes: List) -> np.ndarray:
 
 
 # functions that given bounding box data combines connected bounding boxes
-@jit(forceobj=True)
+# @jit(forceobj=True)
 def simplifyBoundingBoxes(boundingBoxes: List) -> List:
     if len(boundingBoxes) == 0:
         return [np.asarray([[0, 0], [0, 0]]).astype('int64')]
@@ -138,6 +138,6 @@ def simplifyBoundingBoxes(boundingBoxes: List) -> List:
                         connectedBoxes.append(nextBox.astype('int64'))
                         boundingBoxes.pop(k)
         simplifiedBoxes.append(determineMaxMinCorners(connectedBoxes))
-        connectedBoxes = [boundingBoxes[0].astype('int64')]
+        connectedBoxes = [np.asarray([[0, 0], [0, 0]]).astype('int64')]
         connectedBoxes.pop(0)
     return simplifiedBoxes
