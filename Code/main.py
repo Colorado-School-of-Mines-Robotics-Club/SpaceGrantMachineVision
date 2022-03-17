@@ -14,10 +14,10 @@ from source.logger import Logger, logArguments, logSystemInfo, logConfiguration
 from source.cameras import fetchAndShowCameras, initCameras, closeCameras, DisplayManager, CaptureManager
 from source.visualOdometry import computeDisparity
 from source.features import computeMatchingPoints, getPointsFromKeypoints, getAvgTranslationXY
-from source.objectDetection import objectDetection
+from source.objectDetection import objectDetection, horizonDetection
 from source.simulation import Map, Robot
 from source.utilities import getAvgTimeArr, getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag,\
-    handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag, Config, exceptions
+    handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag, Config, exceptions, boundingBoxes
 
 
 # Primary function where our main control flow will happen
@@ -92,6 +92,16 @@ def main():
                                             threadedDisplay=THREADED_DISPLAY)
             disparityFTs.append(time.perf_counter() - disparityStartTime)
 
+            '''
+            NATHAN CODE STARTS HERE
+            
+            '''
+            filteredObjectBoundingBoxes = horizonDetection.filterBoundingBoxesByHorizon(rightImage, objectBoundingBoxes, horizonDetection.detectHorizonLine(rightImage))
+            boundingBoxes.drawBoundingBoxes(rightImage, filteredObjectBoundingBoxes, show=True)
+
+            ''' 
+            NATHAN CODE ENDS HERE
+            '''
             # all additional functionality should be present within the === comments
             # additional data that needs to be stored for each iteration should be handled above
             # ===========================================================================================================
