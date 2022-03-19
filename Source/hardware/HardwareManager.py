@@ -10,6 +10,25 @@ class HardwareManager:
             self.GPIO_fail = True
             pass
 
+        #the values used by the example
+        POWER_CTL = 0x2D
+        MEASURE = 0x08
+        BW_RATE = 0x2C
+        DATA_FORMAT = 0x31
+
+        #enable measurement
+        bus.write_byte_data(self.address, POWER_CTL, MEASURE)
+        #set bandwith rate
+        rate_flag = 0x0B
+        bus.write_byte_data(self.address, BW_RATE, rate_flag)
+        # set the measurement range for 10-bit readings
+        range_flag = 0x00
+        value = bus.read_byte_data(self.address, DATA_FORMAT)
+        value &= ~0x0F;
+        value |= range_flag;
+        value |= 0x08;
+        bus.write_byte_data(self.address, DATA_FORMAT, value)
+
         self.pwm_address = 0x00
         self.accelerometer_address = 0x1D
 
