@@ -3,3 +3,4 @@ numpy
 opencv-contrib-python
 smbus2
 psutil
+pynput
