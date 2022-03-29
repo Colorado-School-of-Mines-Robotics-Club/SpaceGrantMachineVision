@@ -4,10 +4,18 @@ import time
 from threading import Thread
 import time
 import sys
+from dataclasses import dataclass
 from typing import Tuple
 from pynput import keyboard
 
 
+@dataclass
+class VelocityData:
+    linear: float
+    angular: float
+
+
+vel_data = VelocityData(linear=0.0, angular=0.0)
 DELTA_VEL = 0.1
 DELTA_ANG = 5.0
 key_state = {}
@@ -43,19 +51,19 @@ def key_press(key):
     # check if press changes state
     change = key_update(key, True)
     if change:
-        global vel_msg, DELTA_VEL, DELTA_ANG
+        global vel_data, DELTA_VEL, DELTA_ANG
         if k in ['w', 'up']:
-            vel_msg.y += DELTA_VEL
+            vel_data.linear += DELTA_VEL
         elif k in ['s', 'down']:
-            vel_msg.y -= DELTA_VEL
+            vel_data.linear -= DELTA_VEL
         elif k in ['d', 'right']:
-            vel_msg.x += DELTA_VEL
+            vel_data.linear += DELTA_VEL
         elif k in ['a', 'left']:
-            vel_msg.x -= DELTA_VEL
+            vel_data.linear -= DELTA_VEL
         elif k in ['e']:
-            vel_msg.theta -= DELTA_ANG
+            vel_data.angular -= DELTA_ANG
         elif k in ['q']:
-            vel_msg.theta += DELTA_ANG
+            vel_data.angular += DELTA_ANG
         elif k in ['x']:
             DELTA_VEL += 0.1
         elif k in ['z']:
@@ -67,25 +75,25 @@ def key_release(key):
     try:
         # character input
         k = key.char
-    except:
+    except AttributeError:
         # arrow key/other input
         k = key.name
 
     change = key_update(key, False)
     if change:
-        global vel_msg
+        global vel_data
         if k in ['w', 'up']:
-            vel_msg.y = 0
+            vel_data.linear = 0
         elif k in ['s', 'down']:
-            vel_msg.y = 0
+            vel_data.linear = 0
         elif k in ['d', 'right']:
-            vel_msg.x = 0
+            vel_data.linear = 0
         elif k in ['a', 'left']:
-            vel_msg.x = 0
+            vel_data.linear = 0
         elif k in ['e']:
-            vel_msg.theta = 0
+            vel_data.angular = 0
         elif k in ['q']:
-            vel_msg.theta = 0
+            vel_data.angular = 0
         elif k in ['x']:
             pass
         elif k in ['z']:
@@ -93,28 +101,26 @@ def key_release(key):
     return True
 
 
-def user_display(vel_msg: Tuple[float, float], global_shutdown: bool, hz: float = 60.0) -> None:
+def user_display(hz: float = 60.0) -> None:
     print(
         'Use WASD or the ARROW KEYS to control.\nUse x/z to increase/decrease speed')
     while True:
         try:
             print('\r' + ' ' * 80, end='')
             sys.stdout.flush()
-            log_str = "\r\t\tX: {}\tY: {}\tTHETA: {}\t".format(vel_msg.x,
-                                                               vel_msg.y,
-                                                               vel_msg.theta)
+            global vel_data
+            log_str = "\r\t\tLINEAR: {}\tANGULAR: {}\t".format(vel_data.linear,
+                                                               vel_data.angular)
             print(log_str, end=' ')
             sys.stdout.flush()
 
-            global stop_display
-            if stop_display:
+            global global_shutdown
+            if global_shutdown:
                 exit(0)
-
-            if not global_shutdown:
+            else:
                 time.sleep(1.0 / hz)
                 # publish key message to handler for robotic model
-            else:
-                exit(0)
+
         except KeyboardInterrupt:
             exit(0)
 
@@ -125,7 +131,7 @@ def remoteControl(hz: float = 60.0) -> None:
     key_listener.start()
 
     # start user display thread
-    display_thread = Thread(target=user_display, args=(global_shutdown,))
+    display_thread = Thread(target=user_display)
     display_thread.start()
 
     # spin the function to run the threads
