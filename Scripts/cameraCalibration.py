@@ -6,6 +6,7 @@ import pickle
 
 from writeKandDistC import writeKandDistNPZ
 
+
 # Interactively capture images for calibration and store them in the given directory
 def capture_calibration_images(camera_port, chessboard_size, save_directory):
     assert (os.path.exists(save_directory))
@@ -15,10 +16,11 @@ def capture_calibration_images(camera_port, chessboard_size, save_directory):
     cam = cv2.VideoCapture(camera_port)
     while not done:
         selecting = True
+        success, img = cam.read()
         while selecting:
             success, img = cam.read()
             if success:
-                disp  = img.copy()
+                disp = img.copy()
                 for corner_set in corner_sets:
                     cv2.drawChessboardCorners(disp, chessboard_size, corner_set, True)
                 cv2.imshow("enter: capture, escape: done", disp)
@@ -35,13 +37,14 @@ def capture_calibration_images(camera_port, chessboard_size, save_directory):
         if not done:
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             found, corners = cv2.findChessboardCorners(gray, chessboard_size, None)
-            if (found):
+            if found:
                 print("Saving calibration image " + str(picture_number))
                 cv2.imwrite(save_directory + str(picture_number) + ".png", img)
                 picture_number += 1
                 corner_sets.append(corners)
             else:
                 print("Couldn't find chessboard")
+
 
 # Find K and distortion parameters from a let of calibration images
 # chessboard_size: (cols, rows); square_size: side length of chessboard squares
@@ -86,10 +89,15 @@ def generate_camera_intrinsics(image_directory, chessboard_size):
 
 
 if __name__ == "__main__":
-    capture_calibration_images(0, (7, 5), "../Data/Calibration/Left/")
-    capture_calibration_images(1, (7, 5), "../Data/Calibration/Right/")
-    leftK, leftDist = generate_camera_intrinsics("Data/Calibration/Left/", (7, 5))
-    # pickle.dump({"K": K, "dist": dist}, open("data/calibration/intrinsics_left.p", "wb"))
-    rightK, rightDist = generate_camera_intrinsics("Data/Calibration/Right/", (7, 5))
-    # pickle.dump({"K": K, "dist": dist}, open("data/calibration/intrinsics_right.p", "wb"))
+    calibrationPath = "Data/Calibration"
+
+    while not os.path.isdir(calibrationPath):
+        calibrationPath = "../" + calibrationPath
+
+    # capture_calibration_images(0, (8, 6), calibrationPath + "/LeftCaptures/")
+    # capture_calibration_images(1, (8, 6), calibrationPath + "/RightCaptures/")
+    leftK, leftDist = generate_camera_intrinsics(calibrationPath + "/LeftCaptures/", (8, 6))
+    pickle.dump({"K": leftK, "dist": leftDist}, open(calibrationPath + "/intrinsics_left.p", "wb"))
+    rightK, rightDist = generate_camera_intrinsics(calibrationPath + "/RightCaptures/", (8, 6))
+    pickle.dump({"K": rightK, "dist": rightDist}, open(calibrationPath + "/intrinsics_right.p", "wb"))
     writeKandDistNPZ(leftK, rightK, leftDist, rightDist)

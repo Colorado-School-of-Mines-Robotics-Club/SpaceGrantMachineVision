@@ -5,6 +5,9 @@
 # ignore log file
 .log
 
+# ignore local config file
+Code/local_config.json
+
 # PyCharm IDE
 .idea
 

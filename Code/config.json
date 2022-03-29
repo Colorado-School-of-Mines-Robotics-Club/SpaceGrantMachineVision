@@ -1,0 +1,117 @@
+{
+  "run_parameters": {
+    "headless": false,
+    "threadeddisplay": false,
+    "record": false,
+    "clearlog": true,
+    "video": "",
+    "remoteControl": false
+  },
+  "logging_options": {
+    "logSystemInfo": true,
+    "logParameters": true,
+    "logVideoInputInfo": true,
+    "logFrameInfo": true,
+    "logIterationStarts": true,
+    "logThreadedCaptureSetup": true,
+    "logCameraRectification": true
+  },
+  "iteration_constants": {
+    "errorTolerance": 2,
+    "iterationsToAverage": 9
+  },
+  "camera_ports": {
+    "useCapDShow": true,
+    "setExposure": false,
+    "leftPort" : 0,
+    "rightPort" : 1
+  },
+  "orb_params": {
+    "nfeatures": 500,
+    "scaleFactor": 1.2,
+    "nlevels": 8,
+    "edgeThreshold": 31,
+    "firstLevel": 0,
+    "patchSize": 31
+  },
+  "feature_params": {
+    "startingRatio": 1.2,
+    "featureRatio": 0.1,
+    "stepSize": 0.05,
+    "timeout": 20
+  },
+  "object_detection_params": {
+    "binSize": 10.0,
+    "featuresPerPixel": 0.005
+  },
+  "sgbm_params": {
+    "minDisparity": 0,
+    "numDisparities": 16,
+    "blockSize": 3,
+    "P1": 27,
+    "P2": 675,
+    "disp12MaxDiff": 0,
+    "preFilterCap": 0,
+    "uniquenessRatio": 0,
+    "speckleWindowSize": 0,
+    "speckleRange": 0
+  },
+  "wls_filter_params": {
+    "lambda": 8000.0,
+    "sigma": 1.75
+  },
+  "file_paths": {
+    "videoPath": "Data/Cameras/RawOutput/",
+    "calibrationPath": "Data/Calibration/"
+  },
+  "hardware_ports": {
+    "motor_encoders": {
+      "encoder1": 0,
+      "encoder2": 1,
+      "encoder3": 2,
+      "encoder4": 3
+    },
+    "servo_ports": {
+      "wheel1": {
+        "servo1": 0,
+        "servo2": 0
+      },
+      "wheel2": {
+        "servo1": 0,
+        "servo2": 0
+      },
+      "wheel3": {
+        "servo1": 0,
+        "servo2": 0
+      },
+      "wheel4": {
+        "servo1": 0,
+        "servo2": 0
+      }
+    },
+    "sensors": {
+      "accelerometer": 0,
+      "xbee": 1
+    }
+  },
+  "dimensions": {
+    "wheel" : {
+      "radius": 75.0,
+      "thickness": 45.0,
+      "minTheta": -15.0,
+      "maxTheta": 90.0,
+      "offset": 10.0
+    },
+    "suspension" : {
+      "length": 160.0,
+      "height": 50.0,
+      "minTheta": -50.0,
+      "maxTheta": 50.0
+    },
+    "chassis": {
+      "width": 250.0,
+      "length": 350.0,
+      "height": 100.0
+    }
+  }
+}
