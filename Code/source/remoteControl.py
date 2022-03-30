@@ -1,11 +1,7 @@
-import cv2
-import numpy as np
-import time
 from threading import Thread
 import time
 import sys
 from dataclasses import dataclass
-from typing import Tuple
 from pynput import keyboard
 
 
