@@ -30,9 +30,13 @@ def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, fea
                                                               threadedDisplay=threadedDisplay)
 
     # right now just combine the boundingBoxes, in the future should make some decisions on them
-    objectBoundingBoxes = contourBoundingBoxes + featureDenseBoundingBoxes
+    objectBoundingBoxes = findObjects(contourBoundingBoxes, featureDenseBoundingBoxes)
 
     return objectBoundingBoxes
+
+
+def findObjects(contourBoxes: List, featureDenseBoxes: List) -> List:
+    return contourBoxes + featureDenseBoxes
 
 
 def compile_object_detection() -> None:
