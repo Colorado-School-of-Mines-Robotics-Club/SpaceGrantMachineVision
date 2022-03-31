@@ -70,6 +70,11 @@ def getBoundingBoxPoints(box: np.ndarray) -> np.ndarray:
     return np.array([(x1, y1), (x2, y1), (x2, y2), (x1, y2)]).astype('int64')
 
 
+def getBoundingBoxArea(box: np.ndarray) -> int:
+    pts = getBoundingBoxCords(box)
+    return int((pts[2] - pts[0]) * (pts[3] - pts[1]))
+
+
 # checks each point in a boundingBox and determines they are equal if each point is equal
 @jit(nopython=True)
 def boundingBoxEquals(box1: np.ndarray, box2: np.ndarray) -> bool:
