@@ -1,5 +1,6 @@
 import threading
 from smbus2 import *
+from typing import List
 
 try:
     import RPi.GPIO as GPIO
@@ -39,6 +40,8 @@ class HardwareManager:
         self.pwm_address = 0x00
         self.accelerometer_address = 0x1D
 
+        # TODO
+        # save time slice info to be returned with this????
         self.curr_motors = [0, 0, 0, 0]
 
         self.curr_encoders = [[0,0], [0,0], [0,0], [0,0]]
@@ -74,7 +77,7 @@ class HardwareManager:
         # one thread for reading accelerometer data
         self.accel = threading.Thread(target=self.read_accelerometer)
 
-    def start_threads(self):
+    def start_threads(self) -> 'HardwareManager':
         # start all data collection threads
         self.motor1.start()
         self.motor2.start()
@@ -83,7 +86,9 @@ class HardwareManager:
         self.servos.start()
         self.accel.start()
 
-    def join_threads(self):
+        return self
+
+    def join_threads(self) -> 'HardwareManager':
         # stops all data collection threads
         self.motor1.join()
         self.motor2.join()
@@ -92,10 +97,13 @@ class HardwareManager:
         self.servos.join()
         self.accel.join()
 
+        return self
 
-    def write_pwm(self, motor1, motor2, motor3, motor4, sus1, sus2, sus3, sus4, wheel1, wheel2, wheel3, wheel4, dir1,
-                  dir2, dir3, dir4, rgb):
-        writes = []
+    # writes is a List[m1, m2, m3, m4, s1, s2, s3, s4, s5, s6, s7, s8, l1, l2, l3, l4]
+    # motors are constrained to: [0, 4095]
+    # servos are constrained to: [0, 4095]
+    # leds are constrained to: [0, 4095]
+    def write_pwm(self, dir1, dir2, dir3, dir4, rgb, writes: List[float]):
         writes_counter = 0
 
         # Write PWM for each motor

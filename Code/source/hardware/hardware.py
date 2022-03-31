@@ -1,12 +1,23 @@
-from HardwareManager import HardwareManager
-import multiprocessing as mp
+from .HardwareManager import HardwareManager
+from typing import Tuple
 
 
-def startHardwareManager():
-    # create HardwareManager
-    hardware = HardwareManager()
-    hardware.start_threads()
+# function to create object on other side of the payloadManager
+def createHardwareManager(args: Tuple) -> HardwareManager:
+    return HardwareManager()
 
 
-def getXBee():
-    return 10.0, 15.0
+def PThardwareCommand(args: Tuple):
+    queue = args[0]
+    hardware: HardwareManager = args[1]
+
+    commands = queue.getInput()
+
+    for command in commands:
+        # TODO
+        # do something with the commands
+        pass
+
+    return {'motors': hardware.get_curr_motors(), 'servos': hardware.get_curr_servos(),
+            'past_accel': hardware.get_past_accel(), 'curr_accel': hardware.get_curr_accel(),
+            'past_gyro': hardware.get_past_gyro(), 'curr_gyro': hardware.get_curr_gyro()}
