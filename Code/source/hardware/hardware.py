@@ -4,7 +4,7 @@ from typing import Tuple
 
 # function to create object on other side of the payloadManager
 def createHardwareManager(args: Tuple) -> HardwareManager:
-    return HardwareManager()
+    return HardwareManager().start_threads()
 
 
 def PThardwareCommand(args: Tuple):
