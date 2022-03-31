@@ -100,10 +100,14 @@ class HardwareManager:
         return self
 
     @staticmethod
-    def writes_convert(writes: List[int]) -> Tuple[int, int, int, int, List[int]]:
-        # TODO
-        # Will take the writes data and convert motors PWM (with +/-) to direction plus PWM
-        return 0, 0, 0, 0, writes
+    def writes_convert(writes: List[int], dirs=None) -> Tuple[int, int, int, int, List[int]]:
+        if dirs is None:
+            dirs = [0, 1, 0, 1]
+        for i in range(4):
+            if writes[i] < 0:
+                dirs[i] = 1 if dirs[i] == 0 else 0
+                writes[i] *= -1
+        return dirs[0], dirs[1], dirs[2], dirs[3], writes
 
     def write_pwm_autodir(self, writes: List[int]):
         dir1, dir2, dir3, dir4, writes = HardwareManager.writes_convert(writes)
