@@ -108,7 +108,7 @@ if __name__ == "__main__":
 
     # multiprocessing, defines payloads to be run in parallel
     payloads = list()
-    payloads.append(("disparity", PTcomputeDisparity, (not HEADLESS, THREADED_DISPLAY), makeStereoObjects, (), None))
+    payloads.append( ("disparity", PTcomputeDisparity, (not HEADLESS, THREADED_DISPLAY), makeStereoObjects, (), None) )
     PayloadManager.initStart(payloads)
 
     # being primary loop
