@@ -63,24 +63,35 @@ class HardwareManager:
         self.led_reg = [[55,54,57,56],[59,58,61,60],[63,62,65,64],[67,66,69,68]]
 
         # Split encoder reading into 4 threads for speed and accuracy
-        motor1 = threading.Thread(target=self.read_motor, args=(0,))
-        motor2 = threading.Thread(target=self.read_motor, args=(1,))
-        motor3 = threading.Thread(target=self.read_motor, args=(2,))
-        motor4 = threading.Thread(target=self.read_motor, args=(3,))
+        self.motor1 = threading.Thread(target=self.read_motor, args=(0,))
+        self.motor2 = threading.Thread(target=self.read_motor, args=(1,))
+        self.motor3 = threading.Thread(target=self.read_motor, args=(2,))
+        self.motor4 = threading.Thread(target=self.read_motor, args=(3,))
 
         # one thread for reading servo return data
-        servos = threading.Thread(target=self.read_servo)
+        self.servos = threading.Thread(target=self.read_servo)
 
         # one thread for reading accelerometer data
-        accel = threading.Thread(target=self.read_accelerometer)
+        self.accel = threading.Thread(target=self.read_accelerometer)
 
+    def start_threads(self):
         # start all data collection threads
-        motor1.start()
-        motor2.start()
-        motor3.start()
-        motor4.start()
-        servos.start()
-        accel.start()
+        self.motor1.start()
+        self.motor2.start()
+        self.motor3.start()
+        self.motor4.start()
+        self.servos.start()
+        self.accel.start()
+
+    def join_threads(self):
+        # stops all data collection threads
+        self.motor1.join()
+        self.motor2.join()
+        self.motor3.join()
+        self.motor4.join()
+        self.servos.join()
+        self.accel.join()
+
 
     def write_pwm(self, motor1, motor2, motor3, motor4, sus1, sus2, sus3, sus4, wheel1, wheel2, wheel3, wheel4, dir1,
                   dir2, dir3, dir4, rgb):
