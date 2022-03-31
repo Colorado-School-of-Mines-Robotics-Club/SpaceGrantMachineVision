@@ -1,6 +1,6 @@
 import threading
 from smbus2 import *
-from typing import List
+from typing import List, Tuple
 
 try:
     import RPi.GPIO as GPIO
@@ -99,11 +99,21 @@ class HardwareManager:
 
         return self
 
+    @staticmethod
+    def writes_convert(writes: List[int]) -> Tuple[int, int, int, int, List[int]]:
+        # TODO
+        # Will take the writes data and convert motors PWM (with +/-) to direction plus PWM
+        return 0, 0, 0, 0, writes
+
+    def write_pwm_autodir(self, writes: List[int]):
+        dir1, dir2, dir3, dir4, writes = HardwareManager.writes_convert(writes)
+        self.write_pwm(dir1, dir2, dir3, dir4, writes)
+
     # writes is a List[m1, m2, m3, m4, s1, s2, s3, s4, s5, s6, s7, s8, l1, l2, l3, l4]
     # motors are constrained to: [0, 4095]
     # servos are constrained to: [0, 4095]
     # leds are constrained to: [0, 4095]
-    def write_pwm(self, dir1, dir2, dir3, dir4, rgb, writes: List[float]):
+    def write_pwm(self, dir1, dir2, dir3, dir4, writes: List[int]):
         writes_counter = 0
 
         # Write PWM for each motor

@@ -11,12 +11,11 @@ def PThardwareCommand(args: Tuple):
     queue = args[0]
     hardware: HardwareManager = args[1]
 
-    commands = queue.getInput()
-
-    for command in commands:
-        # TODO
-        # do something with the commands
-        pass
+    # uses getInputs and then acquires the last command to ensure newest data is sent
+    commands = queue.getInputs()
+    if len(commands) != 0:
+        command = commands[len(commands) - 1]
+        hardware.write_pwm_autodir(command)
 
     return {'motors': hardware.get_curr_motors(), 'servos': hardware.get_curr_servos(),
             'past_accel': hardware.get_past_accel(), 'curr_accel': hardware.get_curr_accel(),
