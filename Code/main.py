@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     jit_compile_all(verbose=True)
     # load the configuration file
-    Config.init(argDict['config'])
+    Config.init()
     runParameters = Config.getRunParameters()
     loggingOptions = Config.getLoggingOptions()
     iterationConstants = Config.getIterationConstantsDict()

@@ -28,9 +28,9 @@ class Config:
     dimensions = dict()
 
     @classmethod
-    def init(cls, configFile="config.json"):
+    def init(cls):
         try:
-            with open(configFile, 'r') as f:
+            with open("config.json", 'r') as f:
                 cls.data = json.load(f)
             cls.runParameters = cls.data['run_parameters']
             cls.loggingOptions = cls.data['logging_options']
