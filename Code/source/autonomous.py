@@ -80,6 +80,8 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
             objectBoundingBoxes = objectDetection(leftImage, getPointsFromKeypoints(leftKp),
                                                   binSize=objectDetectionParams["binSize"],
                                                   featuresPerPixel=objectDetectionParams["featuresPerPixel"],
+                                                  percentAreaThreshold=objectDetectionParams["percentAreaThreshold"],
+                                                  connectedFeaturesThresh=objectDetectionParams["connFeaturesThresh"],
                                                   simplifyFinalOutput=True, show=not HEADLESS,
                                                   threadedDisplay=THREADED_DISPLAY)
             objectDectFTs.append(time.perf_counter() - objectDectStartTime)

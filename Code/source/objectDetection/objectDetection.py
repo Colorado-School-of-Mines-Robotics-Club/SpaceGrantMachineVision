@@ -21,7 +21,8 @@ from .contourDetection import getContourBoundingBoxes
 
 
 def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, featuresPerPixel=0.03,
-                    simplifyFinalOutput=True, show=True, threadedDisplay=False) -> List:
+                    percentAreaThreshold=0.025, connectedFeaturesThresh=10, simplifyFinalOutput=True, show=True,
+                    threadedDisplay=False) -> List:
     # run the contour detection
     contourBoundingBoxes = getContourBoundingBoxes(image, show=show, threadedDisplay=threadedDisplay)
 
@@ -32,7 +33,7 @@ def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, fea
 
     # right now just combine the boundingBoxes, in the future should make some decisions on them
     objectBoundingBoxes = findObjects(image, contourBoundingBoxes, featureDenseBoundingBoxes, binSize,
-                                      simplify=simplifyFinalOutput)
+                                      percentAreaThreshold, connectedFeaturesThresh, simplify=simplifyFinalOutput)
 
     if show:
         drawBoundingBoxes(image, objectBoundingBoxes, windowName="Objects", show=True,
@@ -41,8 +42,10 @@ def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, fea
     return objectBoundingBoxes
 
 
-def findObjects(image: np.ndarray, contourBoxes: List, featureDenseBoxes: List, binSize: float, simplify=True) -> List:
-    objectsByArea = findObjectsByArea(image, contourBoxes, featureDenseBoxes, binSize)
+def findObjects(image: np.ndarray, contourBoxes: List, featureDenseBoxes: List, binSize: float,
+                percentAreaThreshold: float, connectedFeaturesThresh: int, simplify=True) -> List:
+    objectsByArea = findObjectsByArea(image, contourBoxes, featureDenseBoxes, binSize, percentAreaThreshold,
+                                      connectedFeaturesThresh)
     objectBoxes = objectsByArea
 
     if simplify:
