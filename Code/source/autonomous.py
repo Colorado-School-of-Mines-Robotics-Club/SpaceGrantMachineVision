@@ -71,8 +71,8 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
                                       featureRatio=featureParams["featureRatio"], stepSize=featureParams["stepSize"],
                                       timeout=featureParams["timeout"], show=not HEADLESS,
                                       threadedDisplay=THREADED_DISPLAY, windowName="Right Matched Features")
-            xTranslation, yTranslation = getAvgTranslationXY(leftMatches, prevLeftKp, leftKp, rightMatches, prevRightKp,
-                                                             rightKp)
+            # xTranslation, yTranslation = getAvgTranslationXY(leftMatches, prevLeftKp, leftKp, rightMatches, prevRightKp,
+            #                                                  rightKp)
             featureFTs.append(time.perf_counter() - featureStartTime)
 
             objectDectStartTime = time.perf_counter()
