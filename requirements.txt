@@ -3,6 +3,6 @@ numpy~=1.21.4
 opencv-contrib-python
 smbus2~=0.4.1
 psutil
-pynput
+keyboard
 wheel~=0.37.0
 matplotlib~=3.5.1

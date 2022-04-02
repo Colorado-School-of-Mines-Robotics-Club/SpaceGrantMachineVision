@@ -2,7 +2,7 @@ from threading import Thread
 import time
 import sys
 from dataclasses import dataclass
-from pynput import keyboard
+import keyboard
 
 
 @dataclass
@@ -20,6 +20,14 @@ class RobotData:
         self.bl_height += delta
         self.br_height += delta
 
+    def roundData(self):
+        self.linear = round(self.linear, 1)
+        self.angular = round(self.angular, 1)
+        self.fl_height = round(self.fl_height, 1)
+        self.fr_height = round(self.fr_height, 1)
+        self.bl_height = round(self.bl_height, 1)
+        self.br_height = round(self.br_height, 1)
+
 
 vel_data = RobotData(linear=0.0, angular=0.0, fl_height=0.0, fr_height=0.0, bl_height=0.0, br_height=0.0)
 DELTA_VEL = 0.1
@@ -30,30 +38,31 @@ global_shutdown = False
 
 
 def key_update(key, state):
-    # key is pressed for the first time
-    if key not in key_state:
-        key_state[key] = state
-        return True
-
-    # key changed state
-    if state != key_state[key]:
-        key_state[key] = state
-        return True
-
-    # no change
-    return False
+    # key = key.name
+    # # key is pressed for the first time
+    # if key not in key_state:
+    #     key_state[key] = state
+    #     return True
+    #
+    # # key changed state
+    # if state != key_state[key]:
+    #     key_state[key] = state
+    #     return True
+    #
+    # # no change
+    # return False
+    return True
 
 
 def key_press(key):
-    if key == keyboard.Key.esc:
+    if key.name == 'esc':
         global global_shutdown
         global_shutdown = True
         print('\nPress Ctrl+C to exit')
         return False
-    try:
-        k = key.char
-    except AttributeError:
-        k = key.name
+
+    k = key.name
+    # print(f"Pressed {k}")
 
     # check if press changes state
     change = key_update(key, True)
@@ -96,10 +105,8 @@ def key_press(key):
 
 
 def key_release(key):
-    try:
-        k = key.char
-    except AttributeError:
-        k = key.name
+    k = key.name
+    # print(f"Released {k}")
 
     change = key_update(key, False)
     if change:
@@ -171,8 +178,8 @@ def user_display(hz: float = 60.0) -> None:
 
 def remoteControl(hz: float = 60.0) -> None:
     # start key listener thread
-    key_listener = keyboard.Listener(on_press=key_press, on_release=key_release)
-    key_listener.start()
+    keyboard.on_press(key_press)
+    keyboard.on_release(key_release)
 
     # start user display thread
     display_thread = Thread(target=user_display)
@@ -180,8 +187,10 @@ def remoteControl(hz: float = 60.0) -> None:
 
     # spin the function to run the threads
     while not global_shutdown:
+        vel_data.roundData()
+        global DELTA_VEL
+        DELTA_VEL = round(DELTA_VEL, 1)
         time.sleep(1.0 / hz)
 
     # join the threads
-    key_listener.join()
     display_thread.join()
