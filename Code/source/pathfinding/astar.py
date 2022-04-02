@@ -1,7 +1,7 @@
 # Built in python libs
 import sys
 import os
-from typing import Dict, List
+from typing import Dict, List, Callable
 import heapq
 
 # Additional libs
@@ -18,10 +18,9 @@ Euclidean Heuristic given starting and ending coordinates.
 '''
 
 
-def heuristic(start, end):
-    [x1,y1] = start
-    [x2,y2] = end
-
+def euclidean_heuristic(start, end):
+    [x1, y1] = start
+    [x2, y2] = end
     return ((x2-x1)**2 + (y2-y1)**2)**0.5
 
 
@@ -39,7 +38,7 @@ Source: https://www.analytics-link.com/post/2018/09/14/applying-the-a-path-findi
 '''
 
 
-def astar(array, start, goal):
+def astar(array, start, goal, heuristic: Callable):
     neighbors = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
     close_set = set()
     came_from = {}
