@@ -65,10 +65,7 @@ class HardwareManager:
         self.led_reg = [[55,54,57,56],[59,58,61,60],[63,62,65,64],[67,66,69,68]]
 
         # Split encoder reading into 4 threads for speed and accuracy
-        self.motor1 = threading.Thread(target=self.read_motor, args=(0,))
-        self.motor2 = threading.Thread(target=self.read_motor, args=(1,))
-        self.motor3 = threading.Thread(target=self.read_motor, args=(2,))
-        self.motor4 = threading.Thread(target=self.read_motor, args=(3,))
+        self.motor_threads = [threading.Thread(target=self.read_motor, args=(i,)) for i in range(4)]
 
         # one thread for reading servo return data
         self.servos = threading.Thread(target=self.read_servo)
@@ -78,10 +75,8 @@ class HardwareManager:
 
     def start_threads(self) -> 'HardwareManager':
         # start all data collection threads
-        self.motor1.start()
-        self.motor2.start()
-        self.motor3.start()
-        self.motor4.start()
+        for thread in self.motor_threads:
+            thread.start()
         self.servos.start()
         self.accel.start()
 
@@ -89,10 +84,8 @@ class HardwareManager:
 
     def join_threads(self) -> 'HardwareManager':
         # stops all data collection threads
-        self.motor1.join()
-        self.motor2.join()
-        self.motor3.join()
-        self.motor4.join()
+        for thread in self.motor_threads:
+            thread.join()
         self.servos.join()
         self.accel.join()
 
@@ -102,11 +95,9 @@ class HardwareManager:
     def writes_convert(writes: List[int], dirs=None) -> Tuple[int, int, int, int, List[int]]:
         if dirs is None:
             dirs = [0, 1, 0, 1]
-        # for i in range(4):
-        #     if writes[i] < 0:
-        #         dirs[i] = 1 if dirs[i] == 0 else 0
-        #         writes[i] = abs(writes[i])
-        dirs = [1 if direction == 0 else 0 for direction in dirs]
+        for i in range(4):  # only 4 motors and they appear at the front of writes
+            if writes[i] < 0:
+                dirs[i] = 1 if dirs[i] == 0 else 0
         writes = [abs(x) for x in writes]
         return dirs[0], dirs[1], dirs[2], dirs[3], writes
 
@@ -198,12 +189,9 @@ class HardwareManager:
             self.past_encoders[thread] = self.curr_encoders[thread][0]
 
     def read_servo(self):
-        # initialization writes here??
-
         # Read the new servo values, and store in curr_servo array. Save the original value to the past_servo
         while True:
             self.past_servos = self.curr_servos
-
             self.curr_servos = [GPIO.input(i) for i in range(8)]
 
     def read_accelerometer(self):
@@ -227,7 +215,6 @@ class HardwareManager:
             # assign store data to class
             self.past_gyro = self.curr_gyro
             self.curr_gyro = sized[0:3]
-
             self.past_accel = self.curr_accel
             self.curr_accel = sized[3:len(sized)]
 
