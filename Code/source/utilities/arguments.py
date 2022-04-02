@@ -26,8 +26,6 @@ def getArguments() -> Namespace:
                         required=False)
     parser.add_argument("-V", "--video", help="Set a video folder which contains a left and right camera feed",
                         nargs='?', const='Data/Cameras/DefaultVideo/')
-    parser.add_argument("-C", "--config", help="Specify a different config file to use",
-                        nargs='?', const='config.json', required=False)
     parser.add_argument("-RC", "--remote", help="Run the robot using a remote control system.", action="store_true",
                         required=False)
     args = parser.parse_args()
@@ -54,12 +52,6 @@ def getArgDict() -> Dict:
             if counter > 3:
                 raise Exception("Video Argument: Could not find specified folder")
     argDict['video'] = args.video
-    if args.config is None:
-        argDict['config'] = 'config.json'
-    else:
-        if not os.path.isfile(args.config):
-            raise Exception("Config Argument: Could not find specified config file")
-        argDict['config'] = args.config
     argDict['remote'] = args.remote
     return argDict
 

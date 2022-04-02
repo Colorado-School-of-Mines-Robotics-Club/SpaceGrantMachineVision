@@ -4,6 +4,7 @@ import time
 
 # Additional libs
 import cv2
+import numpy as np
 
 # Custom imports
 from source.logger import Logger, logArguments, logSystemInfo, logConfiguration
@@ -19,7 +20,6 @@ from source.concurrency import PayloadManager
 from source.autonomous import autonomous
 from source.remoteControl import remoteControl
 
-
 # denotes program entered in this file, the main thread
 if __name__ == "__main__":
     # get dictionary with cli args
@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     jit_compile_all(verbose=True)
     # load the configuration file
-    Config.init(argDict['config'])
+    Config.init()
     runParameters = Config.getRunParameters()
     loggingOptions = Config.getLoggingOptions()
     iterationConstants = Config.getIterationConstantsDict()
