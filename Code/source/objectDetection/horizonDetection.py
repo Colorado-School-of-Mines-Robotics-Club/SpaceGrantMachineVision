@@ -75,13 +75,13 @@ def filterBoundingBoxesByHorizon(image, boundingBoxes, horizonLine, show=False, 
     i = 0
     horizonLineY = horizonLine[0][1]
     while i < len(filteredBoundingBoxes):
-        if filteredBoundingBoxes[i][1][1] < horizonLineY:
+        if filteredBoundingBoxes[i][1][1] <= horizonLineY:
             filteredBoundingBoxes.pop(i)
             i -= 1
             continue
         if filteredBoundingBoxes[i][0][1] < horizonLine[0][1] and filteredBoundingBoxes[i][1][1] > horizonLine[0][1]:
             # filteredBoundingBoxes.pop(i)
-            cropBoundingBoxesByHorizon(boundingBoxes[i], horizonLineY)
+            boundingBoxes[i] = cropBoundingBoxesByHorizon(boundingBoxes[i], horizonLineY)
             i -= 1
             continue
         i += 1
