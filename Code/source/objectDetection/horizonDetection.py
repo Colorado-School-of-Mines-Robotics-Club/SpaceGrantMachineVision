@@ -20,7 +20,7 @@ def detectHorizonLine(image, show=False):
 
     # returns a line across the middle of the screen
     # PLACEHOLDER
-    horizonLine = (0, image.shape[1] / 2), (image.shape[0], image.shape[1] / 2)
+    horizonLine = (0, int(image.shape[0] / 2)), (image.shape[1], int(image.shape[0] / 2))
 
     if show:
         lineImage = np.copy(image)
