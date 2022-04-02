@@ -1,7 +1,7 @@
 # Built in python libs
 import sys
 import os
-from typing import Dict
+from typing import Dict, Tuple
 import json
 
 # Additional libs
@@ -22,13 +22,15 @@ class Config:
     featureParams = dict()
     objectDetectionParams = dict()
     sgbmParams = dict()
+    wlsParams = dict()
     filepaths = dict()
     hardwarePorts = dict()
+    dimensions = dict()
 
     @classmethod
-    def init(cls, configFile="config.json"):
+    def init(cls):
         try:
-            with open(configFile, 'r') as f:
+            with open("config.json", 'r') as f:
                 cls.data = json.load(f)
             cls.runParameters = cls.data['run_parameters']
             cls.loggingOptions = cls.data['logging_options']
@@ -38,8 +40,10 @@ class Config:
             cls.featureParams = cls.data['feature_params']
             cls.objectDetectionParams = cls.data['object_detection_params']
             cls.sgbmParams = cls.data['sgbm_params']
+            cls.wlsParams = cls.data['wls_filter_params']
             cls.filepaths = cls.data['file_paths']
             cls.hardwarePorts = cls.data['hardware_ports']
+            cls.dimensions = cls.data['dimensions']
         except FileNotFoundError:
             raise FileNotFoundError("Cannot read config file")
 
@@ -64,7 +68,7 @@ class Config:
         return cls.cameraPorts
 
     @classmethod
-    def getCameraPorts(cls) -> (int, int):
+    def getCameraPorts(cls) -> Tuple[int, int]:
         return cls.cameraPorts['leftPort'], cls.cameraPorts['rightPort']
 
     @classmethod
@@ -84,10 +88,18 @@ class Config:
         return cls.sgbmParams
 
     @classmethod
+    def getWLSParamsDict(cls) -> Dict:
+        return cls.wlsParams
+
+    @classmethod
     def getFilepathsDict(cls) -> Dict:
         return cls.filepaths
 
     @classmethod
     def getHardwarePortsDict(cls) -> Dict:
         return cls.hardwarePorts
+
+    @classmethod
+    def getDimensionsDict(cls) -> Dict:
+        return cls.dimensions
 

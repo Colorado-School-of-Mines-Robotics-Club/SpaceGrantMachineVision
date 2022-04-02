@@ -1,12 +1,12 @@
 # Additional libs
-from typing import List
+from typing import List, Tuple
 import numpy as np
 import cv2
 from source.cameras.DisplayManager import DisplayManager
-from source.utilities.boundingBoxes import cv2RectToNpBoxes, drawBoundingBoxes
+from source.utilities.boundingBoxes import cv2RectToNpBoxes, drawBoundingBoxes, simplifyBoundingBoxes
 
 
-def generateContourImage(image: np.ndarray, show=True, threadedDisplay=False) -> (np.ndarray, np.ndarray):
+def generateContourImage(image: np.ndarray, show=True, threadedDisplay=False) -> Tuple[np.ndarray, np.ndarray]:
     blank = np.zeros(image.shape, dtype='uint8')
     _, blur, thresh = preProcessImage(image)
     canny = cv2.Canny(blur, 125, 175)
@@ -21,7 +21,7 @@ def generateContourImage(image: np.ndarray, show=True, threadedDisplay=False) ->
 
 
 # function to get moments, areas, bounding boxes, and enclosing circles given some contours
-def mabbec(contours: np.ndarray) -> (List, List, List, List):
+def mabbec(contours: np.ndarray) -> Tuple[List, List, List, List]:
     moments, areas, bounding_boxes, enclosing_circle = list(), list(), list(), list()
     for contour in contours:
         moments.append(cv2.moments(contour))
@@ -32,7 +32,7 @@ def mabbec(contours: np.ndarray) -> (List, List, List, List):
 
 
 # function given an image, convert to grayscale and perform blurring, and thresholding
-def preProcessImage(image: np.ndarray, gaussianKernelSize=(9, 9)) -> (np.ndarray, np.ndarray, np.ndarray):
+def preProcessImage(image: np.ndarray, gaussianKernelSize=(9, 9)) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blurred_image = cv2.GaussianBlur(gray_image, gaussianKernelSize, 2)
     _, thresholded_image = cv2.threshold(blurred_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
@@ -43,6 +43,7 @@ def getContourBoundingBoxes(image: np.ndarray, show=True, threadedDisplay=False)
     _, contours = generateContourImage(image, show=False, threadedDisplay=False)
     _, _, contourBoxes, _ = mabbec(contours)
     npContourBoxes = cv2RectToNpBoxes(contourBoxes)
+    npContourBoxes = simplifyBoundingBoxes(npContourBoxes)
 
     if show:
         drawBoundingBoxes(image, npContourBoxes, windowName="Contour Bounding Boxes", show=show,

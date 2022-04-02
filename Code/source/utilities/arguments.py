@@ -2,7 +2,7 @@
 import sys
 import os
 from argparse import ArgumentParser, Namespace
-from typing import Dict
+from typing import Dict, Tuple
 
 # Additional libs
 import cv2
@@ -26,8 +26,8 @@ def getArguments() -> Namespace:
                         required=False)
     parser.add_argument("-V", "--video", help="Set a video folder which contains a left and right camera feed",
                         nargs='?', const='Data/Cameras/DefaultVideo/')
-    parser.add_argument("-C", "--config", help="Specify a different config file to use",
-                        nargs='?', const='config.json', required=False)
+    parser.add_argument("-RC", "--remote", help="Run the robot using a remote control system.", action="store_true",
+                        required=False)
     args = parser.parse_args()
     return args
 
@@ -52,22 +52,17 @@ def getArgDict() -> Dict:
             if counter > 3:
                 raise Exception("Video Argument: Could not find specified folder")
     argDict['video'] = args.video
-    if args.config is None:
-        argDict['config'] = 'config.json'
-    else:
-        if not os.path.isfile(args.config):
-            raise Exception("Config Argument: Could not find specified config file")
-        argDict['config'] = args.config
+    argDict['remote'] = args.remote
     return argDict
 
 
-def getArgFlags(argDict: Dict) -> (bool, bool, bool, bool):
+def getArgFlags(argDict: Dict) -> Tuple[bool, bool, bool, bool, bool]:
     # HEADLESS, CLEAR_LOG, RECORD, THREADED_DISPLAY
-    return argDict['headless'], argDict['clearlog'], argDict['record'], argDict['threadeddisplay']
+    return argDict['headless'], argDict['clearlog'], argDict['record'], argDict['threadeddisplay'], argDict['remote']
 
 
 # make video writers for record flag
-def handleRecordFlag(RECORD: bool, leftCam: int, rightCam: int) -> (cv2.VideoWriter, cv2.VideoWriter):
+def handleRecordFlag(RECORD: bool, leftCam: int, rightCam: int) -> Tuple[cv2.VideoWriter, cv2.VideoWriter]:
     # initiate writers
     leftWriter = None
     rightWriter = None
@@ -95,12 +90,15 @@ def handleRecordFlagClose(leftWriter: cv2.VideoWriter, rightWriter: cv2.VideoWri
 # wipes the log ahead of the logger being restarted
 def handleClearLogFlag(CLEAR_LOG: bool, logFile="log.log"):
     if CLEAR_LOG:
-        with open(logFile, 'r+') as f:
-            f.truncate(0)
-            f.seek(0)
+        try:
+            with open(logFile, 'r+') as f:
+                f.truncate(0)
+                f.seek(0)
+        except FileNotFoundError:
+            pass
 
 
-def handleVideoFlag(video: str, use_cap_dshow: bool, leftPort: int, rightPort: int) -> (str, str):
+def handleVideoFlag(video: str, use_cap_dshow: bool, leftPort: int, rightPort: int) -> Tuple[str, str]:
     # loading data for cameras and starting the camera process
     if video is None:
         leftCam = leftPort
@@ -114,8 +112,8 @@ def handleVideoFlag(video: str, use_cap_dshow: bool, leftPort: int, rightPort: i
     return leftCam, rightCam
 
 
-def handleThreadedDisplayFlag(THREADED_DISPLAY: bool):
+def handleThreadedDisplayFlag(THREADED_DISPLAY: bool, HEADLESS: bool):
     # if the displays are in threaded mode then we need a new screen to capture the keyboard
-    if THREADED_DISPLAY:
+    if not HEADLESS and THREADED_DISPLAY:
         input_image = np.zeros((300, 300))
         cv2.imshow("Input Screen", input_image)

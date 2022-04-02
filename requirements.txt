@@ -1,5 +1,6 @@
-numba
+numba==0.55.1
 numpy
-opencv-python
+opencv-contrib-python
 smbus2
 psutil
+keyboard

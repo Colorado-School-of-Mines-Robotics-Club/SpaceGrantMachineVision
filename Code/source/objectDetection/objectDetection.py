@@ -31,7 +31,7 @@ def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, fea
                                                               threadedDisplay=threadedDisplay)
 
     # right now just combine the boundingBoxes, in the future should make some decisions on them
-    objectBoundingBoxes = contourBoundingBoxes + featureDenseBoundingBoxes
+    objectBoundingBoxes = findObjects(contourBoundingBoxes, featureDenseBoundingBoxes)
 
     # Filter bounding boxes by horizon
     horizonLine = detectHorizonLine(image, show=show)
@@ -40,3 +40,15 @@ def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, fea
 
 
     return filteredObjectBoundingBoxes
+
+
+def findObjects(contourBoxes: List, featureDenseBoxes: List) -> List:
+    return contourBoxes + featureDenseBoxes
+
+
+def compile_object_detection() -> None:
+    points = np.random.randint(100, 200, (200, 1)).astype('uint64')
+
+    dummy_image = cv2.imread("../Data/Calibration/LeftCaptures/10.png")
+
+    _ = findFeatureDenseBoundingBoxes(dummy_image, points, binSize=10, featuresPerPixel=0.01, show=False)

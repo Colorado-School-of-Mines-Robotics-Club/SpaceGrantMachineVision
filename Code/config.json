@@ -4,7 +4,8 @@
     "threadeddisplay": false,
     "record": false,
     "clearlog": true,
-    "video": ""
+    "video": "",
+    "remoteControl": false
   },
   "logging_options": {
     "logSystemInfo": true,
@@ -40,12 +41,12 @@
     "timeout": 20
   },
   "object_detection_params": {
-    "binSize": 30.0,
-    "featuresPerPixel": 0.03
+    "binSize": 10.0,
+    "featuresPerPixel": 0.005
   },
   "sgbm_params": {
     "minDisparity": 0,
-    "numDisparities": 32,
+    "numDisparities": 16,
     "blockSize": 3,
     "P1": 27,
     "P2": 675,
@@ -54,6 +55,10 @@
     "uniquenessRatio": 0,
     "speckleWindowSize": 0,
     "speckleRange": 0
+  },
+  "wls_filter_params": {
+    "lambda": 8000.0,
+    "sigma": 1.75
   },
   "file_paths": {
     "videoPath": "Data/Cameras/RawOutput/",
@@ -87,6 +92,26 @@
     "sensors": {
       "accelerometer": 0,
       "xbee": 1
+    }
+  },
+  "dimensions": {
+    "wheel" : {
+      "radius": 75.0,
+      "thickness": 45.0,
+      "minTheta": -15.0,
+      "maxTheta": 90.0,
+      "offset": 10.0
+    },
+    "suspension" : {
+      "length": 160.0,
+      "height": 50.0,
+      "minTheta": -50.0,
+      "maxTheta": 50.0
+    },
+    "chassis": {
+      "width": 250.0,
+      "length": 350.0,
+      "height": 100.0
     }
   }
 }
