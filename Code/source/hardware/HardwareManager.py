@@ -98,6 +98,8 @@ class HardwareManager:
         for i in range(4):  # only 4 motors and they appear at the front of writes
             if writes[i] < 0:
                 dirs[i] = 1 if dirs[i] == 0 else 0
+            elif writes[i] == 0:
+                dirs[i] = 2
         writes = [abs(x) for x in writes]
         return dirs, writes
 
