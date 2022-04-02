@@ -57,7 +57,7 @@ class HardwareManager:
 
         self.motor_pins = [[11, 13], [15, 36], [38, 12], [16, 18]]
         self.servo_pins = [19, 21, 23, 37, 22, 24, 26, 32]
-        self.dir_pins = [[29, 30], [31, 32], [33, 34], [35, 36]]
+        self.dir_pins = [(29, 30), (31, 32), (33, 34), (35, 36)]
 
         self.motor_reg = [[7,6,9,8],[11,10,13,12],[15,14,17,16],[19,18,21,20]]
         self.servo_reg = [[23,22,25,24],[27,26,29,28],[31,30,33,32],[35,34,37,36],[39,38,41,40],[43,42,45,44],[47,46,49,48],[51,50,53,52]]
@@ -92,24 +92,24 @@ class HardwareManager:
         return self
 
     @staticmethod
-    def writes_convert(writes: List[int], dirs=None) -> Tuple[int, int, int, int, List[int]]:
+    def writes_convert(writes: List[int], dirs=None) -> Tuple[List[int], List[int]]:
         if dirs is None:
             dirs = [0, 1, 0, 1]
         for i in range(4):  # only 4 motors and they appear at the front of writes
             if writes[i] < 0:
                 dirs[i] = 1 if dirs[i] == 0 else 0
         writes = [abs(x) for x in writes]
-        return dirs[0], dirs[1], dirs[2], dirs[3], writes
+        return dirs, writes
 
     def write_pwm_autodir(self, writes: List[int]):
-        dir1, dir2, dir3, dir4, writes = HardwareManager.writes_convert(writes)
-        self.write_pwm(dir1, dir2, dir3, dir4, writes)
+        directions, writes = HardwareManager.writes_convert(writes)
+        self.write_pwm(directions, writes)
 
     # writes is a List[m1, m2, m3, m4, s1, s2, s3, s4, s5, s6, s7, s8, l1, l2, l3, l4]
     # motors are constrained to: [0, 4095]
     # servos are constrained to: [0, 4095]
     # leds are constrained to: [0, 4095]
-    def write_pwm(self, dir1, dir2, dir3, dir4, writes: List[int]):
+    def write_pwm(self, directions: List[int], writes: List[int]):
         writes_counter = 0
 
         # Write PWM for each motor
@@ -119,7 +119,7 @@ class HardwareManager:
         # Write PWM for each LED
         writes_counter = self.write_pwm_helper(self.led_reg, writes_counter, writes)
 
-        self.write_gpio(dir1, dir2, dir3, dir4)
+        self.write_gpio(directions)
 
     # writes the registers, then returns the current value of the writes_counter for later use
     def write_pwm_helper(self, reg_list, writes_counter, writes):
@@ -164,9 +164,16 @@ class HardwareManager:
         return writes_counter
 
     def write_gpio(self, directions: List[int]):
-        # TODO: write the output pins for the directions
-        # use dir pins
-
+        # iterate over the directions
+        for i, direction in enumerate(directions):
+            pin1, pin2 = self.dir_pins[i]
+            dir1, dir2 = 0, 0
+            if direction == 0:
+                dir1, dir2 = 1, 0
+            elif direction == 1:
+                dir1, dir2 = 0, 1
+            GPIO.output(pin1, dir1)
+            GPIO.output(pin2, dir2)
 
     def read_motor(self, thread):
         # read current edge value before starting the loop
