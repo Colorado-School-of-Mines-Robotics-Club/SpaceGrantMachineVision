@@ -12,7 +12,8 @@ from numba import jit, njit
 
 # Custom  imports
 from source.logger.Logger import Logger
-from source.utilities import exceptions
+from source.utilities import exceptions, boundingBoxes
+from source.utilities.boundingBoxes import drawBoundingBoxes, cv2RectToNpBoxes
 
 
 def detectHorizonLine(image, show=False):
@@ -20,7 +21,7 @@ def detectHorizonLine(image, show=False):
 
     # returns a line across the middle of the screen
     # PLACEHOLDER
-    horizonLine = [0, image.shape[1] / 2], [image.shape[0], image.shape[1] / 2]
+    horizonLine = (0, int(image.shape[0] / 2)), (image.shape[1], int(image.shape[0] / 2))
 
     if show:
         lineImage = np.copy(image)
@@ -30,6 +31,73 @@ def detectHorizonLine(image, show=False):
     return horizonLine
 
 
-def filterBoundingBoxesByHorizon(image, boundingBoxes, horizonLine):
+def detect_horizon_line(image_grayscaled, default_y=50):
+    """Detect the horizon's starting and ending points in the given image
+    The horizon line is detected by applying Otsu's threshold method to
+    separate the sky from the remainder of the image.
+    :param image_grayscaled: grayscaled image to detect the horizon on, of
+     shape (height, width)
+    :type image_grayscale: np.ndarray of dtype uint8
+    :return: the (x1, x2, y1, y2) coordinates for the starting and ending
+     points of the detected horizon line
+    :rtype: tuple(int)
+    """
 
-    return boundingBoxes
+    msg = ('`image_grayscaled` should be a grayscale, 2-dimensional image '
+           'of shape (height, width).')
+    assert image_grayscaled.ndim == 2, msg
+    image_blurred = cv2.GaussianBlur(image_grayscaled, ksize=(3, 3), sigmaX=0)
+
+    _, image_thresholded = cv2.threshold(
+        image_blurred, thresh=0, maxval=1,
+        type=cv2.THRESH_BINARY+cv2.THRESH_OTSU
+    )
+    image_thresholded = image_thresholded - 1
+    image_closed = cv2.morphologyEx(image_thresholded, cv2.MORPH_CLOSE,
+                                    kernel=np.ones((9, 9), np.uint8))
+
+    horizon_x1 = 0
+    horizon_x2 = image_grayscaled.shape[1] - 1
+
+    where1 = np.where(image_closed[:, horizon_x1] == 0)[0]
+    where2 = np.where(image_closed[:, horizon_x2] == 0)[0]
+
+    if len(where1) == 0 or len(where2) == 0:
+        return (0, default_y), (image_grayscaled.shape[0], default_y)
+
+    horizon_y1 = max(where1)
+    horizon_y2 = max(where2)
+
+    return (horizon_x1, horizon_x2), (horizon_y1, horizon_y2)
+
+
+def filterBoundingBoxesByHorizon(image, boundingBoxes, horizonLine, show=False, threadedDisplay=False):
+    # filteredBoundingBoxes = boundingBoxes
+    # i = 0
+    # horizonLineY = horizonLine[0][1]
+    # while i < len(filteredBoundingBoxes):
+    #     if filteredBoundingBoxes[i][1][1] <= horizonLineY:
+    #         filteredBoundingBoxes.pop(i)
+    #         i -= 1
+    #         continue
+    #     if filteredBoundingBoxes[i][0][1] < horizonLine[0][1] < filteredBoundingBoxes[i][1][1]:
+    #         boundingBoxes[i] = cropBoundingBoxesByHorizon(boundingBoxes[i], horizonLineY)
+    #         continue
+    #     i += 1
+    horizonLineY = horizonLine[0][1]
+    filteredBoundingBoxes = list()
+    for bbox in boundingBoxes:
+        if bbox[1][1] <= horizonLineY:
+            continue
+        if bbox[0][1] < horizonLine[0][1] < bbox[1][1]:
+            filteredBoundingBoxes.append(cropBoundingBoxesByHorizon(bbox, horizonLineY))
+            continue
+        filteredBoundingBoxes.append(bbox)
+    if show:
+        drawBoundingBoxes(image, filteredBoundingBoxes, show=True, windowName="Filtered bounding boxes")
+    return filteredBoundingBoxes
+
+
+def cropBoundingBoxesByHorizon(boundingBox, horizonLineY):
+    boundingBox[0][1] = horizonLineY
+    return boundingBox
