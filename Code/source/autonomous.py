@@ -71,8 +71,8 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
                                       featureRatio=featureParams["featureRatio"], stepSize=featureParams["stepSize"],
                                       timeout=featureParams["timeout"], show=not HEADLESS,
                                       threadedDisplay=THREADED_DISPLAY, windowName="Right Matched Features")
-            xTranslation, yTranslation = getAvgTranslationXY(leftMatches, prevLeftKp, leftKp, rightMatches, prevRightKp,
-                                                             rightKp)
+            # xTranslation, yTranslation = getAvgTranslationXY(leftMatches, prevLeftKp, leftKp, rightMatches, prevRightKp,
+            #                                                  rightKp)
             featureFTs.append(time.perf_counter() - featureStartTime)
 
             objectDectStartTime = time.perf_counter()
@@ -80,7 +80,10 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
             objectBoundingBoxes = objectDetection(leftImage, getPointsFromKeypoints(leftKp),
                                                   binSize=objectDetectionParams["binSize"],
                                                   featuresPerPixel=objectDetectionParams["featuresPerPixel"],
-                                                  show=not HEADLESS, threadedDisplay=THREADED_DISPLAY)
+                                                  percentAreaThreshold=objectDetectionParams["percentAreaThreshold"],
+                                                  connectedFeaturesThresh=objectDetectionParams["connFeaturesThresh"],
+                                                  simplifyFinalOutput=True, show=not HEADLESS,
+                                                  threadedDisplay=THREADED_DISPLAY)
             objectDectFTs.append(time.perf_counter() - objectDectStartTime)
 
             disparityStartTime = time.perf_counter()
