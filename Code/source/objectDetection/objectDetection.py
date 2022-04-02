@@ -17,6 +17,7 @@ from source.utilities.boundingBoxes import drawBoundingBoxes, cv2RectToNpBoxes
 from source.features.features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
 from .featureDensity import findFeatureDenseBoundingBoxes
 from .contourDetection import getContourBoundingBoxes
+from .horizonDetection import detectHorizonLine, filterBoundingBoxesByHorizon, cropBoundingBoxesByHorizon
 
 
 def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, featuresPerPixel=0.03, show=True,
@@ -32,4 +33,10 @@ def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, fea
     # right now just combine the boundingBoxes, in the future should make some decisions on them
     objectBoundingBoxes = contourBoundingBoxes + featureDenseBoundingBoxes
 
-    return objectBoundingBoxes
+    # Filter bounding boxes by horizon
+    horizonLine = detectHorizonLine(image, show=show)
+    filteredObjectBoundingBoxes = filterBoundingBoxesByHorizon(image, objectBoundingBoxes, horizonLine, show=show,
+                                                               threadedDisplay=threadedDisplay)
+
+
+    return filteredObjectBoundingBoxes

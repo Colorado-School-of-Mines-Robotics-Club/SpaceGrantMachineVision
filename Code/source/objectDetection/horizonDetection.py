@@ -12,7 +12,8 @@ from numba import jit, njit
 
 # Custom  imports
 from source.logger.Logger import Logger
-from source.utilities import exceptions
+from source.utilities import exceptions, boundingBoxes
+from source.utilities.boundingBoxes import drawBoundingBoxes, cv2RectToNpBoxes
 
 
 def detectHorizonLine(image, show=False):
@@ -69,17 +70,26 @@ def detect_horizon_line(image_grayscaled, default_y=50):
     return (horizon_x1, horizon_x2), (horizon_y1, horizon_y2)
 
 
-def filterBoundingBoxesByHorizon(boundingBoxes, horizonLine):
+def filterBoundingBoxesByHorizon(image, boundingBoxes, horizonLine, show=False, threadedDisplay=False):
     filteredBoundingBoxes = boundingBoxes
     i = 0
+    horizonLineY = horizonLine[0][1]
     while i < len(filteredBoundingBoxes):
-        if filteredBoundingBoxes[i][0][1] < horizonLine[0][1]:
+        if filteredBoundingBoxes[i][1][1] < horizonLineY:
             filteredBoundingBoxes.pop(i)
             i -= 1
             continue
-        # if filteredBoundingBoxes[i][0][1] < horizonLine[0][1] and filteredBoundingBoxes[i][0][0] > horizonLine[0][1]:
-        #     filteredBoundingBoxes.pop(i)
-        #     i -= 1
-        #     continue
+        if filteredBoundingBoxes[i][0][1] < horizonLine[0][1] and filteredBoundingBoxes[i][1][1] > horizonLine[0][1]:
+            # filteredBoundingBoxes.pop(i)
+            cropBoundingBoxesByHorizon(boundingBoxes[i], horizonLineY)
+            i -= 1
+            continue
         i += 1
+    if show:
+        drawBoundingBoxes(image, filteredBoundingBoxes, show=True,
+                                    windowName="Filtered bounding boxes")
     return filteredBoundingBoxes
+
+def cropBoundingBoxesByHorizon(boundingBox, horizonLineY):
+    boundingBox[0][1] = horizonLineY
+    return boundingBox

@@ -92,16 +92,6 @@ def main():
                                             threadedDisplay=THREADED_DISPLAY)
             disparityFTs.append(time.perf_counter() - disparityStartTime)
 
-            '''
-            NATHAN CODE STARTS HERE
-            
-            '''
-            filteredObjectBoundingBoxes = horizonDetection.filterBoundingBoxesByHorizon(objectBoundingBoxes, horizonDetection.detectHorizonLine(grayLeftImage, show=True))
-            boundingBoxes.drawBoundingBoxes(leftImage, filteredObjectBoundingBoxes, show=True, windowName="Filtered bounding boxes")
-
-            ''' 
-            NATHAN CODE ENDS HERE
-            '''
             # all additional functionality should be present within the === comments
             # additional data that needs to be stored for each iteration should be handled above
             # ===========================================================================================================
