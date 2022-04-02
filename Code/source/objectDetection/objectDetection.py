@@ -38,7 +38,6 @@ def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, fea
     filteredObjectBoundingBoxes = filterBoundingBoxesByHorizon(image, objectBoundingBoxes, horizonLine, show=show,
                                                                threadedDisplay=threadedDisplay)
 
-
     return filteredObjectBoundingBoxes
 
 
