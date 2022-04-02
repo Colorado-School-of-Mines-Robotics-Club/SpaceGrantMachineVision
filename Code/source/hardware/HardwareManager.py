@@ -1,14 +1,13 @@
 import threading
-from smbus2 import *
 from typing import List, Tuple
 
 try:
     import RPi.GPIO as GPIO
-    use_gpio = True
+    from smbus2 import *
 except ModuleNotFoundError:
-    use_gpio = False
+    pass
 except ImportError:
-    use_gpio = False
+    pass
 
 
 class HardwareManager:
@@ -103,10 +102,12 @@ class HardwareManager:
     def writes_convert(writes: List[int], dirs=None) -> Tuple[int, int, int, int, List[int]]:
         if dirs is None:
             dirs = [0, 1, 0, 1]
-        for i in range(4):
-            if writes[i] < 0:
-                dirs[i] = 1 if dirs[i] == 0 else 0
-                writes[i] *= -1
+        # for i in range(4):
+        #     if writes[i] < 0:
+        #         dirs[i] = 1 if dirs[i] == 0 else 0
+        #         writes[i] = abs(writes[i])
+        dirs = [1 if direction == 0 else 0 for direction in dirs]
+        writes = [abs(x) for x in writes]
         return dirs[0], dirs[1], dirs[2], dirs[3], writes
 
     def write_pwm_autodir(self, writes: List[int]):
@@ -197,31 +198,13 @@ class HardwareManager:
             self.past_encoders[thread] = self.curr_encoders[thread][0]
 
     def read_servo(self):
+        # initialization writes here??
+
         # Read the new servo values, and store in curr_servo array. Save the original value to the past_servo
         while True:
-            self.past_servos[0] = self.curr_servos[0]
-            self.curr_servos[0] = GPIO.input(self.servo_pins[0])
+            self.past_servos = self.curr_servos
 
-            self.past_servos[1] = self.curr_servos[1]
-            self.curr_servos[1] = GPIO.input(self.servo_pins[1])
-
-            self.past_servos[2] = self.curr_servos[2]
-            self.curr_servos[2] = GPIO.input(self.servo_pins[2])
-
-            self.past_servos[3] = self.curr_servos[3]
-            self.curr_servos[3] = GPIO.input(self.servo_pins[3])
-
-            self.past_servos[4] = self.curr_servos[4]
-            self.curr_servos[4] = GPIO.input(self.servo_pins[4])
-
-            self.past_servos[5] = self.curr_servos[5]
-            self.curr_servos[5] = GPIO.input(self.servo_pins[5])
-
-            self.past_servos[6] = self.curr_servos[6]
-            self.curr_servos[6] = GPIO.input(self.servo_pins[6])
-
-            self.past_servos[7] = self.curr_servos[7]
-            self.curr_servos[7] = GPIO.input(self.servo_pins[7])
+            self.curr_servos = [GPIO.input(i) for i in range(8)]
 
     def read_accelerometer(self):
         # setup the accelerometer
@@ -237,6 +220,9 @@ class HardwareManager:
             data = self.bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 12)
             for i in range(6):
                 sized[i] = (data[(2 * i)] << 8) | (data[(2 * i) + 1])
+
+            # TODO
+            # change from goofy analog numbers to real units (m/s^2 and degress/radians)
 
             # assign store data to class
             self.past_gyro = self.curr_gyro
