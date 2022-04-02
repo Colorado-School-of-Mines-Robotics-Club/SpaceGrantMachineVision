@@ -30,6 +30,7 @@ def detectHorizonLine(image, show=False):
 
     return horizonLine
 
+
 def detect_horizon_line(image_grayscaled, default_y=50):
     """Detect the horizon's starting and ending points in the given image
     The horizon line is detected by applying Otsu's threshold method to
@@ -79,16 +80,16 @@ def filterBoundingBoxesByHorizon(image, boundingBoxes, horizonLine, show=False, 
             filteredBoundingBoxes.pop(i)
             i -= 1
             continue
-        if filteredBoundingBoxes[i][0][1] < horizonLine[0][1] and filteredBoundingBoxes[i][1][1] > horizonLine[0][1]:
+        if filteredBoundingBoxes[i][0][1] < horizonLine[0][1] < filteredBoundingBoxes[i][1][1]:
             # filteredBoundingBoxes.pop(i)
             cropBoundingBoxesByHorizon(boundingBoxes[i], horizonLineY)
             i -= 1
             continue
         i += 1
     if show:
-        drawBoundingBoxes(image, filteredBoundingBoxes, show=True,
-                                    windowName="Filtered bounding boxes")
+        drawBoundingBoxes(image, filteredBoundingBoxes, show=True, windowName="Filtered bounding boxes")
     return filteredBoundingBoxes
+
 
 def cropBoundingBoxesByHorizon(boundingBox, horizonLineY):
     boundingBox[0][1] = horizonLineY
