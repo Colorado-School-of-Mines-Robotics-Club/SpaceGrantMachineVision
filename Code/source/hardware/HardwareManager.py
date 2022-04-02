@@ -57,7 +57,7 @@ class HardwareManager:
 
         self.motor_pins = [[11, 13], [15, 36], [38, 12], [16, 18]]
         self.servo_pins = [19, 21, 23, 37, 22, 24, 26, 32]
-        self.dir_pins = [29, 31, 33, 35]
+        self.dir_pins = [[29, 30], [31, 32], [33, 34], [35, 36]]
 
         self.motor_reg = [[7,6,9,8],[11,10,13,12],[15,14,17,16],[19,18,21,20]]
         self.servo_reg = [[23,22,25,24],[27,26,29,28],[31,30,33,32],[35,34,37,36],[39,38,41,40],[43,42,45,44],[47,46,49,48],[51,50,53,52]]
@@ -163,10 +163,10 @@ class HardwareManager:
         # return the updated writes_counter for use in the other calls
         return writes_counter
 
-    def write_gpio(self, dir1, dir2, dir3, dir4):
-        dir1 = 1
+    def write_gpio(self, directions: List[int]):
         # TODO: write the output pins for the directions
         # use dir pins
+
 
     def read_motor(self, thread):
         # read current edge value before starting the loop
