@@ -73,7 +73,7 @@ def filterBoundingBoxesByHorizon(boundingBoxes, horizonLine):
     filteredBoundingBoxes = boundingBoxes
     i = 0
     while i < len(filteredBoundingBoxes):
-        if filteredBoundingBoxes[i][1][0] > horizonLine[0][1]:
+        if filteredBoundingBoxes[i][1][0] < horizonLine[0][1]:
             filteredBoundingBoxes.pop(i)
             i -= 1
             continue
