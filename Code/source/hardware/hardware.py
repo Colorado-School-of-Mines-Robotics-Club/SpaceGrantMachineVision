@@ -1,13 +1,13 @@
 from .HardwareManager import HardwareManager
-from typing import Tuple
+from typing import Tuple, Union, Dict
 
 
 # function to create object on other side of the payloadManager
-def createHardwareManager(args: Tuple) -> HardwareManager:
+def createHardwareManager(args: Tuple) -> Union[HardwareManager, None]:
     return HardwareManager().start_threads()
 
 
-def PThardwareCommand(args: Tuple):
+def PThardwareCommand(args: Tuple) -> Dict:
     queue = args[0]
     hardware: HardwareManager = args[1]
 
