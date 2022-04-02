@@ -1,2 +1,2 @@
-from .dStartLite import *
+from .ASTAR import *
 from .pathfinding import *
