@@ -1,2 +1,2 @@
-from .ASTAR import *
+from .astar import *
 from .pathfinding import *
