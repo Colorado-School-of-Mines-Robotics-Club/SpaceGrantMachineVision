@@ -38,7 +38,7 @@ class HardwareManager:
         self.bus.write_byte_data(self.address, DATA_FORMAT, value)
 
         self.pwm_address = 0x00
-        self.accelerometer_address = 0x1D
+        self.accelerometer_address = 0x68
 
         # TODO
         # save time slice info to be returned with this????
@@ -62,7 +62,7 @@ class HardwareManager:
 
         self.motor_reg = [[7,6,9,8],[11,10,13,12],[15,14,17,16],[19,18,21,20]]
         self.servo_reg = [[23,22,25,24],[27,26,29,28],[31,30,33,32],[35,34,37,36],[39,38,41,40],[43,42,45,44],[47,46,49,48],[51,50,53,52]]
-        self.accel_reg = 0x68
+        self.accel_reg = 0x3B
         self.led_reg = [[55,54,57,56],[59,58,61,60],[63,62,65,64],[67,66,69,68]]
 
         # Split encoder reading into 4 threads for speed and accuracy
@@ -224,25 +224,26 @@ class HardwareManager:
             self.curr_servos[7] = GPIO.input(self.servo_pins[7])
 
     def read_accelerometer(self):
+        # setup the accelerometer
+        self.bus.write_byte_data(self.accelerometer_address, 0x19, 7)  # set sample rate
+        self.bus.write_byte_data(self.accelerometer_address, 0x6B, 1)  # set power management
+        self.bus.write_byte_data(self.accelerometer_address, 0x1A, 0)  # Set config
+        self.bus.write_byte_data(self.accelerometer_address, 0x1B, 24)  # set gyro config
+        self.bus.write_byte_data(self.accelerometer_address, 0x38, 1)  # interrupt enable register
+        # temp area to store data
+        sized = [0, 0, 0, 0, 0, 0]
         # Read the new accelerometer values, and store in curr_accel array. Save the original value to the past_accel
         while True:
-            self.past_accel[0] = self.curr_accel[0]
-            self.curr_accel[0] = self.bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 6)
+            data = self.bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 12)
+            for i in range(6):
+                sized[i] = (data[(2 * i)] << 8) | (data[(2 * i) + 1])
 
-            self.past_accel[1] = self.curr_accel[1]
-            self.curr_accel[1] = self.bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 6)
+            # assign store data to class
+            self.past_gyro = self.curr_gyro
+            self.curr_gyro = sized[0:3]
 
-            self.past_accel[2] = self.curr_accel[2]
-            self.curr_accel[2] = self.bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 6)
-
-            self.past_accel[3] = self.curr_accel[3]
-            self.curr_accel[3] = self.bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 6)
-
-            self.past_accel[4] = self.curr_accel[4]
-            self.curr_accel[4] = self.bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 6)
-
-            self.past_accel[5] = self.curr_accel[5]
-            self.curr_accel[5] = self.bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 6)
+            self.past_accel = self.curr_accel
+            self.curr_accel = sized[3:len(sized)]
 
     ''' 
     Decided to break this method into several different methods

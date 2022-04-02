@@ -15,5 +15,5 @@ bus.write_byte_data(accelerometer_address, 0x38, 1) #interrupt enable register
 while True:
     data = bus.read_i2c_block_data(accelerometer_address, accel_reg, 12)
     for i in range(6):
-        sized[i] =  (data[(2*i)]<<8) | (data[(2*i)+1])
+        sized[i] = (data[(2*i)] << 8) | (data[(2*i)+1])
     print(sized)
