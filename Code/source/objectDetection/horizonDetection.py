@@ -15,7 +15,7 @@ from source.logger.Logger import Logger
 from source.utilities import exceptions
 
 
-def detectHorizonLine(image, show=True):
+def detectHorizonLine(image, show=False):
     # use edge/contour detector to find the horizon line in an image
 
     # returns a line across the middle of the screen
@@ -73,18 +73,13 @@ def filterBoundingBoxesByHorizon(boundingBoxes, horizonLine):
     filteredBoundingBoxes = boundingBoxes
     i = 0
     while i < len(filteredBoundingBoxes):
-    # for i in range(len(filteredBoundingBoxes)):
-        if filteredBoundingBoxes[i][1][1] > horizonLine[0][1]:
+        if filteredBoundingBoxes[i][1][0] > horizonLine[0][1]:
             filteredBoundingBoxes.pop(i)
             i -= 1
             continue
-            # np.delete(filteredBoundingBoxes, i)
-        # yValue = boundingBoxes[i][1][1]
-        if filteredBoundingBoxes[i][0][1] > horizonLine[0][1] and filteredBoundingBoxes[i][1][1] < horizonLine[0][1]:
-            # np.delete(filteredBoundingBoxes, i)
-            filteredBoundingBoxes.pop(i)
-            i -= 1
-            continue
-        #if yValue > horizonLine
+        # if filteredBoundingBoxes[i][0][1] < horizonLine[0][1] and filteredBoundingBoxes[i][0][0] > horizonLine[0][1]:
+        #     filteredBoundingBoxes.pop(i)
+        #     i -= 1
+        #     continue
         i += 1
     return filteredBoundingBoxes

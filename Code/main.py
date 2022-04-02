@@ -96,7 +96,7 @@ def main():
             NATHAN CODE STARTS HERE
             
             '''
-            filteredObjectBoundingBoxes = horizonDetection.filterBoundingBoxesByHorizon(objectBoundingBoxes, horizonDetection.detect_horizon_line(grayLeftImage))
+            filteredObjectBoundingBoxes = horizonDetection.filterBoundingBoxesByHorizon(objectBoundingBoxes, horizonDetection.detectHorizonLine(grayLeftImage, show=False))
             boundingBoxes.drawBoundingBoxes(leftImage, filteredObjectBoundingBoxes, show=True, windowName="Filtered bounding boxes")
 
             ''' 
