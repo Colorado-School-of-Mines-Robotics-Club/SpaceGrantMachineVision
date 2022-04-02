@@ -4,7 +4,7 @@
     "threadeddisplay": false,
     "record": false,
     "clearlog": true,
-    "video": "",
+    "video": "../Data/Cameras/DefaultVideo/",
     "remoteControl": false
   },
   "logging_options": {
@@ -42,7 +42,9 @@
   },
   "object_detection_params": {
     "binSize": 10.0,
-    "featuresPerPixel": 0.005
+    "featuresPerPixel": 0.005,
+    "percentAreaThreshold": 0.025,
+    "connFeaturesThresh": 10
   },
   "sgbm_params": {
     "minDisparity": 0,

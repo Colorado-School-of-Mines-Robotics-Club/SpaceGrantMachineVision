@@ -94,9 +94,9 @@ def filterBoundingBoxesByHorizon(image, boundingBoxes, horizonLine, show=False, 
             continue
         filteredBoundingBoxes.append(bbox)
     if show:
-        drawBoundingBoxes(image, filteredBoundingBoxes, show=True,
-                                    windowName="Filtered bounding boxes")
+        drawBoundingBoxes(image, filteredBoundingBoxes, show=True, windowName="Filtered bounding boxes")
     return filteredBoundingBoxes
+
 
 def cropBoundingBoxesByHorizon(boundingBox, horizonLineY):
     boundingBox[0][1] = horizonLineY
