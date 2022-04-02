@@ -72,20 +72,27 @@ def detect_horizon_line(image_grayscaled, default_y=50):
 
 
 def filterBoundingBoxesByHorizon(image, boundingBoxes, horizonLine, show=False, threadedDisplay=False):
-    filteredBoundingBoxes = boundingBoxes
-    i = 0
+    # filteredBoundingBoxes = boundingBoxes
+    # i = 0
+    # horizonLineY = horizonLine[0][1]
+    # while i < len(filteredBoundingBoxes):
+    #     if filteredBoundingBoxes[i][1][1] <= horizonLineY:
+    #         filteredBoundingBoxes.pop(i)
+    #         i -= 1
+    #         continue
+    #     if filteredBoundingBoxes[i][0][1] < horizonLine[0][1] < filteredBoundingBoxes[i][1][1]:
+    #         boundingBoxes[i] = cropBoundingBoxesByHorizon(boundingBoxes[i], horizonLineY)
+    #         continue
+    #     i += 1
     horizonLineY = horizonLine[0][1]
-    while i < len(filteredBoundingBoxes):
-        if filteredBoundingBoxes[i][1][1] < horizonLineY:
-            filteredBoundingBoxes.pop(i)
-            i -= 1
+    filteredBoundingBoxes = list()
+    for bbox in boundingBoxes:
+        if bbox[1][1] <= horizonLineY:
             continue
-        if filteredBoundingBoxes[i][0][1] < horizonLine[0][1] < filteredBoundingBoxes[i][1][1]:
-            # filteredBoundingBoxes.pop(i)
-            cropBoundingBoxesByHorizon(boundingBoxes[i], horizonLineY)
-            i -= 1
+        if bbox[0][1] < horizonLine[0][1] < bbox[1][1]:
+            filteredBoundingBoxes.append(cropBoundingBoxesByHorizon(bbox, horizonLineY))
             continue
-        i += 1
+        filteredBoundingBoxes.append(bbox)
     if show:
         drawBoundingBoxes(image, filteredBoundingBoxes, show=True, windowName="Filtered bounding boxes")
     return filteredBoundingBoxes
