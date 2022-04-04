@@ -56,7 +56,7 @@ class HardwareManager:
         self.past_gyro = [0, 0, 0]
 
         self.motor_pins = [[11, 13], [31, 33], [26, 28], [16, 18]]
-        self.servo_pins = [19, 21, 23, 37, 22, 24, 26, 32]
+        self.servo_pins = [7, 12, 15, 23, 26, 28, 35, 37]
         self.dir_pins = [[8, 10], [19, 21], [22, 24], [27, 29]]
 
         self.motor_reg = [[7,6,9,8],[11,10,13,12],[15,14,17,16],[19,18,21,20]]
