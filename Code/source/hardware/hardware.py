@@ -15,7 +15,7 @@ def PThardwareCommand(args: Tuple) -> Dict:
     commands = queue.getInputs()
     if len(commands) != 0:
         command = commands[len(commands) - 1]
-        hardware.write_pwm_autodir(command)
+        hardware.update_pwm_targets(command)
 
     return {'motors': hardware.get_curr_motors(), 'servos': hardware.get_curr_servos(),
             'past_accel': hardware.get_past_accel(), 'curr_accel': hardware.get_curr_accel(),
