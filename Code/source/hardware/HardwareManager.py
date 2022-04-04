@@ -14,8 +14,6 @@ except ImportError:
 
 class HardwareManager:
     def __init__(self):
-        self.init_time = time.perf_counter()
-
         # declare the bus
         self.bus = SMBus(1)
 
@@ -23,8 +21,18 @@ class HardwareManager:
         self.pid: PIDController = PIDController()
         self.targets = self.pid.get_targets()
         self.directions = [0, 0, 0, 0]
+
+        # TODO
+        # these need to be the actual PWMs that the servos and motors have last been read from their read methods
+        # Since those read methods do not nessecarily read PWMs the conversions can occur in time with the PWM
+        # controller thread. This alleviates the computational cost from the strictly reading threads.
+        # This allows more time waiting on the bus, for more accurate values.
+        # This ultimtely means a conversion function will need to be used inside of write_pwm_targets on the arguments
+        # to the self.pid.get_pwm method
         self.curr_motor_pwm = [0, 0, 0, 0]
         self.curr_servo_pwm = [0, 0, 0, 0, 0, 0, 0, 0]
+
+        # this can be assumed to always be the led_target
         self.curr_led_pwm = [0, 0, 0, 0]
         self.dt = 0.0
 
@@ -52,9 +60,9 @@ class HardwareManager:
         self.pwm_address = 0x00
         self.accelerometer_address = 0x68
 
-        # TODO
-        # save time slice info to be returned with this????
         self.curr_motors = [0, 0, 0, 0]
+        self.init_time = time.perf_counter()
+        self.motor_time_slices: List[float] = [self.init_time, self.init_time, self.init_time, self.init_time]
 
         self.curr_encoders = [[0,0], [0,0], [0,0], [0,0]]
         self.past_encoders = [0,0,0,0]
@@ -127,6 +135,7 @@ class HardwareManager:
 
     def write_pwm_targets(self, hz: Union[float, None] = None):
         while True:
+            _, _, self.curr_led_pwm = self.pid.get_targets_split()  # assume leds are at target always
             self.write_pwm(self.pid.get_pwm(self.curr_motor_pwm + self.curr_servo_pwm + self.curr_led_pwm))
             if hz is not None:
                 time.sleep(1.0 / hz)
@@ -220,6 +229,7 @@ class HardwareManager:
                     self.curr_motors[thread] -= 1
 
             self.past_encoders[thread] = self.curr_encoders[thread][0]
+            self.motor_time_slices[thread] = time.perf_counter() - self.motor_time_slices[thread]
 
     def read_servo(self):
         # Read the new servo values, and store in curr_servo array. Save the original value to the past_servo
