@@ -14,6 +14,10 @@ except ImportError:
 
 class HardwareManager:
     def __init__(self):
+        # clicks per rev for motor
+        self.clicks_per_rev = 48.0
+        self.deg_per_click = 360.0 / self.clicks_per_rev
+
         # declare the bus
         self.bus = SMBus(1)
 
@@ -223,10 +227,9 @@ class HardwareManager:
             if self.curr_encoders[thread][0] == self.past_encoders[thread]:
                 if self.curr_encoders[thread][1] == self.curr_encoders[thread][0]:
                     # increment motor angle by angular distance of one click
-                    # TODO: find the angle per click and add this instead of keeping track of number of "clicks"
-                    self.curr_motors[thread] += 1
+                    self.curr_motors[thread] += self.deg_per_click
                 else:
-                    self.curr_motors[thread] -= 1
+                    self.curr_motors[thread] -= self.deg_per_click
 
             self.past_encoders[thread] = self.curr_encoders[thread][0]
             self.motor_time_slices[thread] = time.perf_counter() - self.motor_time_slices[thread]
