@@ -1,5 +1,7 @@
 import threading
 from typing import List, Tuple
+import time
+from .PIDController import PIDController
 
 try:
     import RPi.GPIO as GPIO
@@ -12,8 +14,17 @@ except ImportError:
 
 class HardwareManager:
     def __init__(self):
+        self.init_time = time.perf_counter()
+
         # declare the bus
         self.bus = SMBus(1)
+
+        # declare the PWM Controller and last sent PWM values
+        self.pid: PIDController = PIDController()
+        self.curr_motor_pwm = [0, 0, 0, 0]
+        self.curr_servo_pwm = [0, 0, 0, 0, 0, 0, 0, 0]
+        self.curr_led_pwm = [0, 0, 0, 0]
+        self.dt = 0.0
 
         # the values used by the example
         POWER_CTL = 0x2D
@@ -71,7 +82,10 @@ class HardwareManager:
         self.servos = threading.Thread(target=self.read_servo)
 
         # one thread for reading accelerometer data
-        self.accel = threading.Thread(target=self.read_accelerometer)
+        self.accel = threading.Thread(target=self.read_accelerometer, args=(240.0,))
+
+        # thread for writing to the PWM breakout board at a certain HZ
+        self.pwm_thread = threading.Thread()
 
     def start_threads(self) -> 'HardwareManager':
         # start all data collection threads
@@ -79,6 +93,7 @@ class HardwareManager:
             thread.start()
         self.servos.start()
         self.accel.start()
+        self.pwm_thread.start()
 
         return self
 
@@ -88,6 +103,7 @@ class HardwareManager:
             thread.join()
         self.servos.join()
         self.accel.join()
+        self.pwm_thread.join()
 
         return self
 
@@ -203,7 +219,7 @@ class HardwareManager:
             self.past_servos = self.curr_servos
             self.curr_servos = [GPIO.input(i) for i in range(8)]
 
-    def read_accelerometer(self):
+    def read_accelerometer(self, hz=240.0):
         # setup the accelerometer
         self.bus.write_byte_data(self.accelerometer_address, 0x19, 7)  # set sample rate
         self.bus.write_byte_data(self.accelerometer_address, 0x6B, 1)  # set power management
@@ -226,6 +242,8 @@ class HardwareManager:
             self.curr_gyro = sized[0:3]
             self.past_accel = self.curr_accel
             self.curr_accel = sized[3:len(sized)]
+
+            time.sleep(1.0 / hz)
 
     ''' 
     Decided to break this method into several different methods
@@ -258,3 +276,10 @@ class HardwareManager:
 
     def get_curr_gyro(self):
         return self.curr_gyro
+
+    # PID methods
+    # method to expose PIDController function update_targets
+    def update_pwm_targets(self, targets: List[int]):
+        self.pid.update_targets(targets)
+
+    
