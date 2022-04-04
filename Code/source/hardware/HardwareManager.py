@@ -281,5 +281,3 @@ class HardwareManager:
     # method to expose PIDController function update_targets
     def update_pwm_targets(self, targets: List[int]):
         self.pid.update_targets(targets)
-
-    
