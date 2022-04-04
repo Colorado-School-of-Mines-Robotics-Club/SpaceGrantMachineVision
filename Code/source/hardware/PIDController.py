@@ -25,13 +25,20 @@ class PIDController:
         self.servo_targets = [0 for i in range(self.num_servos)]
         self.led_targets = [0 for i in range(self.num_leds)]
 
-    def update_targets(self, targets=None):
+    def get_targets(self) -> List[int]:
+        return self.motor_targets + self.servo_targets + self.led_targets
+
+    def get_targets_split(self) -> Tuple[List[int], List[int], List[int]]:
+        return self.motor_targets, self.servo_targets, self.led_targets
+
+    def update_targets(self, targets=None) -> List[int]:
         if targets is not None:
             if len(targets) == self.total_size:
                 motor_targets = targets[0:self._s1]
                 servo_targets = targets[self._s1, self._s2]
                 led_targets = targets[self._s2, self.total_size]
                 self._update_targets(motor_targets, servo_targets, led_targets)
+        return self.get_targets()
 
     def _update_targets(self, motor_targets=None, servo_targets=None, led_targets=None):
         if motor_targets is not None:

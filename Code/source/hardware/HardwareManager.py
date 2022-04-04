@@ -1,5 +1,5 @@
 import threading
-from typing import List, Tuple
+from typing import List, Tuple, Union
 import time
 from .PIDController import PIDController
 
@@ -21,6 +21,8 @@ class HardwareManager:
 
         # declare the PWM Controller and last sent PWM values
         self.pid: PIDController = PIDController()
+        self.targets = self.pid.get_targets()
+        self.directions = [0, 0, 0, 0]
         self.curr_motor_pwm = [0, 0, 0, 0]
         self.curr_servo_pwm = [0, 0, 0, 0, 0, 0, 0, 0]
         self.curr_led_pwm = [0, 0, 0, 0]
@@ -85,7 +87,7 @@ class HardwareManager:
         self.accel = threading.Thread(target=self.read_accelerometer, args=(240.0,))
 
         # thread for writing to the PWM breakout board at a certain HZ
-        self.pwm_thread = threading.Thread()
+        self.pwm_thread = threading.Thread(target=self.write_pwm_targets, args=(None,))
 
     def start_threads(self) -> 'HardwareManager':
         # start all data collection threads
@@ -120,14 +122,20 @@ class HardwareManager:
         return dirs, writes
 
     def write_pwm_autodir(self, writes: List[int]):
-        directions, writes = HardwareManager.writes_convert(writes)
-        self.write_pwm(directions, writes)
+        self.directions, writes = HardwareManager.writes_convert(writes)
+        self.write_pwm(writes)
+
+    def write_pwm_targets(self, hz: Union[float, None] = None):
+        while True:
+            self.write_pwm(self.pid.get_pwm(self.curr_motor_pwm + self.curr_servo_pwm + self.curr_led_pwm))
+            if hz is not None:
+                time.sleep(1.0 / hz)
 
     # writes is a List[m1, m2, m3, m4, s1, s2, s3, s4, s5, s6, s7, s8, l1, l2, l3, l4]
     # motors are constrained to: [0, 4095]
     # servos are constrained to: [0, 4095]
     # leds are constrained to: [0, 4095]
-    def write_pwm(self, directions: List[int], writes: List[int]):
+    def write_pwm(self, writes: List[int]):
         writes_counter = 0
 
         # Write PWM for each motor
@@ -137,7 +145,7 @@ class HardwareManager:
         # Write PWM for each LED
         writes_counter = self.write_pwm_helper(self.led_reg, writes_counter, writes)
 
-        self.write_gpio(directions)
+        self.write_gpio()
 
     # writes the registers, then returns the current value of the writes_counter for later use
     def write_pwm_helper(self, reg_list, writes_counter, writes):
@@ -181,9 +189,9 @@ class HardwareManager:
         # return the updated writes_counter for use in the other calls
         return writes_counter
 
-    def write_gpio(self, directions: List[int]):
+    def write_gpio(self):
         # iterate over the directions
-        for i, direction in enumerate(directions):
+        for i, direction in enumerate(self.directions):
             pin1, pin2 = self.dir_pins[i]
             dir1, dir2 = 0, 0
             if direction == 0:
@@ -280,4 +288,5 @@ class HardwareManager:
     # PID methods
     # method to expose PIDController function update_targets
     def update_pwm_targets(self, targets: List[int]):
-        self.pid.update_targets(targets)
+        self.directions, self.targets = HardwareManager.writes_convert(targets)
+        self.pid.update_targets(self.targets)
