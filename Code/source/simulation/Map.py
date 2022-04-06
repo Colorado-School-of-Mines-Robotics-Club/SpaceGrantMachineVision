@@ -7,6 +7,7 @@ from typing import Dict, List
 import cv2
 import numpy as np
 import math
+import random
 
 # Custom imports
 from source.logger.Logger import Logger
@@ -38,3 +39,22 @@ class Map:
                 x = col*self.scaleFactor + offset
                 cv2.circle(display, (x, y), radius=math.ceil(offset / 2), color=color, thickness=-1)
         return display
+    
+    def assign_rand(self):
+        danger = random.randint(0,2)
+        x = random.randrange(0, self.nodeLayout[0])
+        y = random.randrange(0, self.nodeLayout[1])
+
+        for i in range(3):
+            self.grid[x][y][i] = 0
+        
+        self.grid[x][y][danger] = 1  
+    
+    def convert(self) -> np.ndarray:
+        flattened = np.zeros((self.nodeLayout[0], self.nodeLayout[1]))
+        for x in self.grid:
+            for y in x:
+                for color in range(3):
+                    if self.grid[x][y][color] == 1:
+                        flattened[x][y] = color
+        return flattened

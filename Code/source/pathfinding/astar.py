@@ -38,7 +38,7 @@ Source: https://www.analytics-link.com/post/2018/09/14/applying-the-a-path-findi
 '''
 
 
-def astar(array, start, goal, heuristic: Callable):
+def astar(array, start, goal, heuristic: Callable, weight = 2):
     neighbors = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
     close_set = set()
     came_from = {}
@@ -83,7 +83,7 @@ def astar(array, start, goal, heuristic: Callable):
             if tentative_g_score < gscore.get(neighbor, 0) or neighbor not in [i[1]for i in oheap]:
                 came_from[neighbor] = current
                 gscore[neighbor] = tentative_g_score
-                fscore[neighbor] = tentative_g_score + heuristic(neighbor, goal)
+                fscore[neighbor] = tentative_g_score + weight*heuristic(neighbor, goal)
                 heapq.heappush(oheap, (fscore[neighbor], neighbor))
 
     return False
