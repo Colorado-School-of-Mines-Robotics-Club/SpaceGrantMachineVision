@@ -8,7 +8,7 @@ import heapq
 import cv2
 import numpy as np
 
-# Custom imports
+# Custom imports (comment out when testing.)
 from source.logger.Logger import Logger
 from source.utilities.Config import Config
 
@@ -38,7 +38,7 @@ Source: https://www.analytics-link.com/post/2018/09/14/applying-the-a-path-findi
 '''
 
 
-def astar(array, start, goal, heuristic: Callable, weight = 2):
+def astar(array, start, goal, heuristic: Callable = euclidean_heuristic, weight = 2):
     neighbors = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
     close_set = set()
     came_from = {}
@@ -63,7 +63,7 @@ def astar(array, start, goal, heuristic: Callable, weight = 2):
 
         for i, j in neighbors:
             neighbor = current[0] + i, current[1] + j
-            tentative_g_score = gscore[current] + heuristic(current, neighbor)
+            tentative_g_score = gscore[current] + weight*heuristic(current, neighbor)
 
             if 0 <= neighbor[0] < array.shape[0]:
                 if 0 <= neighbor[1] < array.shape[1]:
