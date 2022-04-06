@@ -24,15 +24,15 @@ from . import experimental
 
 
 def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, featuresPerPixel=0.03,
-                    percentAreaThreshold=0.025, connectedFeaturesThresh=10, simplifyFinalOutput=True, show=True,
+                    percentAreaThreshold=0.025, connectedFeaturesThresh=10, simplifyFinalOutput=False, show=True,
                     threadedDisplay=False) -> List:
     # run the contour detection
-    contourBoundingBoxes = getContourBoundingBoxes(image, show=show, threadedDisplay=threadedDisplay)
+    contourBoundingBoxes = getContourBoundingBoxes(image, simplify=True, show=show, threadedDisplay=threadedDisplay)
 
     # run feature density calculations
     featureDenseBoundingBoxes = findFeatureDenseBoundingBoxes(image, featurePts, binSize=binSize,
-                                                              featuresPerPixel=featuresPerPixel, show=show,
-                                                              threadedDisplay=threadedDisplay)
+                                                              featuresPerPixel=featuresPerPixel, simplify=True,
+                                                              show=show, threadedDisplay=threadedDisplay)
 
     # right now just combine the boundingBoxes, in the future should make some decisions on them
     objectBoundingBoxes = findObjects(image, contourBoundingBoxes, featureDenseBoundingBoxes, binSize,
@@ -48,7 +48,7 @@ def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, fea
                                                                threadedDisplay=threadedDisplay)
 
     # testing for kmeans
-    _ = experimental.segmentColors(image, method='kmeans', K=3, iterations=10, downscale=True, downscaleMethod='linear',
+    _ = experimental.segmentColors(image, method='kmeans', K=5, iterations=5, downscale=True, downscaleMethod='linear',
                                    downscaleRatio=0.4, show=show, threadedDisplay=threadedDisplay)
 
     return filteredObjectBoundingBoxes
