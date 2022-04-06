@@ -48,8 +48,7 @@ def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, fea
                                                                threadedDisplay=threadedDisplay)
 
     # testing for kmeans
-    _ = experimental.segmentColors(image, method='kmeans', K=5, iterations=5, downscale=True, downscaleMethod='linear',
-                                   downscaleRatio=0.4, show=show, threadedDisplay=threadedDisplay)
+    _ = experimental.segmentColors(image, show=show, threadedDisplay=threadedDisplay)
 
     return filteredObjectBoundingBoxes
 
