@@ -67,7 +67,7 @@ def astar(array, start, goal, heuristic: Callable, weight = 2):
 
             if 0 <= neighbor[0] < array.shape[0]:
                 if 0 <= neighbor[1] < array.shape[1]:
-                    if array[neighbor[0]][neighbor[1]] == 1:
+                    if array[neighbor[0]][neighbor[1]] >= 1:
                         continue
 
                 else:
