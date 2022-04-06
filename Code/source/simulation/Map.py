@@ -51,10 +51,5 @@ class Map:
         self.grid[x][y][danger] = 1  
     
     def convert(self) -> np.ndarray:
-        flattened = np.zeros((self.nodeLayout[0], self.nodeLayout[1]))
-        for x in self.grid:
-            for y in x:
-                for color in range(3):
-                    if self.grid[x][y][color] == 1:
-                        flattened[x][y] = color
-        return flattened
+        b,g,r = cv2.split(self.grid)
+        return r
