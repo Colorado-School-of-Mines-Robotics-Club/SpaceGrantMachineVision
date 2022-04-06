@@ -11,8 +11,8 @@ from source.cameras.DisplayManager import DisplayManager
 
 
 # https://www.kdnuggets.com/2019/08/introduction-image-segmentation-k-means-clustering.html
-def segmentColors(image: np.ndarray, method='kmeans', K=5, iterations=10, downscale=True, downscaleRatio=0.4,
-                  downscaleMethod='linear', show=False, threadedDisplay=False) -> np.ndarray:
+def segmentColors(image: np.ndarray, method='kmeans', K=5, iterations=10, attempts=10, downscale=True,
+                  downscaleRatio=0.4, downscaleMethod='linear', show=False, threadedDisplay=False) -> np.ndarray:
     method_list = ['kmeans']
     assert method in method_list
 
@@ -31,14 +31,14 @@ def segmentColors(image: np.ndarray, method='kmeans', K=5, iterations=10, downsc
         dim = (width, height)
         resized_image = cv2.resize(image, dim, methods_dict[downscaleMethod])
 
-    img = cv2.cvtColor(resized_image, cv2.COLOR_BGR2RGB)
+    img = cv2.cvtColor(resized_image, cv2.COLOR_BGR2HSV)
     vectorized = np.float32(img.reshape((-1, 3)))
     if method == 'kmeans':
-        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 5, 1.0)
-        ret, label, center = cv2.kmeans(vectorized, K, None, criteria, iterations, cv2.KMEANS_RANDOM_CENTERS)
+        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, iterations, 1.0)
+        ret, label, center = cv2.kmeans(vectorized, K, None, criteria, attempts, cv2.KMEANS_PP_CENTERS)
         center = np.uint8(center)
         res = center[label.flatten()]
-        result_image = cv2.cvtColor(res.reshape(img.shape), cv2.COLOR_RGB2BGR)
+        result_image = cv2.cvtColor(res.reshape(img.shape), cv2.COLOR_HSV2BGR)
 
     if downscale:
         width = int(image.shape[1])
