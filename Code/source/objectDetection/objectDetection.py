@@ -20,7 +20,7 @@ from .featureDensity import findFeatureDenseBoundingBoxes
 from .contourDetection import getContourBoundingBoxes
 from .horizonDetection import detectHorizonLine, filterBoundingBoxesByHorizon, cropBoundingBoxesByHorizon
 
-from .experimental import segmentColors
+from . import experimental
 
 
 def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, featuresPerPixel=0.03,
@@ -48,8 +48,8 @@ def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, fea
                                                                threadedDisplay=threadedDisplay)
 
     # testing for kmeans
-    _ = segmentColors(image, method='kmeans', K=3, iterations=10, downscale=True, downscaleMethod='linear',
-                      downscaleRatio=0.4, show=show, threadedDisplay=threadedDisplay)
+    _ = experimental.segmentColors(image, method='kmeans', K=3, iterations=10, downscale=True, downscaleMethod='linear',
+                                   downscaleRatio=0.4, show=show, threadedDisplay=threadedDisplay)
 
     return filteredObjectBoundingBoxes
 
