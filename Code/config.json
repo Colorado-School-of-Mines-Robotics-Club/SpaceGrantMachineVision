@@ -66,7 +66,7 @@
     "videoPath": "Data/Cameras/RawOutput/",
     "calibrationPath": "Data/Calibration/"
   },
-  "hardware_ports": {
+  "electronics": {
     "motors": {
       "front_left": {
         "registers": [7, 6, 9, 8],
@@ -80,7 +80,7 @@
       },
       "back_left": {
         "registers": [15, 14, 17, 16],
-        "enc_pins": [26, 28],
+        "enc_pins": [36, 38],
         "dir_pins": [22, 24]
       },
       "back_right": {
@@ -123,9 +123,30 @@
         "pin": 37
       }
     },
+    "leds": {
+      "one": [55, 54, 57, 56],
+      "two": [59, 58, 61, 60],
+      "three": [63, 62, 65, 64],
+      "four": [67, 66, 69, 68]
+    },
     "sensors": {
-      "accelerometer": 59,
-      "xbee": 0
+      "accelerometer": {
+        "address": 104,
+        "register": 59
+      },
+      "xbee": {
+        "address": 0,
+        "register": 0
+      }
+    },
+    "pwm_board": {
+      "address": 0
+    },
+    "poll_rates": {
+      "accelerometer": 240.0
+    },
+    "utility": {
+      "clicks_per_rev": 48.0
     }
   },
   "dimensions": {

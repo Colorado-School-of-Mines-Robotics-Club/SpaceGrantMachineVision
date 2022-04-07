@@ -44,7 +44,7 @@ if __name__ == "__main__":
     objectDetectionParams = Config.getObjectDetectionDict()
     sbgmPs = Config.getSBGMParamsDict()
     wlsParams = Config.getWLSParamsDict()
-    hardwarePorts = Config.getHardwarePortsDict()
+    hardwarePorts = Config.getElectronicPortsDict()
 
     LOG_ITERATION_INFO = loggingOptions['logIterationStarts']
 

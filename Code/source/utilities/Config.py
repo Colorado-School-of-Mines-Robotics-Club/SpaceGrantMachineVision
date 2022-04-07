@@ -24,7 +24,7 @@ class Config:
     sgbmParams = dict()
     wlsParams = dict()
     filepaths = dict()
-    hardwarePorts = dict()
+    electronicPorts = dict()
     dimensions = dict()
 
     @classmethod
@@ -42,7 +42,7 @@ class Config:
             cls.sgbmParams = cls.data['sgbm_params']
             cls.wlsParams = cls.data['wls_filter_params']
             cls.filepaths = cls.data['file_paths']
-            cls.hardwarePorts = cls.data['hardware_ports']
+            cls.electronicPorts = cls.data['electronics']
             cls.dimensions = cls.data['dimensions']
         except FileNotFoundError:
             raise FileNotFoundError("Cannot read config file")
@@ -96,8 +96,12 @@ class Config:
         return cls.filepaths
 
     @classmethod
-    def getHardwarePortsDict(cls) -> Dict:
-        return cls.hardwarePorts
+    def getElectronicPortsDict(cls) -> Dict:
+        # cls.electronicPorts['sensors']['accelerometer']['address'] =\
+        #     hex(cls.electronicPorts['sensors']['accelerometer']['address'])
+        # cls.electronicPorts['sensors']['accelerometer']['register'] =\
+        #     hex(cls.electronicPorts['sensors']['accelerometer']['register'])
+        return cls.electronicPorts
 
     @classmethod
     def getDimensionsDict(cls) -> Dict:
