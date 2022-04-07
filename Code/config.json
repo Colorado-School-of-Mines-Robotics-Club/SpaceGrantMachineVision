@@ -140,7 +140,7 @@
       }
     },
     "pwm_board": {
-      "address": 0
+      "address": 128
     },
     "poll_rates": {
       "accelerometer": 240.0
