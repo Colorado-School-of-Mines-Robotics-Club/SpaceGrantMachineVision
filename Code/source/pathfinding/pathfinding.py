@@ -25,7 +25,7 @@ def plot_graph(grid, start, goal, path=None):
 
     ax.scatter(goal[1], goal[0], marker="*", color="red", s=200)
 
-    if path is not None:
+    if type(path) != bool:
         ax.plot(path[:, 1], path[:, 0], color="black")
 
     plt.show()

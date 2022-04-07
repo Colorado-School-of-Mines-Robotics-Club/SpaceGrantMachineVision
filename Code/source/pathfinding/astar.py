@@ -39,7 +39,7 @@ Source: https://www.analytics-link.com/post/2018/09/14/applying-the-a-path-findi
 
 
 def astar(array, start, goal, heuristic: Callable = euclidean_heuristic, weight = 2):
-    neighbors = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+    neighbors = [(0, 1), (0, -1), (1, 0), (-1, 0)]
     close_set = set()
     came_from = {}
     gscore = {start: 0}
