@@ -13,7 +13,7 @@ from numba import jit, njit
 # Custom  imports
 from source.logger.Logger import Logger
 from source.utilities import exceptions
-from source.utilities.boundingBoxes import drawBoundingBoxes, cv2RectToNpBoxes, determineConnection,\
+from source.utilities.boundingBoxes import drawBoundingBoxes, cv2RectToNpBoxes, determineConnection, \
     getBoundingBoxArea, simplifyBoundingBoxes
 from source.features.features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
 from .featureDensity import findFeatureDenseBoundingBoxes
@@ -48,7 +48,8 @@ def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, fea
                                                                threadedDisplay=threadedDisplay)
 
     # # testing for kmeans
-    # _ = experimental.segmentColors(image, K=6, iterations=1, show=show, threadedDisplay=threadedDisplay)
+    # result_image, centers, labels = experimental.segmentImage(image, K=6, iterations=1, show=show,
+    #                                                           threadedDisplay=threadedDisplay)
 
     return filteredObjectBoundingBoxes
 

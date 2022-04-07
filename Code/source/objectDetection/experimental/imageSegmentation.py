@@ -1,5 +1,6 @@
 # Built in python libs
 import time
+from typing import Tuple
 
 # Additional libs
 import cv2
@@ -11,8 +12,9 @@ from source.cameras.DisplayManager import DisplayManager
 
 
 # https://www.kdnuggets.com/2019/08/introduction-image-segmentation-k-means-clustering.html
-def segmentColors(image: np.ndarray, method='minibatchkmeans', K=3, iterations=3, downscale=True,
-                  downscaleRatio=0.4, downscaleMethod='linear', show=False, threadedDisplay=False) -> np.ndarray:
+def segmentImage(image: np.ndarray, method='minibatchkmeans', K=3, iterations=3, downscale=True,
+                 downscaleRatio=0.4, downscaleMethod='linear', show=False, threadedDisplay=False)\
+        -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     cluster_method_dict = {
         'minibatchkmeans': MiniBatchKMeans,
         'kmeans': KMeans,
@@ -59,4 +61,4 @@ def segmentColors(image: np.ndarray, method='minibatchkmeans', K=3, iterations=3
         else:
             cv2.imshow(f"segmentColors using {method}", displayImg)
 
-    return result_image
+    return result_image, centers, labels
