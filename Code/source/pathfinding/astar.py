@@ -71,9 +71,9 @@ def astar(array, start, goal, heuristic: Callable = euclidean_heuristic, weight 
             if 0 <= neighbor[0] < array.shape[0]:
                 if 0 <= neighbor[1] < array.shape[1]:
                     print(passable[neighbor[0]][neighbor[1]])
-                    if(passable != None and int(passable[neighbor[0]][neighbor[1]]) == 0):
+                    if passable is not None and int(passable[neighbor[0]][neighbor[1]]) == 0:
                         tentative_g_score += array[neighbor[0]][neighbor[1]]
-                    elif(passable == None):
+                    elif passable is None:
                         tentative_g_score += array[neighbor[0]][neighbor[1]]
                     else:
                         continue
