@@ -11,7 +11,7 @@ from source.cameras.DisplayManager import DisplayManager
 
 
 # https://www.kdnuggets.com/2019/08/introduction-image-segmentation-k-means-clustering.html
-def segmentColors(image: np.ndarray, method='minibatchkmeans', K=5, iterations=10, attempts=10, downscale=True,
+def segmentColors(image: np.ndarray, method='minibatchkmeans', K=5, iterations=10, downscale=True,
                   downscaleRatio=0.4, downscaleMethod='linear', show=False, threadedDisplay=False) -> np.ndarray:
     cluster_method_dict = {
         'minibatchkmeans': MiniBatchKMeans,
@@ -38,12 +38,12 @@ def segmentColors(image: np.ndarray, method='minibatchkmeans', K=5, iterations=1
 
     img = cv2.cvtColor(resized_image, cv2.COLOR_BGR2HSV)
     vectorized = np.float32(img.reshape((-1, 3)))
-    if method == 'kmeans':
-        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, iterations, 1.0)
-        ret, label, center = cv2.kmeans(vectorized, K, None, criteria, attempts, cv2.KMEANS_PP_CENTERS)
-        center = np.uint8(center)
-        res = center[label.flatten()]
-        result_image = cv2.cvtColor(res.reshape(img.shape), cv2.COLOR_HSV2BGR)
+
+    cluster = cluster_method(n_clusters=K, n_init=iterations, random_state=0).fit(vectorized)
+    centers, labels = cluster.cluster_centers_, cluster.labels_
+    centers = np.uint8(centers)
+    res = centers[labels.flatten()]
+    result_image = cv2.cvtColor(res.reshape(img.shape), cv2.COLOR_HSV2BGR)
 
     if downscale:
         width = int(image.shape[1])
