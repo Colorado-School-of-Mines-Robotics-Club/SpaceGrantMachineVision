@@ -41,15 +41,17 @@ class Map:
         return display
     
     def assign_rand(self):
-        danger = random.randint(0,2)
         x = random.randrange(0, self.nodeLayout[0])
         y = random.randrange(0, self.nodeLayout[1])
+        color = random.randrange(0,3)
+        value  = random.randrange(0,256)
 
-        for i in range(3):
-            self.grid[x][y][i] = 0
-        
-        self.grid[x][y][danger] = 1  
+        self.grid[x][y][color] = value
     
-    def convert(self) -> np.ndarray:
+    def get_grid(self) -> np.ndarray:
         b,g,r = cv2.split(self.grid)
         return r
+    
+    def get_passable(self) -> np.ndarray:
+        b,g,r = cv2.split(self.grid)
+        return g
