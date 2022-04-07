@@ -47,8 +47,8 @@ def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, fea
     filteredObjectBoundingBoxes = filterBoundingBoxesByHorizon(image, objectBoundingBoxes, horizonLine, show=show,
                                                                threadedDisplay=threadedDisplay)
 
-    # testing for kmeans
-    _ = experimental.segmentColors(image, K=6, iterations=1, show=show, threadedDisplay=threadedDisplay)
+    # # testing for kmeans
+    # _ = experimental.segmentColors(image, K=6, iterations=1, show=show, threadedDisplay=threadedDisplay)
 
     return filteredObjectBoundingBoxes
 
