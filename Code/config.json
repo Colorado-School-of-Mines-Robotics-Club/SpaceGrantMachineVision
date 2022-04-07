@@ -43,7 +43,7 @@
   "object_detection_params": {
     "binSize": 10.0,
     "featuresPerPixel": 0.005,
-    "percentAreaThreshold": 0.025,
+    "percentAreaThreshold": 0.02,
     "connFeaturesThresh": 10
   },
   "sgbm_params": {

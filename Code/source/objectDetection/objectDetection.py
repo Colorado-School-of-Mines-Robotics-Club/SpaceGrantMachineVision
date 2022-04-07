@@ -20,17 +20,19 @@ from .featureDensity import findFeatureDenseBoundingBoxes
 from .contourDetection import getContourBoundingBoxes
 from .horizonDetection import detectHorizonLine, filterBoundingBoxesByHorizon, cropBoundingBoxesByHorizon
 
+from . import experimental
+
 
 def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, featuresPerPixel=0.03,
-                    percentAreaThreshold=0.025, connectedFeaturesThresh=10, simplifyFinalOutput=True, show=True,
+                    percentAreaThreshold=0.025, connectedFeaturesThresh=10, simplifyFinalOutput=False, show=True,
                     threadedDisplay=False) -> List:
     # run the contour detection
-    contourBoundingBoxes = getContourBoundingBoxes(image, show=show, threadedDisplay=threadedDisplay)
+    contourBoundingBoxes = getContourBoundingBoxes(image, simplify=True, show=show, threadedDisplay=threadedDisplay)
 
     # run feature density calculations
     featureDenseBoundingBoxes = findFeatureDenseBoundingBoxes(image, featurePts, binSize=binSize,
-                                                              featuresPerPixel=featuresPerPixel, show=show,
-                                                              threadedDisplay=threadedDisplay)
+                                                              featuresPerPixel=featuresPerPixel, simplify=True,
+                                                              show=show, threadedDisplay=threadedDisplay)
 
     # right now just combine the boundingBoxes, in the future should make some decisions on them
     objectBoundingBoxes = findObjects(image, contourBoundingBoxes, featureDenseBoundingBoxes, binSize,
@@ -44,6 +46,9 @@ def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, fea
     horizonLine = detectHorizonLine(image, show=show)
     filteredObjectBoundingBoxes = filterBoundingBoxesByHorizon(image, objectBoundingBoxes, horizonLine, show=show,
                                                                threadedDisplay=threadedDisplay)
+
+    # # testing for kmeans
+    # _ = experimental.segmentColors(image, K=6, iterations=1, show=show, threadedDisplay=threadedDisplay)
 
     return filteredObjectBoundingBoxes
 
