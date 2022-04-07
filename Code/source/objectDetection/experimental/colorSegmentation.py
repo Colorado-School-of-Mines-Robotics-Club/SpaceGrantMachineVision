@@ -11,7 +11,7 @@ from source.cameras.DisplayManager import DisplayManager
 
 
 # https://www.kdnuggets.com/2019/08/introduction-image-segmentation-k-means-clustering.html
-def segmentColors(image: np.ndarray, method='minibatchkmeans', K=5, iterations=10, downscale=True,
+def segmentColors(image: np.ndarray, method='minibatchkmeans', K=3, iterations=3, downscale=True,
                   downscaleRatio=0.4, downscaleMethod='linear', show=False, threadedDisplay=False) -> np.ndarray:
     cluster_method_dict = {
         'minibatchkmeans': MiniBatchKMeans,
@@ -37,7 +37,8 @@ def segmentColors(image: np.ndarray, method='minibatchkmeans', K=5, iterations=1
         resized_image = cv2.resize(image, dim, resize_method_dict[downscaleMethod])
 
     img = cv2.cvtColor(resized_image, cv2.COLOR_BGR2HSV)
-    vectorized = np.float32(img.reshape((-1, 3)))
+    _, _, channels = img.shape
+    vectorized = np.float32(img.reshape((-1, channels)))
 
     cluster = cluster_method(n_clusters=K, n_init=iterations, random_state=0).fit(vectorized)
     centers, labels = cluster.cluster_centers_, cluster.labels_
