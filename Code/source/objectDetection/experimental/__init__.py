@@ -1,1 +1,1 @@
-from .colorSegmentation import *
+from .imageSegmentation import *
