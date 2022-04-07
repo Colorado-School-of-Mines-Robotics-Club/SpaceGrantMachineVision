@@ -67,33 +67,65 @@
     "calibrationPath": "Data/Calibration/"
   },
   "hardware_ports": {
-    "motor_encoders": {
-      "encoder1": 0,
-      "encoder2": 1,
-      "encoder3": 2,
-      "encoder4": 3
+    "motors": {
+      "front_left": {
+        "registers": [7, 6, 9, 8],
+        "enc_pins": [11, 13],
+        "dir_pins": [8, 10]
+      },
+      "front_right": {
+        "registers": [11, 10, 13, 12],
+        "enc_pins": [31, 33],
+        "dir_pins": [19, 21]
+      },
+      "back_left": {
+        "registers": [15, 14, 17, 16],
+        "enc_pins": [26, 28],
+        "dir_pins": [22, 24]
+      },
+      "back_right": {
+        "registers": [19, 18, 21, 20],
+        "enc_pins": [16, 18],
+        "dir_pins": [27, 29]
+      }
     },
-    "servo_ports": {
-      "wheel1": {
-        "servo1": 0,
-        "servo2": 0
+    "servos": {
+      "front_left_wheel": {
+        "registers": [23, 22, 25, 24],
+        "pin": 7
       },
-      "wheel2": {
-        "servo1": 0,
-        "servo2": 0
+      "front_left_suspension": {
+        "registers": [27, 26, 29, 28],
+        "pin": 12
       },
-      "wheel3": {
-        "servo1": 0,
-        "servo2": 0
+      "front_right_wheel": {
+        "registers": [31, 30, 33, 32],
+        "pin": 15
       },
-      "wheel4": {
-        "servo1": 0,
-        "servo2": 0
+      "front_right_suspension": {
+        "registers": [35, 34, 37, 36],
+        "pins": 23
+      },
+      "back_left_wheel": {
+        "registers": [39, 38, 41, 40],
+        "pin": 26
+      },
+      "back_left_suspension": {
+        "registers": [43, 42, 45, 44],
+        "pin": 28
+      },
+      "back_right_wheel": {
+        "registers": [47, 46, 49, 48],
+        "pin": 35
+      },
+      "back_right_suspension": {
+        "registers": [51, 50, 53, 52],
+        "pin": 37
       }
     },
     "sensors": {
-      "accelerometer": 0,
-      "xbee": 1
+      "accelerometer": 59,
+      "xbee": 0
     }
   },
   "dimensions": {
