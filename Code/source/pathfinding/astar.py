@@ -23,7 +23,6 @@ def euclidean_heuristic(start, end):
     [x2, y2] = end
     return ((x2-x1)**2 + (y2-y1)**2)**0.5
 
-
 '''
 AStar Algorithm
 
@@ -38,7 +37,7 @@ Source: https://www.analytics-link.com/post/2018/09/14/applying-the-a-path-findi
 '''
 
 
-def astar(array, start, goal, heuristic: Callable = euclidean_heuristic, weight = 2):
+def astar(array, start, goal, heuristic: Callable = euclidean_heuristic, weight = 2, passable = None):
     neighbors = [(0, 1), (0, -1), (1, 0), (-1, 0)]
     close_set = set()
     came_from = {}
@@ -57,6 +56,10 @@ def astar(array, start, goal, heuristic: Callable = euclidean_heuristic, weight 
                 data.append(current)
                 current = came_from[current]
 
+            data.append(start)
+
+            data = data[::-1]
+
             return np.array(data)
 
         close_set.add(current)
@@ -67,7 +70,11 @@ def astar(array, start, goal, heuristic: Callable = euclidean_heuristic, weight 
 
             if 0 <= neighbor[0] < array.shape[0]:
                 if 0 <= neighbor[1] < array.shape[1]:
-                    if array[neighbor[0]][neighbor[1]] >= 1:
+                    if(passable != None and passable[neighbor[0]][neighbor[1]] == 1):
+                        tentative_g_score += array[neighbor[0]][neighbor[1]]
+                    elif(passable == None):
+                        tentative_g_score += array[neighbor[0]][neighbor[1]]
+                    else:
                         continue
 
                 else:
