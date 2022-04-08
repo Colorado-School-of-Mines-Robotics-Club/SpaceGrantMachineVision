@@ -10,6 +10,7 @@ import numpy as np
 try:
     import RPi.GPIO as GPIO
     from smbus2 import *
+    from serial import Serial
 except ModuleNotFoundError:
     pass
 except ImportError:
@@ -67,6 +68,10 @@ class HardwareManager:
         self.accel_reg = accelerometer['register']
         self.accel_poll_rate = poll_rates['accelerometer']
 
+        self.xbee_com = xbee['com_port']
+        self.xbee_baudrate = xbee['baudrate']
+        self.xbee_poll_rate = poll_rates['xbee']
+
         self.motor_pins = [motors['front_left']['enc_pins'], motors['front_right']['enc_pins'],
                            motors['back_left']['enc_pins'], motors['back_right']['enc_pins']]
 
@@ -104,14 +109,19 @@ class HardwareManager:
         self.curr_gyro = [0, 0, 0]
         self.past_gyro = [0, 0, 0]
 
+        self.past_xbee = []
+        self.curr_xbee = None
+
         # Split encoder reading into 4 threads for speed and accuracy
-        self.motor_threads = [threading.Thread(target=self.read_motor, args=(i,)) for i in range(4)]
+        self.motor_threads = [threading.Thread(target=self.read_motor, args=(i,), daemon=True) for i in range(4)]
         # one thread for reading servo return data
-        self.servos = threading.Thread(target=self.read_servo)
+        self.servos = threading.Thread(target=self.read_servo, args=(), daemon=True)
         # one thread for reading accelerometer data
-        self.accel = threading.Thread(target=self.read_accelerometer, args=(self.accel_poll_rate,))
+        self.accel = threading.Thread(target=self.read_accelerometer, args=(self.accel_poll_rate,), daemon=True)
         # thread for writing to the PWM breakout board at a certain HZ
-        self.pwm_thread = threading.Thread(target=self.write_pwm_targets, args=(None,))
+        self.pwm_thread = threading.Thread(target=self.write_pwm_targets, args=(None,), daemon=True)
+        # thread for reading the xbee
+        self.xbee_thread = threading.Thread(target=self.read_xbee, args=(self.xbee_poll_rate,), daemon=True)
 
     def start_threads(self) -> 'HardwareManager':
         # start all data collection threads
@@ -120,7 +130,7 @@ class HardwareManager:
         self.servos.start()
         self.accel.start()
         self.pwm_thread.start()
-
+        self.xbee_thread.start()
         return self
 
     def join_threads(self) -> 'HardwareManager':
@@ -130,7 +140,7 @@ class HardwareManager:
         self.servos.join()
         self.accel.join()
         self.pwm_thread.join()
-
+        self.xbee_thread.join()
         return self
 
     @staticmethod
@@ -278,6 +288,15 @@ class HardwareManager:
             self.curr_gyro = sized[0:3]
             self.past_accel = self.curr_accel
             self.curr_accel = sized[3:len(sized)]
+
+            time.sleep(1.0 / hz)
+
+    def read_xbee(self, hz=240.0):
+        ser = Serial(self.xbee_com, self.xbee_baudrate)
+
+        while True:
+            self.past_xbee.append(self.curr_xbee)
+            self.curr_xbee = ser.readline()
 
             time.sleep(1.0 / hz)
 

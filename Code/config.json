@@ -135,15 +135,16 @@
         "register": 59
       },
       "xbee": {
-        "address": 0,
-        "register": 0
+        "com_port": "COM3",
+        "baudrate": 9600
       }
     },
     "pwm_board": {
       "address": 128
     },
     "poll_rates": {
-      "accelerometer": 240.0
+      "accelerometer": 240.0,
+      "xbee": 240.0
     },
     "utility": {
       "clicks_per_rev": 48.0
