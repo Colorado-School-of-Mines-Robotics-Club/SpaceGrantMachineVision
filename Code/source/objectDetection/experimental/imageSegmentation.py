@@ -8,7 +8,10 @@ import numpy as np
 from sklearn.cluster import MiniBatchKMeans, KMeans, DBSCAN
 
 # Custom  imports
-from source.cameras.DisplayManager import DisplayManager
+try:
+    from source.cameras.DisplayManager import DisplayManager
+except ModuleNotFoundError:
+    from Code.source.cameras.DisplayManager import DisplayManager
 
 
 # https://www.kdnuggets.com/2019/08/introduction-image-segmentation-k-means-clustering.html

@@ -8,9 +8,14 @@ from numba import jit, njit
 from numba.typed import List as tList
 
 # Custom  imports
-from source.logger.Logger import Logger
-from source.utilities import exceptions
-from source.cameras import DisplayManager
+try:
+    from source.logger.Logger import Logger
+    from source.utilities import exceptions
+    from source.cameras import DisplayManager
+except ModuleNotFoundError:
+    from Code.source.logger.Logger import Logger
+    from Code.source.utilities import exceptions
+    from Code.source.cameras import DisplayManager
 
 
 # image is a cv2 image, which is a numpy array

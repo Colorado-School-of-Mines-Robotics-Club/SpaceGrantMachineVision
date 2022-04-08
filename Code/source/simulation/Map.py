@@ -9,8 +9,6 @@ import numpy as np
 import math
 
 # Custom imports
-from source.logger.Logger import Logger
-from source.utilities.Config import Config
 
 
 class Map:

@@ -9,7 +9,6 @@ import cv2
 import numpy as np
 
 # Custom imports
-from source.logger.Logger import Logger
 
 
 class Config:

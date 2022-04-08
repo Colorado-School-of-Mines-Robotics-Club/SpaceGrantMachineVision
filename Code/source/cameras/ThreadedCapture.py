@@ -5,9 +5,15 @@ import os
 import time
 import numpy as np
 from typing import Union
-from source.logger.Logger import Logger
-from source.utilities.Config import Config
-from source.utilities.exceptions import CameraReadError
+
+try:
+    from source.logger.Logger import Logger
+    from source.utilities.Config import Config
+    from source.utilities.exceptions import CameraReadError
+except ModuleNotFoundError:
+    from Code.source.logger.Logger import Logger
+    from Code.source.utilities.Config import Config
+    from Code.source.utilities.exceptions import CameraReadError
 
 
 class ThreadedCapture:

@@ -6,8 +6,13 @@ from typing import Dict, Type
 import platform
 
 # Custom imports
-from source.utilities.Config import Config
-from .Logger import Logger
+try:
+    from source.utilities.Config import Config
+    from .Logger import Logger
+except ModuleNotFoundError:
+    from Code.source.utilities.Config import Config
+    from .Logger import Logger
+
 
 def logSystemInfo(logger: Type[Logger]):
     # Log system information

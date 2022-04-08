@@ -5,7 +5,6 @@ from typing import List, Tuple, Any, Union
 from simple_pid import PID
 
 # Custom  imports
-from source.utilities import Config
 
 
 # in HardwareManager will need to keep track of a dt time to targets.
