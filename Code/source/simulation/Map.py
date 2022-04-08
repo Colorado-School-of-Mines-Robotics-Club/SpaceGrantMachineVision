@@ -22,8 +22,7 @@ class Map:
         self.grid = np.zeros((self.nodeLayout[0], self.nodeLayout[1], 3))
         self.DPerNode = float(D) / (self.nodeLayout[0])
 
-    @staticmethod
-    def instruction_converter(route, DPerNode, compress=False):
+    def instruction_converter(self, route, compress=False):
         operatives = []
         direction = 0
 
@@ -46,7 +45,7 @@ class Map:
                 operatives.append(("ANG", new_dir - direction))
                 direction = new_dir
 
-            operatives.append(["LIN", DPerNode])
+            operatives.append(["LIN", self.DPerNode])
 
         if compress:
             compressed = []

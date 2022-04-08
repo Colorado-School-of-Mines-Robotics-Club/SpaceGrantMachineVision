@@ -1,3 +1,11 @@
+import os
+
+# directory = os.getcwd()
+# print(directory)
+# os.chdir(directory + '\\source')
+# print(os.getcwd())
+
+
 from source.pathfinding.astar import astar
 from source.pathfinding.pathfinding import plot_graph
 from source.simulation.Map import Map
@@ -11,10 +19,11 @@ for i in range(1000):
 obstacles = test_grid.get_grid()
 passable_tiles = test_grid.get_passable()
 
-route = astar(obstacles, (len(obstacles) - 1,len(obstacles[0])//2), (0,len(obstacles[0])//2), passable = passable_tiles)
+route = astar(obstacles, (len(obstacles) - 1, len(obstacles[0]) // 2), (0, len(obstacles[0]) // 2),
+              passable=passable_tiles)
 
-if(route is not False):
-    print(Map.instruction_converter(test_grid.DPerNode))
+if route is not False:
+    print(test_grid.instruction_converter(route))
     print("\n")
-    print(Map.instruction_converter(test_grid.DPerNode, compress = True))
-    plot_graph(obstacles, (len(obstacles) - 1,len(obstacles[0])//2), (0,len(obstacles[0])//2), route)
+    print(test_grid.instruction_converter(route, compress=True))
+    plot_graph(obstacles, (len(obstacles) - 1, len(obstacles[0]) // 2), (0, len(obstacles[0]) // 2), route)
