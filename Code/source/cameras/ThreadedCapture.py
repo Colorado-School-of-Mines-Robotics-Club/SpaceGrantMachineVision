@@ -23,6 +23,7 @@ class ThreadedCapture:
     """
     def __init__(self, source: Union[str, int], fps=None, delayOffset=1.0, K=None, distC=None, setExposure=False,
                  autoExposure=1.0, exposure=100.0, framesAutoFPS=5):
+        Config.init()
         self.LOG_SETUP = Config.getLoggingOptions()['logThreadedCaptureSetup']
         self.LOG_FRAME_INFO = Config.getLoggingOptions()['logFrameInfo']
         self.LOG_VIDEO_INPUT_INFO = Config.getLoggingOptions()['logVideoInputInfo']
