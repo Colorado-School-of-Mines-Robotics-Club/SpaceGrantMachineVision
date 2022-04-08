@@ -10,8 +10,12 @@ import time
 from typing import *
 
 # Custom  imports
-from source.cameras import DisplayManager
-from source.utilities import Config
+try:
+    from source.cameras import DisplayManager
+    from source.utilities import Config
+except ModuleNotFoundError:
+    from Code.source.cameras import DisplayManager
+    from Code.source.utilities import Config
 
 
 def makeStereoObjects(args: Tuple):
