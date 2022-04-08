@@ -2,8 +2,13 @@
 from typing import List, Tuple
 import numpy as np
 import cv2
-from source.cameras.DisplayManager import DisplayManager
-from source.utilities.boundingBoxes import cv2RectToNpBoxes, drawBoundingBoxes, simplifyBoundingBoxes
+
+try:
+    from source.cameras.DisplayManager import DisplayManager
+    from source.utilities.boundingBoxes import cv2RectToNpBoxes, drawBoundingBoxes, simplifyBoundingBoxes
+except ModuleNotFoundError:
+    from Code.source.cameras.DisplayManager import DisplayManager
+    from Code.source.utilities.boundingBoxes import cv2RectToNpBoxes, drawBoundingBoxes, simplifyBoundingBoxes
 
 
 def generateContourImage(image: np.ndarray, show=True, threadedDisplay=False) -> Tuple[np.ndarray, np.ndarray]:

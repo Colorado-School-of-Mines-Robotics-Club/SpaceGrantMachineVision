@@ -6,7 +6,10 @@ from typing import List
 import cv2
 
 # Custom imports
-from source.logger.Logger import Logger
+try:
+    from source.logger.Logger import Logger
+except ModuleNotFoundError:
+    from Code.source.logger.Logger import Logger
 
 
 # read all images in given folder, if recurse is true will also get all images in sub_folders of the given folder

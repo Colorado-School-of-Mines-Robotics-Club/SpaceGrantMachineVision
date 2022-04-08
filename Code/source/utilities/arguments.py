@@ -2,7 +2,7 @@
 import sys
 import os
 from argparse import ArgumentParser, Namespace
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Callable, Union
 
 # Additional libs
 import cv2
@@ -10,9 +10,12 @@ import numpy as np
 import platform
 
 # Custom imports
-from source.logger.Logger import Logger
-from source.cameras import fetchCameraImages
-from .Config import Config
+try:
+    from source.logger.Logger import Logger
+    from .Config import Config
+except ModuleNotFoundError:
+    from Code.source.logger.Logger import Logger
+    from .Config import Config
 
 
 def getArguments() -> Namespace:
@@ -62,7 +65,8 @@ def getArgFlags(argDict: Dict) -> Tuple[bool, bool, bool, bool, bool]:
 
 
 # make video writers for record flag
-def handleRecordFlag(RECORD: bool, leftCam: int, rightCam: int) -> Tuple[cv2.VideoWriter, cv2.VideoWriter]:
+def handleRecordFlag(RECORD: bool, leftCam: Union[str, int], rightCam: Union[str, int], fetchCameraImages: Callable)\
+        -> Tuple[cv2.VideoWriter, cv2.VideoWriter]:
     # initiate writers
     leftWriter = None
     rightWriter = None

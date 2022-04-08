@@ -5,9 +5,15 @@ import os
 import time
 import numpy as np
 from typing import Union
-from source.logger.Logger import Logger
-from source.utilities.Config import Config
-from source.utilities.exceptions import CameraReadError
+
+try:
+    from source.logger.Logger import Logger
+    from source.utilities.Config import Config
+    from source.utilities.exceptions import CameraReadError
+except ModuleNotFoundError:
+    from Code.source.logger.Logger import Logger
+    from Code.source.utilities.Config import Config
+    from Code.source.utilities.exceptions import CameraReadError
 
 
 class ThreadedCapture:
@@ -17,6 +23,7 @@ class ThreadedCapture:
     """
     def __init__(self, source: Union[str, int], fps=None, delayOffset=1.0, K=None, distC=None, setExposure=False,
                  autoExposure=1.0, exposure=100.0, framesAutoFPS=5):
+        Config.init()
         self.LOG_SETUP = Config.getLoggingOptions()['logThreadedCaptureSetup']
         self.LOG_FRAME_INFO = Config.getLoggingOptions()['logFrameInfo']
         self.LOG_VIDEO_INPUT_INFO = Config.getLoggingOptions()['logVideoInputInfo']

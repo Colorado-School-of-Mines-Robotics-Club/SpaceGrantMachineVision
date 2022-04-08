@@ -11,14 +11,24 @@ import cv2
 from numba import jit, njit
 
 # Custom  imports
-from source.logger.Logger import Logger
-from source.utilities import exceptions
-from source.utilities.boundingBoxes import drawBoundingBoxes, cv2RectToNpBoxes, determineConnection, \
-    getBoundingBoxArea, simplifyBoundingBoxes
-from source.features.features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
-from .featureDensity import findFeatureDenseBoundingBoxes
-from .contourDetection import getContourBoundingBoxes
-from .horizonDetection import detectHorizonLine, filterBoundingBoxesByHorizon, cropBoundingBoxesByHorizon
+try:
+    from source.logger.Logger import Logger
+    from source.utilities import exceptions
+    from source.utilities.boundingBoxes import drawBoundingBoxes, cv2RectToNpBoxes, determineConnection, \
+        getBoundingBoxArea, simplifyBoundingBoxes
+    from source.features.features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
+    from .featureDensity import findFeatureDenseBoundingBoxes
+    from .contourDetection import getContourBoundingBoxes
+    from .horizonDetection import detectHorizonLine, filterBoundingBoxesByHorizon, cropBoundingBoxesByHorizon
+except ModuleNotFoundError:
+    from Code.source.logger.Logger import Logger
+    from Code.source.utilities import exceptions
+    from Code.source.utilities.boundingBoxes import drawBoundingBoxes, cv2RectToNpBoxes, determineConnection, \
+        getBoundingBoxArea, simplifyBoundingBoxes
+    from Code.source.features.features import getPointsFromKeypoints, getImageKeyDesc, getImagePairKeyDesc
+    from .featureDensity import findFeatureDenseBoundingBoxes
+    from .contourDetection import getContourBoundingBoxes
+    from .horizonDetection import detectHorizonLine, filterBoundingBoxesByHorizon, cropBoundingBoxesByHorizon
 
 from . import experimental
 

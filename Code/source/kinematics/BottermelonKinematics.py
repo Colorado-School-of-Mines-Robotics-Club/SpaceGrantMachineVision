@@ -3,7 +3,10 @@ from elements.KinematicObject import KinematicObject
 from elements.RigidChassis import RigidChassis
 from typing import Tuple, List, Union
 
-from source.utilities import Config
+try:
+    from source.utilities import Config
+except ModuleNotFoundError:
+    from Code.source.utilities import Config
 
 
 class BottermelonKinematics:

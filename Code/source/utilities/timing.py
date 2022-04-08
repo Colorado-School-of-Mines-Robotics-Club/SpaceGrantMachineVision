@@ -4,7 +4,6 @@ from typing import List
 # Additional libs
 
 # Custom imports
-from source.logger.Logger import Logger
 
 
 # takes an array of times and returns the average over a size

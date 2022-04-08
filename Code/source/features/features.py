@@ -7,10 +7,16 @@ import cv2
 from numba import jit
 
 # Custom  imports
-from source.logger.Logger import Logger
-from source.utilities import exceptions
-from source.cameras import DisplayManager
-from .advancedFeatures import adaptiveRatioTest, getAvgTranslationXY
+try:
+    from source.logger.Logger import Logger
+    from source.utilities import exceptions
+    from source.cameras import DisplayManager
+    from .advancedFeatures import adaptiveRatioTest, getAvgTranslationXY
+except ModuleNotFoundError:
+    from Code.source.logger.Logger import Logger
+    from Code.source.utilities import exceptions
+    from Code.source.cameras import DisplayManager
+    from .advancedFeatures import adaptiveRatioTest, getAvgTranslationXY
 
 
 # function that given to images computes their features

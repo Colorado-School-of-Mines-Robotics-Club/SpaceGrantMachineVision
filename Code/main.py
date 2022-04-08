@@ -8,7 +8,7 @@ import numpy as np
 
 # Custom imports
 from source.logger import Logger, logArguments, logSystemInfo, logConfiguration
-from source.cameras import fetchAndShowCameras, initCameras, closeCameras, DisplayManager, CaptureManager
+from source.cameras import fetchCameraImages, initCameras, closeCameras, DisplayManager, CaptureManager
 from source.visualOdometry import PTcomputeDisparity, makeStereoObjects
 from source.features import computeMatchingPoints, getPointsFromKeypoints, getAvgTranslationXY
 from source.objectDetection import objectDetection
@@ -99,7 +99,7 @@ if __name__ == "__main__":
         time.sleep(1)
         sys.exit(1)
 
-    leftWriter, rightWriter = handleRecordFlag(RECORD, leftCam, rightCam)
+    leftWriter, rightWriter = handleRecordFlag(RECORD, leftCam, rightCam, fetchCameraImages)
 
     handleThreadedDisplayFlag(THREADED_DISPLAY, HEADLESS)
 

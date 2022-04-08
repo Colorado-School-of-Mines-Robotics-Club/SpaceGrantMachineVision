@@ -7,9 +7,14 @@ import numpy as np
 from numba import jit, njit, prange
 
 # Custom  imports
-from source.logger.Logger import Logger
-import source.utilities.exceptions
-from source.utilities.boundingBoxes import drawBoundingBoxes, simplifyBoundingBoxes
+try:
+    from source.logger.Logger import Logger
+    import source.utilities.exceptions
+    from source.utilities.boundingBoxes import drawBoundingBoxes, simplifyBoundingBoxes
+except ModuleNotFoundError:
+    from Code.source.logger.Logger import Logger
+    import Code.source.utilities.exceptions
+    from Code.source.utilities.boundingBoxes import drawBoundingBoxes, simplifyBoundingBoxes
 
 
 # given a point in x, y cordinates, an image, and an array of keypoints

@@ -1,9 +1,14 @@
 from typing import List, Dict, Union
 import numpy as np
 
-from .ThreadedCapture import ThreadedCapture
-from source.logger.Logger import Logger
-from source.utilities.exceptions import CameraReadError
+try:
+    from .ThreadedCapture import ThreadedCapture
+    from source.logger.Logger import Logger
+    from source.utilities.exceptions import CameraReadError
+except ModuleNotFoundError:
+    from .ThreadedCapture import ThreadedCapture
+    from Code.source.logger.Logger import Logger
+    from Code.source.utilities.exceptions import CameraReadError
 
 
 def createCaptureSourceData(source: Union[str, int], fps=None, delayOffset=1.0, K=None, distC=None, setExposure=False,
