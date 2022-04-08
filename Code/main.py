@@ -9,8 +9,6 @@ from openVO import StereoCamera
 
 # Custom imports
 from source.logger import Logger, logArguments, logSystemInfo, logConfiguration
-from source.cameras import fetchCameraImages, initCameras, closeCameras, DisplayManager, CaptureManager
-from source.visualOdometry import PTcomputeDisparity, makeStereoObjects
 from source.cameras import fetchCameraImages, initCameras, closeCameras, DisplayManager, CaptureManager, loadCalibrationFiles
 from source.visualOdometry import makeOdometer, updateOdometer
 from source.features import computeMatchingPoints, getPointsFromKeypoints, getAvgTranslationXY
@@ -45,7 +43,7 @@ if __name__ == "__main__":
     orbParams = Config.getOrbParamsDict()
     featureParams = Config.getFeatureParamsDict()
     objectDetectionParams = Config.getObjectDetectionDict()
-    sbgmPs = Config.getSBGMParamsDict()
+    sgbmPs = Config.getSGBMParamsDict()
     wlsParams = Config.getWLSParamsDict()
     hardwarePorts = Config.getHardwarePortsDict()
 
@@ -101,7 +99,7 @@ if __name__ == "__main__":
     # Need to find image size without ThreadedCapture because we need it to init StereoCamera,
     # which is needed to init ThreadedCapture. Hard coding for now because I'm not sure if we want
     # to read a frame manually or just add a config file
-    frameSize= (640, 480)
+    frameSize = (640, 480)
     stereo = StereoCamera(leftK, leftDistC, rightK, rightDistC, rectParams, sgbmPs, frameSize)
 
     try:

@@ -10,8 +10,10 @@ try:
 except ModuleNotFoundError:
     from Code.source.cameras import DisplayManager
 
+
 def makeOdometer(args: Tuple) -> Tuple:
-    return (StereoOdometer(StereoCamera(*args)),)
+    return StereoOdometer(StereoCamera(*args)),
+
 
 def updateOdometer(args: Tuple) -> Tuple[np.ndarray, np.ndarray]:
     queue, odometer, show, td = args

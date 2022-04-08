@@ -5,8 +5,6 @@ from typing import Dict, Tuple
 import json
 
 # Additional libs
-import cv2
-import numpy as np
 
 # Custom imports
 
