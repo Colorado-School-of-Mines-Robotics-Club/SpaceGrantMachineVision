@@ -88,7 +88,7 @@ class Config:
         return cls.objectDetectionParams
 
     @classmethod
-    def getSBGMParamsDict(cls) -> Dict:
+    def getSGBMParamsDict(cls) -> Dict:
         return cls.sgbmParams
 
     @classmethod
