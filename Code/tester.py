@@ -14,7 +14,7 @@ passable_tiles = test_grid.get_passable()
 route = astar(obstacles, (len(obstacles) - 1,len(obstacles[0])//2), (0,len(obstacles[0])//2), passable = passable_tiles)
 
 if(route is not False):
-    print(Map.instruction_converter(route, test_grid.DPerNode))
+    print(Map.instruction_converter(test_grid.DPerNode))
     print("\n")
-    print(Map.instruction_converter(route, test_grid.DPerNode, compress = True))
+    print(Map.instruction_converter(test_grid.DPerNode, compress = True))
     plot_graph(obstacles, (len(obstacles) - 1,len(obstacles[0])//2), (0,len(obstacles[0])//2), route)
