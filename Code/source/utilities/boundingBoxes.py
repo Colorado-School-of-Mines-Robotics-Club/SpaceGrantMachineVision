@@ -19,7 +19,7 @@ from source.cameras import DisplayManager
 #        where x1, y1, x2, y2 are any number
 # the number type gets sanitized upon boundingBox load coordinates
 def drawBoundingBoxes(rawImage: np.ndarray, boundingBoxes: List, color=(0, 0, 255), thickness=2,
-                      windowName="Bounding Boxes", show=False, threadedDisplay=True) -> np.ndarray:
+                      windowName="Bounding Boxes", show=False, threadedDisplay=False) -> np.ndarray:
     image = np.copy(rawImage)
     for box in boundingBoxes:
         [p1, _, p3, _] = getBoundingBoxPoints(box)

@@ -161,8 +161,7 @@ class ThreadedCapture:
 
     # starts the capture thread
     def start(self) -> 'ThreadedCapture':
-        thread = Thread(target=self.readFrames, args=(), name=f"{self.capture} Capture Thread")
-        thread.setDaemon(True)
+        thread = Thread(target=self.readFrames, args=(), name=f"{self.capture} Capture Thread", daemon=True)
         thread.start()
         return self
 

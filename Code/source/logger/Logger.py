@@ -157,7 +157,7 @@ class Logger:
                 else:
                     cls.buffer.put(f'Invalid logger command of type <{type(val)}>')
             
-            if cls.shouldThreadJoin and cls.buffer.empty():
+            if cls.shouldThreadJoin: #and cls.buffer.empty():
                 break
             
             sleep(0.1)

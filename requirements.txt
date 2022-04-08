@@ -7,3 +7,4 @@ keyboard
 wheel~=0.37.0
 matplotlib~=3.5.1
 simple_pid
+sklearn

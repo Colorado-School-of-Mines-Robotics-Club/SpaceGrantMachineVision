@@ -72,8 +72,8 @@ def getFeatureDenseBoundingBoxes(imageWidth: int, imageHeight: int, pts: np.ndar
 
 
 # takes an image and returns bounding box coordinates
-def findFeatureDenseBoundingBoxes(image: np.ndarray, pts: np.ndarray, binSize=30.0, featuresPerPixel=0.03, show=False,
-                                  threadedDisplay=True) -> List:
+def findFeatureDenseBoundingBoxes(image: np.ndarray, pts: np.ndarray, binSize=30.0, featuresPerPixel=0.03,
+                                  simplify=False, show=False, threadedDisplay=True) -> List:
     # compute dimensional information
     imageHeight, imageWidth = image.shape[0], image.shape[1]
     horzBins, vertBins = math.ceil(imageWidth / binSize), math.ceil(imageHeight / binSize)
@@ -82,7 +82,8 @@ def findFeatureDenseBoundingBoxes(image: np.ndarray, pts: np.ndarray, binSize=30
     boundingBoxes = getFeatureDenseBoundingBoxes(imageWidth, imageHeight, pts, horzBins, vertBins, int(binSize),
                                                  featuresPerPixel)
 
-    boundingBoxes = simplifyBoundingBoxes(boundingBoxes)
+    if simplify:
+        boundingBoxes = simplifyBoundingBoxes(boundingBoxes)
 
     if show:
         drawBoundingBoxes(image, boundingBoxes, windowName="Feature Dense Bounding Boxes", show=True,
