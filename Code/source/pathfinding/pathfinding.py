@@ -21,9 +21,9 @@ def plot_graph(grid, start, goal, path=None):
 
     ax.imshow(grid, cmap='Reds')
 
-    ax.scatter(start[1], start[0], marker="*", color="yellow", s=200)
+    ax.scatter(start[1], start[0], marker="*", color="blue", s=30)
 
-    ax.scatter(goal[1], goal[0], marker="*", color="green", s=200)
+    ax.scatter(goal[1], goal[0], marker="*", color="green", s=30)
 
     if type(path) != bool:
         ax.plot(path[:, 1], path[:, 0], color="black")
