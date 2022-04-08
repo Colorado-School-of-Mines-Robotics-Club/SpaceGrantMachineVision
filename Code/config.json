@@ -4,7 +4,7 @@
     "threadeddisplay": false,
     "record": false,
     "clearlog": true,
-    "video": "../Data/Cameras/DefaultVideo/",
+    "video": "",
     "remoteControl": false
   },
   "logging_options": {
