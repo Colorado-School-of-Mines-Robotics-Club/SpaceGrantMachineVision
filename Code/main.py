@@ -9,6 +9,8 @@ from openVO import StereoCamera
 
 # Custom imports
 from source.logger import Logger, logArguments, logSystemInfo, logConfiguration
+from source.cameras import fetchCameraImages, initCameras, closeCameras, DisplayManager, CaptureManager
+from source.visualOdometry import PTcomputeDisparity, makeStereoObjects
 from source.cameras import fetchCameraImages, initCameras, closeCameras, DisplayManager, CaptureManager, loadCalibrationFiles
 from source.visualOdometry import makeOdometer, updateOdometer
 from source.features import computeMatchingPoints, getPointsFromKeypoints, getAvgTranslationXY
@@ -43,7 +45,7 @@ if __name__ == "__main__":
     orbParams = Config.getOrbParamsDict()
     featureParams = Config.getFeatureParamsDict()
     objectDetectionParams = Config.getObjectDetectionDict()
-    sgbmPs = Config.getSGBMParamsDict()
+    sbgmPs = Config.getSBGMParamsDict()
     wlsParams = Config.getWLSParamsDict()
     hardwarePorts = Config.getHardwarePortsDict()
 
