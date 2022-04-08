@@ -29,6 +29,8 @@ def getArguments() -> Namespace:
                         required=False)
     parser.add_argument("-V", "--video", help="Set a video folder which contains a left and right camera feed",
                         nargs='?', const='Data/Cameras/DefaultVideo/')
+    parser.add_argument("-C", "--cameras", help="Set a cameras folder which contains a calibration files",
+                       nargs='?', const='Data/Calibration/bottermellon/')
     parser.add_argument("-RC", "--remote", help="Run the robot using a remote control system.", action="store_true",
                         required=False)
     args = parser.parse_args()
@@ -55,6 +57,15 @@ def getArgDict() -> Dict:
             if counter > 3:
                 raise Exception("Video Argument: Could not find specified folder")
     argDict['video'] = args.video
+    # finds the cameras directory
+    argDict['cameras'] = args.cameras or 'Data/Calibration/bottermellon/'
+    counter = 0
+    while not os.path.isdir(argDict['cameras']):
+        argDict['cameras'] = "../" + argDict['cameras']
+        counter += 1
+        if counter > 3:
+            raise Exception("Cameras Argument: Could not find specified folder")
+
     argDict['remote'] = args.remote
     return argDict
 
@@ -75,8 +86,8 @@ def handleRecordFlag(RECORD: bool, leftCam: Union[str, int], rightCam: Union[str
         videoPath = Config.getFilepathsDict()['videoPath']
         while not os.path.isdir(videoPath):
             videoPath = "../" + videoPath
-        leftImage, rightImage = fetchCameraImages(leftCam, rightCam)
-        height, width, _ = leftImage.shape
+        _, _, left, _ = fetchCameraImages(leftCam, rightCam)
+        height, width, _ = uncroppedLeft.shape
         fourcc = cv2.VideoWriter_fourcc('W', 'M', 'V', '2')
         fps = 16.0
         leftWriter = cv2.VideoWriter(f"{videoPath}leftOutput.wmv", fourcc=fourcc, fps=fps, frameSize=(width, height))

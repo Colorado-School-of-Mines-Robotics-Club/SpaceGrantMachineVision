@@ -1,5 +1,6 @@
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Tuple
 import numpy as np
+from openVO import StereoCamera
 
 try:
     from .ThreadedCapture import ThreadedCapture
@@ -11,10 +12,10 @@ except ModuleNotFoundError:
     from Code.source.utilities.exceptions import CameraReadError
 
 
-def createCaptureSourceData(source: Union[str, int], fps=None, delayOffset=1.0, K=None, distC=None, setExposure=False,
+def createCaptureSourceData(source: Union[str, int], type=ThreadedCapture.CameraType,
+                            fps=None, delayOffset=1.0, setExposure=False,
                             autoExposure=1.0, exposure=100.0, framesAutoFPS=5) -> List:
-    return [source, fps, delayOffset, K, distC, setExposure, autoExposure, exposure, framesAutoFPS]
-
+    return [source, type, fps, delayOffset, setExposure, autoExposure, exposure, framesAutoFPS]
 
 class CaptureManager:
     """
@@ -26,24 +27,24 @@ class CaptureManager:
 
     # sources is a list of lists formed where each entry should be created by createSourceData
     @classmethod
-    def init(cls, sources: List):
+    def init(cls, sources: List, stereo: StereoCamera):
         # initialize and start all threads
         for src in sources:
-            cls.sources[src[0]] = ThreadedCapture(src[0], src[1], src[2], src[3], src[4], src[5], src[6], src[7],
-                                                  src[8]).start()
+            cls.sources[src[0]] = ThreadedCapture(stereo, src[0], src[1], src[2], src[3],
+                                                  src[4], src[5], src[6], src[7]).start()
 
     @classmethod
     def haveCamerasRead(cls):
         for source, thread in cls.sources.items():
-            frame = thread.getFrame()
+            frame, cropped = thread.getFrame()
             if frame is None:
                 return False
-            thread.addFrame(frame)
+            thread.addFrame(frame, cropped)
         return True
 
     # gets the frame from a specific source
     @classmethod
-    def getFrame(cls, source: Union[str, int]) -> np.ndarray:
+    def getFrame(cls, source: Union[str, int]) -> Union[Tuple[np.ndarray, np.ndarray], Tuple[None, None]]:
         return cls.sources[source].getFrame()
 
     # gets all frames from all sources

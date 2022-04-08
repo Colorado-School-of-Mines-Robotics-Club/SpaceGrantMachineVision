@@ -100,6 +100,6 @@ def findObjectsByArea(image: np.ndarray, contourBoxes: List, featureDenseBoxes: 
 def compile_object_detection() -> None:
     points = np.random.randint(100, 200, (200, 1)).astype('uint64')
 
-    dummy_image = cv2.imread("../Data/Calibration/LeftCaptures/10.png")
+    dummy_image = cv2.imread("../Data/Calibration/bottermellon/LeftCaptures/10.png")
 
     _ = findFeatureDenseBoundingBoxes(dummy_image, points, binSize=10, featuresPerPixel=0.01, show=False)
