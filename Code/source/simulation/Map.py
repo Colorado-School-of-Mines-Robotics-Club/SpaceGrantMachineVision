@@ -15,11 +15,12 @@ from source.utilities.Config import Config
 
 
 class Map:
-    def __init__(self, nodeLayout=(100, 51), scaleFactor=9):
+    def __init__(self, nodeLayout=(100, 51), scaleFactor=9, D = 1):
         self.nodeLayout = nodeLayout
         self.scaleFactor = scaleFactor
         self.imageSize = (self.nodeLayout[0]*self.scaleFactor, self.nodeLayout[1]*self.scaleFactor, 3)
         self.grid = np.zeros((self.nodeLayout[0], self.nodeLayout[1], 3))
+        self.DPerNode = float(D)/(self.nodeLayout[0])
 
     # takes an optional color
     #       0 - blue
@@ -27,6 +28,9 @@ class Map:
     #       2 - red
     def updatePoint(self, x: int, y: int, score=1, color=2):
         self.grid[x][y][color] += score
+    
+    def convert_route_to_dist(self, route):
+        return [list(i * self.DPerNode) for i in route]
 
     def draw(self) -> np.ndarray:
         display = np.zeros(self.imageSize, dtype='uint8')

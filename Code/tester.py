@@ -12,8 +12,7 @@ obstacles = test_grid.get_grid()
 passable_tiles = test_grid.get_passable()
 
 route = astar(obstacles, (0,0), (len(obstacles) - 1,len(obstacles[0]) - 1), passable = passable_tiles)
-plot_graph(obstacles, (0,0), (len(obstacles) - 1, len(obstacles[0]) - 1), route)
 
-input("Hit enter for graph with passables!")
-
-plot_graph(passable_tiles, (0,0), (len(obstacles) - 1, len(obstacles[0]) - 1), route)
+print(route)
+if(route is not False):
+    print(test_grid.convert_route_to_dist(route))
