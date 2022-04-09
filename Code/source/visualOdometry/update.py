@@ -1,7 +1,7 @@
 # Libraries
 import numpy as np
 import cv2
-from openVO import drawPoseOnImage
+from openVO import StereoCamera, StereoOdometer, drawPoseOnImage
 from typing import Tuple
 
 # Custom imports
@@ -9,6 +9,9 @@ try:
     from source.cameras import DisplayManager
 except ModuleNotFoundError:
     from Code.source.cameras import DisplayManager
+
+def makeOdometer(args: Tuple) -> Tuple:
+    return (StereoOdometer(StereoCamera(*args)),)
 
 def updateOdometer(args: Tuple) -> Tuple[np.ndarray, np.ndarray]:
     queue, odometer, show, td = args
