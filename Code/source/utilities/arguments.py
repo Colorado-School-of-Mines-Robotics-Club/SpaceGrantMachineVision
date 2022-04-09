@@ -2,7 +2,7 @@
 import sys
 import os
 from argparse import ArgumentParser, Namespace
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Callable, Union
 
 # Additional libs
 import cv2
@@ -10,9 +10,12 @@ import numpy as np
 import platform
 
 # Custom imports
-from source.logger.Logger import Logger
-from source.cameras import fetchCameraImages
-from .Config import Config
+try:
+    from source.logger.Logger import Logger
+    from .Config import Config
+except ModuleNotFoundError:
+    from Code.source.logger.Logger import Logger
+    from .Config import Config
 
 
 def getArguments() -> Namespace:
@@ -26,6 +29,8 @@ def getArguments() -> Namespace:
                         required=False)
     parser.add_argument("-V", "--video", help="Set a video folder which contains a left and right camera feed",
                         nargs='?', const='Data/Cameras/DefaultVideo/')
+    parser.add_argument("-C", "--cameras", help="Set a cameras folder which contains a calibration files",
+                       nargs='?', const='Data/Calibration/bottermellon/')
     parser.add_argument("-RC", "--remote", help="Run the robot using a remote control system.", action="store_true",
                         required=False)
     args = parser.parse_args()
@@ -52,6 +57,15 @@ def getArgDict() -> Dict:
             if counter > 3:
                 raise Exception("Video Argument: Could not find specified folder")
     argDict['video'] = args.video
+    # finds the cameras directory
+    argDict['cameras'] = args.cameras or 'Data/Calibration/bottermellon/'
+    counter = 0
+    while not os.path.isdir(argDict['cameras']):
+        argDict['cameras'] = "../" + argDict['cameras']
+        counter += 1
+        if counter > 3:
+            raise Exception("Cameras Argument: Could not find specified folder")
+
     argDict['remote'] = args.remote
     return argDict
 
@@ -62,7 +76,8 @@ def getArgFlags(argDict: Dict) -> Tuple[bool, bool, bool, bool, bool]:
 
 
 # make video writers for record flag
-def handleRecordFlag(RECORD: bool, leftCam: int, rightCam: int) -> Tuple[cv2.VideoWriter, cv2.VideoWriter]:
+def handleRecordFlag(RECORD: bool, leftCam: Union[str, int], rightCam: Union[str, int], fetchCameraImages: Callable)\
+        -> Tuple[cv2.VideoWriter, cv2.VideoWriter]:
     # initiate writers
     leftWriter = None
     rightWriter = None
@@ -71,8 +86,8 @@ def handleRecordFlag(RECORD: bool, leftCam: int, rightCam: int) -> Tuple[cv2.Vid
         videoPath = Config.getFilepathsDict()['videoPath']
         while not os.path.isdir(videoPath):
             videoPath = "../" + videoPath
-        leftImage, rightImage = fetchCameraImages(leftCam, rightCam)
-        height, width, _ = leftImage.shape
+        _, _, left, _ = fetchCameraImages(leftCam, rightCam)
+        height, width, _ = uncroppedLeft.shape
         fourcc = cv2.VideoWriter_fourcc('W', 'M', 'V', '2')
         fps = 16.0
         leftWriter = cv2.VideoWriter(f"{videoPath}leftOutput.wmv", fourcc=fourcc, fps=fps, frameSize=(width, height))

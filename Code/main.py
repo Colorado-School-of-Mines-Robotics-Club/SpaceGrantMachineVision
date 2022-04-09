@@ -5,11 +5,12 @@ import time
 # Additional libs
 import cv2
 import numpy as np
+from openVO import StereoCamera, StereoOdometer
 
 # Custom imports
 from source.logger import Logger, logArguments, logSystemInfo, logConfiguration
-from source.cameras import fetchAndShowCameras, initCameras, closeCameras, DisplayManager, CaptureManager
-from source.visualOdometry import PTcomputeDisparity, makeStereoObjects
+from source.cameras import fetchCameraImages, initCameras, closeCameras, DisplayManager, CaptureManager, loadCalibrationFiles
+from source.visualOdometry import updateOdometer
 from source.features import computeMatchingPoints, getPointsFromKeypoints, getAvgTranslationXY
 from source.objectDetection import objectDetection
 from source.simulation import Map, Robot
@@ -42,7 +43,7 @@ if __name__ == "__main__":
     orbParams = Config.getOrbParamsDict()
     featureParams = Config.getFeatureParamsDict()
     objectDetectionParams = Config.getObjectDetectionDict()
-    sbgmPs = Config.getSBGMParamsDict()
+    sgbmPs = Config.getSGBMParamsDict()
     wlsParams = Config.getWLSParamsDict()
     hardwarePorts = Config.getHardwarePortsDict()
 
@@ -56,6 +57,7 @@ if __name__ == "__main__":
     VIDEO_PATH = argDict['video']
     if not runParameters['video'] == '':
         VIDEO_PATH = runParameters['video']
+    CAMERAS_PATH = argDict['cameras']
 
     # clears log file if the CLEAR_LOG is present
     handleClearLogFlag(CLEAR_LOG)
@@ -92,14 +94,24 @@ if __name__ == "__main__":
     leftCam, rightCam = handleVideoFlag(VIDEO_PATH, cameraParams["useCapDShow"], cameraParams['leftPort'],
                                         cameraParams['rightPort'])
 
+    # Initialize openVO.StereoCamera for use in ThreadedCapture
+    leftK, rightK, leftDistC, rightDistC, rectParams = loadCalibrationFiles(CAMERAS_PATH)
+    # Need to find image size without ThreadedCapture because we need it to init StereoCamera,
+    # which is needed to init ThreadedCapture. Hard coding for now because I'm not sure if we want
+    # to read a frame manually or just add a config file
+    frameSize= (640, 480)
+    stereo = StereoCamera(leftK, leftDistC, rightK, rightDistC, rectParams, sgbmPs, frameSize)
+    # Initialize openVO.StereoOdometer for use in updateOdometer
+    odometer = StereoOdometer(stereo)
+
     try:
-        initCameras(leftCam, rightCam, setExposure=cameraParams['setExposure'])
+        initCameras(leftCam, rightCam, stereo, setExposure=cameraParams['setExposure'])
     except exceptions.CameraReadError:
         Logger.log("Could not open one or more of the cameras")
         time.sleep(1)
         sys.exit(1)
 
-    leftWriter, rightWriter = handleRecordFlag(RECORD, leftCam, rightCam)
+    leftWriter, rightWriter = handleRecordFlag(RECORD, leftCam, rightCam, fetchCameraImages)
 
     handleThreadedDisplayFlag(THREADED_DISPLAY, HEADLESS)
 
@@ -109,7 +121,7 @@ if __name__ == "__main__":
 
     # multiprocessing, defines payloads to be run in parallel
     payloads = list()
-    payloads.append(("disparity", PTcomputeDisparity, (not HEADLESS, THREADED_DISPLAY), makeStereoObjects, (), None))
+    payloads.append(("updateOdometer", updateOdometer, (not HEADLESS, THREADED_DISPLAY), lambda args: (odometer,), (), None))
     payloads.append(("hardware", PThardwareCommand, (), createHardwareManager, (), None))
     PayloadManager.initStart(payloads)
 

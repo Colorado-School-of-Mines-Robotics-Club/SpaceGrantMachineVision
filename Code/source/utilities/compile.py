@@ -1,6 +1,11 @@
-from source.features import compile_features
-from source.kinematics import compile_kinematics
-from source.objectDetection import compile_object_detection
+try:
+    from source.features import compile_features
+    from source.kinematics import compile_kinematics
+    from source.objectDetection import compile_object_detection
+except ModuleNotFoundError:
+    from Code.source.features import compile_features
+    from Code.source.kinematics import compile_kinematics
+    from Code.source.objectDetection import compile_object_detection
 
 from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning
 import warnings

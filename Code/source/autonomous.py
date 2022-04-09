@@ -7,9 +7,8 @@ import cv2
 
 # Custom imports
 from .logger import Logger, logArguments, logSystemInfo, logConfiguration
-from .cameras import fetchAndShowCameras, initCameras, closeCameras, DisplayManager, CaptureManager
-from .visualOdometry import PTcomputeDisparity, makeStereoObjects
-from .features import computeMatchingPoints, getPointsFromKeypoints, getAvgTranslationXY
+from .cameras import fetchAndShowCameras, DisplayManager, CaptureManager
+from .features import computeMatchingPoints, getPointsFromKeypoints
 from .objectDetection import objectDetection
 from .simulation import Map, Robot
 from .utilities import getAvgTimeArr, getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag,\
@@ -20,59 +19,46 @@ from .concurrency import PayloadManager
 def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTolerance, iterationsToAverage, leftCam,
                rightCam, leftWriter, rightWriter, orb, matcher, featureParams, objectDetectionParams):
     numTotalIterations, consecutiveErrors, iterationCounter, iterationTime = 0, 0, 0, 0
-    iterationTimes, cameraFTs, featureFTs, objectDectFTs, disparityFTs = list(), list(), list(), list(), list()
-    leftImage, rightImage, grayLeftImage, grayRightImage = None, None, None, None
-    leftPts, rightPts, leftKp, leftDesc, rightKp, rightDesc = None, None, None, None, None, None
-    leftMatches, rightMatches = None, None
-    xTranslation, yTranslation = None, None
+    iterationTimes, cameraFTs, featureFTs, objectDectFTs, odometryFTs = list(), list(), list(), list(), list()
+    leftImage, rightImage, grayLeftImage = None, None, None
+    leftPts, leftKp, leftDesc, leftMatches = None, None, None, None
     objectBoundingBoxes = None
-    disparityMap = None
     while True:
         iterationStartTime = time.perf_counter()
         if LOG_ITERATION_INFO:
             Logger.log(f"#{numTotalIterations}: Started @ {iterationStartTime}")
         try:
-            # need to save previous images (if they exist) for visual odometry
-            prevLeftImage, prevRightImage = leftImage, rightImage
-            prevGrayLeftImage, prevGrayRightImage = grayLeftImage, grayRightImage
-
             # save previous feature information
-            prevLeftPts, prevRightPts = leftPts, rightPts
-            prevLeftKp, prevRightKp = leftKp, rightKp
-            prevLeftDesc, prevRightDesc = leftDesc, rightDesc
-            prevLeftMatches, prevRightMatches = leftMatches, rightMatches
+            prevGrayLeftImage = grayLeftImage
+            prevLeftPts = leftPts
+            prevLeftKp = leftKp
+            prevLeftDesc = leftDesc
+            prevLeftMatches= leftMatches
             prevObjectBoundingBoxes = objectBoundingBoxes
-
-            # save previous frame visual odometry information
-            prevXTranslation, prevYTranslation = xTranslation, yTranslation
-            prevDisparityMap = disparityMap
 
             cameraStartTime = time.perf_counter()
             # Satisfies that read images stage of control flow
-            leftImage, rightImage, grayLeftImage, grayRightImage = fetchAndShowCameras(leftCam, rightCam,
-                                                                                       show=not HEADLESS,
-                                                                                       threadedDisplay=THREADED_DISPLAY)
-            PayloadManager.addInputs('disparity', [grayLeftImage, grayRightImage])
+            # Uncropped Images are needed for computing disparity; everything else should use
+            # the cropped images which only contain pixels where the unditortion/rectification
+            # map is valid. In general leftImage should be considered the primary image source.
+            uncroppedLeftImage, uncroppedRightImage, leftImage, rightImage, grayLeftImage, _ = \
+                fetchAndShowCameras(leftCam, rightCam, show=not HEADLESS, threadedDisplay=THREADED_DISPLAY)
+
+            PayloadManager.addInputs('updateOdometer', [uncroppedLeftImage, uncroppedRightImage])
             cameraFTs.append(time.perf_counter() - cameraStartTime)
 
             featureStartTime = time.perf_counter()
-            # feature points for left and right images
+            # feature points for left image
             # the point at index [0], [1], [2], etc. in both is the same real life feature
             # COMPUTES MATCHING FEATURES ACROSS BOTH CURRENT IMAGES
+            # TODO since we aren't using this for visual odometry, if we don't need the feature matches
+            # for anything else, we can reduce this method to only detect features and save computation time
             prevLeftPts, leftPts, prevLeftKp, prevLeftDesc, leftKp, leftDesc, leftMatches = \
                 computeMatchingPoints(prevGrayLeftImage, grayLeftImage, orb, matcher, prevLeftKp, prevLeftDesc,
                                       ratio=featureParams['startingRatio'],
                                       featureRatio=featureParams["featureRatio"], stepSize=featureParams["stepSize"],
                                       timeout=featureParams["timeout"], show=not HEADLESS,
                                       threadedDisplay=THREADED_DISPLAY, windowName="LeftCaptures Matched Features")
-            prevRightPts, rightPts, prevRightKp, prevRightDesc, rightKp, rightDesc, rightMatches = \
-                computeMatchingPoints(prevGrayRightImage, grayRightImage, orb, matcher, prevRightKp, prevRightDesc,
-                                      ratio=featureParams['startingRatio'],
-                                      featureRatio=featureParams["featureRatio"], stepSize=featureParams["stepSize"],
-                                      timeout=featureParams["timeout"], show=not HEADLESS,
-                                      threadedDisplay=THREADED_DISPLAY, windowName="Right Matched Features")
-            # xTranslation, yTranslation = getAvgTranslationXY(leftMatches, prevLeftKp, leftKp, rightMatches, prevRightKp,
-            #                                                  rightKp)
             featureFTs.append(time.perf_counter() - featureStartTime)
 
             objectDectStartTime = time.perf_counter()
@@ -86,9 +72,10 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
                                                   threadedDisplay=THREADED_DISPLAY)
             objectDectFTs.append(time.perf_counter() - objectDectStartTime)
 
-            disparityStartTime = time.perf_counter()
-            disparityMap = PayloadManager.getOutput('disparity')
-            disparityFTs.append(time.perf_counter() - disparityStartTime)
+            odometryStartTime = time.perf_counter()
+            currentPose = PayloadManager.getOutput('updateOdometer')
+            im3d = PayloadManager.getOutput('updateOdometer')
+            odometryFTs.append(time.perf_counter() - odometryStartTime)
 
 
             # all additional functionality should be present within the === comments
@@ -145,10 +132,10 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
             cameraTimeStr = f" => Avg frame: {getAvgTimeArr(cameraFTs, iterationCounter)} ms"
             featureTimeStr = f", Avg features: {getAvgTimeArr(featureFTs, iterationCounter)} ms"
             objectDectTimeStr = f", Avg object detection: {getAvgTimeArr(objectDectFTs, iterationCounter)} ms"
-            disparityTimeStr = f", Avg disparity map: {getAvgTimeArr(disparityFTs, iterationCounter)} ms"
-            Logger.log(iterNum + iterTimeStr + cameraTimeStr + featureTimeStr + objectDectTimeStr + disparityTimeStr)
+            odometryTimeStr = f", Avg odometry map: {getAvgTimeArr(odometryFTs, iterationCounter)} ms"
+            Logger.log(iterNum + iterTimeStr + cameraTimeStr + featureTimeStr + objectDectTimeStr + odometryTimeStr)
             iterationCounter = 0
-            iterationTimes, cameraFTs, featureFTs, objectDectFTs, disparityFTs = list(), list(), list(), list(), list()
+            iterationTimes, cameraFTs, featureFTs, objectDectFTs, odometryFTs = list(), list(), list(), list(), list()
             CaptureManager.updateAllFPS(1000.0 / avgIterTime, delayOffset=0.0)
             if not HEADLESS:
                 DisplayManager.updateAllFPS(1000.0 / avgIterTime)

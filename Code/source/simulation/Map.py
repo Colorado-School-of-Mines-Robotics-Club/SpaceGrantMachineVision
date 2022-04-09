@@ -10,8 +10,6 @@ import math
 import random
 
 # Custom imports
-from source.logger.Logger import Logger
-from source.utilities.Config import Config
 
 
 class Map:

@@ -8,9 +8,7 @@ import heapq
 import cv2
 import numpy as np
 
-# Custom imports (comment out when testing.)
-from source.logger.Logger import Logger
-from source.utilities.Config import Config
+# Custom imports
 
 
 '''

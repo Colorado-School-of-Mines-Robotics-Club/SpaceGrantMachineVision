@@ -48,23 +48,22 @@
   },
   "sgbm_params": {
     "minDisparity": 0,
-    "numDisparities": 16,
+    "numDisparities": 48,
     "blockSize": 3,
     "P1": 27,
     "P2": 675,
-    "disp12MaxDiff": 0,
+    "disp12MaxDiff": 50,
     "preFilterCap": 0,
-    "uniquenessRatio": 0,
+    "uniquenessRatio": 10,
     "speckleWindowSize": 0,
-    "speckleRange": 0
+    "speckleRange": 4
   },
   "wls_filter_params": {
     "lambda": 8000.0,
     "sigma": 1.75
   },
   "file_paths": {
-    "videoPath": "Data/Cameras/RawOutput/",
-    "calibrationPath": "Data/Calibration/"
+    "videoPath": "Data/Cameras/RawOutput/"
   },
   "hardware_ports": {
     "motor_encoders": {

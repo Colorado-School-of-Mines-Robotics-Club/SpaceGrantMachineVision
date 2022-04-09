@@ -4,19 +4,34 @@ import cv2
 import os
 import time
 import numpy as np
-from typing import Union
-from source.logger.Logger import Logger
-from source.utilities.Config import Config
-from source.utilities.exceptions import CameraReadError
 
+from typing import Union, Tuple
+from enum import Enum
+from openVO import StereoCamera
+
+try:
+    from source.logger.Logger import Logger
+    from source.utilities.Config import Config
+    from source.utilities.exceptions import CameraReadError
+except ModuleNotFoundError:
+    from Code.source.logger.Logger import Logger
+    from Code.source.utilities.Config import Config
+    from Code.source.utilities.exceptions import CameraReadError
 
 class ThreadedCapture:
     """
         Class that continuously gets frames from a VideoCapture object
         with a dedicated thread.
     """
-    def __init__(self, source: Union[str, int], fps=None, delayOffset=1.0, K=None, distC=None, setExposure=False,
+
+    class CameraType(Enum):
+        LEFT = 0
+        RIGHT = 1
+
+    def __init__(self, stereo: StereoCamera, source: Union[str, int], type: CameraType,
+                 fps=None, delayOffset=1.0, setExposure=False,
                  autoExposure=1.0, exposure=100.0, framesAutoFPS=5):
+        Config.init()
         self.LOG_SETUP = Config.getLoggingOptions()['logThreadedCaptureSetup']
         self.LOG_FRAME_INFO = Config.getLoggingOptions()['logFrameInfo']
         self.LOG_VIDEO_INPUT_INFO = Config.getLoggingOptions()['logVideoInputInfo']
@@ -28,25 +43,23 @@ class ThreadedCapture:
         # check if the source is a video file
         self.video = False
         self.frameQ = None
+        self.cframeQ = None
         if isinstance(source, str):
             if os.path.exists(source):
                 self.video = True
                 self.frameQ = deque()
+                self.cframeQ = deque()
             else:
                 raise FileNotFoundError(f"Could not find file for source:{source}")
-        # basic checking with asserts that all data is present
-        if (K is not None) or (distC is not None):
-            assert ((K is not None) and (distC is not None)), "If K or distC is defined, then both must be defined"
         # define flow controllers
         self.stopped = False
         self.success = True
-        # define source, camera intrinsic matrix, distortion coefficients, and exposure settings
+        # define stereo configuration, video source, camera type, and exposure settings
+        self.stereo = stereo
         self.source = source
+        self.type = type
         self.frame = None
-        self.K = K
-        # results from cv2.getOptimalNewCameraMatrix
-        self.newK, self.roi, self.x, self.y, self.w, self.h = None, None, None, None, None, None
-        self.distC = distC
+        self.cropped = None
         self.setExposure = setExposure
         self.autoExposure = autoExposure
         self.exposure = exposure
@@ -90,23 +103,6 @@ class ThreadedCapture:
                 self.capture.set(cv2.CAP_PROP_EXPOSURE, exposure)
         except Exception as e:
             raise Exception(f"Error settings exposure for video source: {self.source} -> {e}")
-        # create undistortion K matrix
-        try:
-            success, frame = self.capture.read()
-            if (self.K is not None) and (self.distC is not None):
-                h, w = frame.shape[:2]
-                self.newK, self.roi = cv2.getOptimalNewCameraMatrix(self.K, self.distC, (w, h), 1, (w, h))
-                self.x, self.y, self.w, self.h = self.roi
-                if self.LOG_CAMERA_RECTIFICATION:
-                    printK = str(self.K).replace('\n', '')
-                    printNewK = str(self.newK).replace('\n', '')
-                    printDistC = str(self.distC).replace('\n', '')
-                    Logger.log(f"   K: {printK}")
-                    Logger.log(f"   New K: {printNewK}")
-                    Logger.log(f"   Distortion Coefficients: {printDistC}")
-                    Logger.log(f"   Width: {self.w}, Height: {self.h}")
-        except Exception as e:
-            raise Exception(f'Error computing new K matrix for video source: {self.source} -> {e}')
         # automatic fps calibration
         if fps is None:
             start = time.perf_counter()
@@ -126,13 +122,20 @@ class ThreadedCapture:
         if not self.success:
             self.stopped = True
             return
-        if self.newK is not None:
-            frame = cv2.undistort(frame, self.K, self.distC, None, self.newK)
-            frame = frame[self.y:self.y+self.h, self.x:self.x+self.w]
+
+        if (self.type == ThreadedCapture.CameraType.LEFT):
+            frame = self.stereo.undistort_rectify_left(frame)
+            cropped = self.stereo.crop_to_valid_region_left(frame)
+        else:
+            frame = self.stereo.undistort_rectify_right(frame)
+            cropped = self.stereo.crop_to_valid_region_right(frame)
+
         if self.frameQ is not None:
             self.frameQ.append(frame)
+            self.cframeQ.append(cropped)
         else:
             self.frame = frame
+            self.cropped = cropped
 
     def readFrames(self):
         while not self.stopped:
@@ -146,18 +149,19 @@ class ThreadedCapture:
             time.sleep(self.delay)
         self.capture.release()
 
-    def addFrame(self, frame):
+    def addFrame(self, frame, cropped):
         if self.frameQ is not None:
             self.frameQ.append(frame)
+            self.cframeQ.append(cropped)
 
     # returns the current frame
-    def getFrame(self) -> Union[np.ndarray, None]:
+    def getFrame(self) -> Union[Tuple[np.ndarray, np.ndarray], Tuple[None, None]]:
         if self.frameQ is not None:
             try:
-                return self.frameQ.popleft()
+                return self.frameQ.popleft(), self.cframeQ.popleft()
             except IndexError:
-                return None
-        return self.frame
+                return None, None
+        return self.frame, self.cropped
 
     # starts the capture thread
     def start(self) -> 'ThreadedCapture':
