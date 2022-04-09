@@ -23,6 +23,21 @@ class KinematicHardwareInterface:
         # TODO
         return 0
 
+    @staticmethod
+    def radians_to_pwm(rad: float) -> int:
+        # TODO
+        return 0
+
+    @staticmethod
+    def pwm_to_ms(pwm: int) -> float:
+        # TODO
+        return 0
+
+    @staticmethod
+    def pwm_to_radians(pwm: int) -> float:
+        # TODO
+        return 0
+
     # Will take robotData parameters and run them through the kinematic model
     # will return m/s for motors and angles in radians for servos
     def updateFromRobotData(self, robotData: Union[RobotData, None] = None) -> List[Union[float, int]]:
