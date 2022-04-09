@@ -56,7 +56,6 @@ def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, fea
     horizonLine = detectHorizonLine(image, show=show)
     filteredObjectBoundingBoxes = filterBoundingBoxesByHorizon(image, objectBoundingBoxes, horizonLine, show=show,
                                                                threadedDisplay=threadedDisplay)
-
     # # testing for kmeans
     # result_image, centers, labels = experimental.segmentImage(image, K=6, iterations=1, show=show,
     #                                                           threadedDisplay=threadedDisplay)

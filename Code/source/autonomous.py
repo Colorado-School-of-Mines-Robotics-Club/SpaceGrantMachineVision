@@ -9,7 +9,7 @@ import cv2
 from .logger import Logger, logArguments, logSystemInfo, logConfiguration
 from .cameras import fetchAndShowCameras, DisplayManager, CaptureManager
 from .features import computeMatchingPoints, getPointsFromKeypoints
-from .objectDetection import objectDetection
+from .objectDetection import objectDetection, experimental
 from .simulation import Map, Robot
 from .utilities import getAvgTimeArr, getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag,\
     handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag, Config, exceptions, jit_compile_all
@@ -83,6 +83,8 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
             # ===========================================================================================================
             # TODO
             # Fill in remainder of functionality
+            # stackedImage = experimental.combineImages(leftImage, im3d)
+            experimental.segmentImage(leftImage, im3d,  show=False, threadedDisplay=False)
 
             # # ===========================================================================================================
             # # redraws the map
