@@ -7,9 +7,6 @@ import cv2
 from numba import jit, njit, prange
 
 # Custom  imports
-from source.logger.Logger import Logger
-from source.utilities import exceptions
-from source.cameras import DisplayManager
 
 
 # performs the ratio test on a set of matched keypoints

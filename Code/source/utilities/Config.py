@@ -9,7 +9,6 @@ import cv2
 import numpy as np
 
 # Custom imports
-from source.logger.Logger import Logger
 
 
 class Config:
@@ -30,8 +29,13 @@ class Config:
     @classmethod
     def init(cls):
         try:
-            with open("config.json", 'r') as f:
-                cls.data = json.load(f)
+            try:
+                with open("config.json", 'r') as f:
+                    cls.data = json.load(f)
+            except FileNotFoundError:
+                os.chdir('..\\Code')
+                with open("config.json", 'r') as f:
+                    cls.data = json.load(f)
             cls.runParameters = cls.data['run_parameters']
             cls.loggingOptions = cls.data['logging_options']
             cls.iterationConstants = cls.data['iteration_constants']
@@ -84,7 +88,7 @@ class Config:
         return cls.objectDetectionParams
 
     @classmethod
-    def getSBGMParamsDict(cls) -> Dict:
+    def getSGBMParamsDict(cls) -> Dict:
         return cls.sgbmParams
 
     @classmethod

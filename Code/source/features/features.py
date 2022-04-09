@@ -7,10 +7,16 @@ import cv2
 from numba import jit
 
 # Custom  imports
-from source.logger.Logger import Logger
-from source.utilities import exceptions
-from source.cameras import DisplayManager
-from .advancedFeatures import adaptiveRatioTest, getAvgTranslationXY
+try:
+    from source.logger.Logger import Logger
+    from source.utilities import exceptions
+    from source.cameras import DisplayManager
+    from .advancedFeatures import adaptiveRatioTest, getAvgTranslationXY
+except ModuleNotFoundError:
+    from Code.source.logger.Logger import Logger
+    from Code.source.utilities import exceptions
+    from Code.source.cameras import DisplayManager
+    from .advancedFeatures import adaptiveRatioTest, getAvgTranslationXY
 
 
 # function that given to images computes their features
@@ -95,8 +101,8 @@ def computeMatchingPoints(prevImg: np.ndarray, currImg: np.ndarray, featureDetec
 
 
 def compile_features() -> None:
-    dummy_image = cv2.imread("../Data/Calibration/LeftCaptures/0.png")
-    dummy_image_2 = cv2.imread("../Data/Calibration/RightCaptures/0.png")
+    dummy_image = cv2.imread("../Data/Calibration/bottermellon/LeftCaptures/0.png")
+    dummy_image_2 = cv2.imread("../Data/Calibration/bottermellon/RightCaptures/0.png")
     # defining opencv objects
     # orb feature detector object
     orb = cv2.ORB_create()

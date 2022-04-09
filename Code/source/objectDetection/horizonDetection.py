@@ -11,9 +11,14 @@ import cv2
 from numba import jit, njit
 
 # Custom  imports
-from source.logger.Logger import Logger
-from source.utilities import exceptions, boundingBoxes
-from source.utilities.boundingBoxes import drawBoundingBoxes, cv2RectToNpBoxes
+try:
+    from source.logger.Logger import Logger
+    from source.utilities import exceptions, boundingBoxes
+    from source.utilities.boundingBoxes import drawBoundingBoxes, cv2RectToNpBoxes
+except ModuleNotFoundError:
+    from Code.source.logger.Logger import Logger
+    from Code.source.utilities import exceptions, boundingBoxes
+    from Code.source.utilities.boundingBoxes import drawBoundingBoxes, cv2RectToNpBoxes
 
 
 def detectHorizonLine(image, show=False):
@@ -94,7 +99,7 @@ def filterBoundingBoxesByHorizon(image, boundingBoxes, horizonLine, show=False, 
             continue
         filteredBoundingBoxes.append(bbox)
     if show:
-        drawBoundingBoxes(image, filteredBoundingBoxes, show=True, windowName="Filtered bounding boxes")
+        drawBoundingBoxes(image, filteredBoundingBoxes, show=True, threadedDisplay=threadedDisplay, windowName="Filtered bounding boxes")
     return filteredBoundingBoxes
 
 

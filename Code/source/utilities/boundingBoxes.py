@@ -8,9 +8,14 @@ from numba import jit, njit
 from numba.typed import List as tList
 
 # Custom  imports
-from source.logger.Logger import Logger
-from source.utilities import exceptions
-from source.cameras import DisplayManager
+try:
+    from source.logger.Logger import Logger
+    from source.utilities import exceptions
+    from source.cameras import DisplayManager
+except ModuleNotFoundError:
+    from Code.source.logger.Logger import Logger
+    from Code.source.utilities import exceptions
+    from Code.source.cameras import DisplayManager
 
 
 # image is a cv2 image, which is a numpy array
@@ -19,7 +24,7 @@ from source.cameras import DisplayManager
 #        where x1, y1, x2, y2 are any number
 # the number type gets sanitized upon boundingBox load coordinates
 def drawBoundingBoxes(rawImage: np.ndarray, boundingBoxes: List, color=(0, 0, 255), thickness=2,
-                      windowName="Bounding Boxes", show=False, threadedDisplay=True) -> np.ndarray:
+                      windowName="Bounding Boxes", show=False, threadedDisplay=False) -> np.ndarray:
     image = np.copy(rawImage)
     for box in boundingBoxes:
         [p1, _, p3, _] = getBoundingBoxPoints(box)

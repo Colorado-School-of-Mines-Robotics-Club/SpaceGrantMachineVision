@@ -14,13 +14,13 @@ class RobotData:
     bl_height: float
     br_height: float
 
-    def incrementAllHeights(self, delta):
+    def incrementAllHeights(self, delta: float) -> None:
         self.fl_height += delta
         self.fr_height += delta
         self.bl_height += delta
         self.br_height += delta
 
-    def roundData(self):
+    def roundData(self) -> None:
         self.linear = round(self.linear, 1)
         self.angular = round(self.angular, 1)
         self.fl_height = round(self.fl_height, 1)

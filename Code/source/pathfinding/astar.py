@@ -9,8 +9,6 @@ import cv2
 import numpy as np
 
 # Custom imports
-from source.logger.Logger import Logger
-from source.utilities.Config import Config
 
 
 '''
@@ -22,7 +20,6 @@ def euclidean_heuristic(start, end):
     [x1, y1] = start
     [x2, y2] = end
     return ((x2-x1)**2 + (y2-y1)**2)**0.5
-
 
 '''
 AStar Algorithm
@@ -38,8 +35,8 @@ Source: https://www.analytics-link.com/post/2018/09/14/applying-the-a-path-findi
 '''
 
 
-def astar(array, start, goal, heuristic: Callable):
-    neighbors = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+def astar(array, start, goal, heuristic: Callable = euclidean_heuristic, weight = 2, passable = None):
+    neighbors = [(0, 1), (0, -1), (1, 0), (-1, 0)]
     close_set = set()
     came_from = {}
     gscore = {start: 0}
@@ -57,17 +54,25 @@ def astar(array, start, goal, heuristic: Callable):
                 data.append(current)
                 current = came_from[current]
 
+            data.append(start)
+
+            data = data[::-1]
+
             return np.array(data)
 
         close_set.add(current)
 
         for i, j in neighbors:
             neighbor = current[0] + i, current[1] + j
-            tentative_g_score = gscore[current] + heuristic(current, neighbor)
+            tentative_g_score = gscore[current] + weight*heuristic(current, neighbor)
 
             if 0 <= neighbor[0] < array.shape[0]:
                 if 0 <= neighbor[1] < array.shape[1]:
-                    if array[neighbor[0]][neighbor[1]] == 1:
+                    if passable is not None and int(passable[neighbor[0]][neighbor[1]]) == 0:
+                        tentative_g_score += array[neighbor[0]][neighbor[1]]
+                    elif passable is None:
+                        tentative_g_score += array[neighbor[0]][neighbor[1]]
+                    else:
                         continue
 
                 else:
@@ -83,7 +88,7 @@ def astar(array, start, goal, heuristic: Callable):
             if tentative_g_score < gscore.get(neighbor, 0) or neighbor not in [i[1]for i in oheap]:
                 came_from[neighbor] = current
                 gscore[neighbor] = tentative_g_score
-                fscore[neighbor] = tentative_g_score + heuristic(neighbor, goal)
+                fscore[neighbor] = tentative_g_score + weight*heuristic(neighbor, goal)
                 heapq.heappush(oheap, (fscore[neighbor], neighbor))
 
     return False
