@@ -65,10 +65,10 @@ def segmentImage(image: np.ndarray, image3d=None, method='minibatchkmeans', K=3,
     res = res.reshape(combinedImage.shape)
 
     # resplit
-    img = np.split(res, 2)[0:3]
-    img3d = np.split(res, 2)[3:-1]
+    img = np.split(res, 2, axis=2)[0]
+    img3d = np.split(res, 2, axis=2)[1]
 
-    result_image = cv2.cvtColor(img.reshape(combinedImage.shape), cv2.COLOR_HSV2BGR)
+    result_image = cv2.cvtColor(img, cv2.COLOR_HSV2BGR)
 
     if downscale:
         width = int(image.shape[1])

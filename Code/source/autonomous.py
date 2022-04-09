@@ -84,7 +84,7 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
             # TODO
             # Fill in remainder of functionality
             # stackedImage = experimental.combineImages(leftImage, im3d)
-            experimental.segmentImage(leftImage, im3d,  show=False, threadedDisplay=False)
+            experimental.segmentImage(leftImage, im3d,  show=True, threadedDisplay=True)
 
             # # ===========================================================================================================
             # # redraws the map
