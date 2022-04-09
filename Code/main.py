@@ -5,12 +5,12 @@ import time
 # Additional libs
 import cv2
 import numpy as np
-from openVO import StereoCamera, StereoOdometer
+from openVO import StereoCamera
 
 # Custom imports
 from source.logger import Logger, logArguments, logSystemInfo, logConfiguration
 from source.cameras import fetchCameraImages, initCameras, closeCameras, DisplayManager, CaptureManager, loadCalibrationFiles
-from source.visualOdometry import updateOdometer
+from source.visualOdometry import makeOdometer, updateOdometer
 from source.features import computeMatchingPoints, getPointsFromKeypoints, getAvgTranslationXY
 from source.objectDetection import objectDetection
 from source.simulation import Map, Robot
@@ -101,8 +101,6 @@ if __name__ == "__main__":
     # to read a frame manually or just add a config file
     frameSize= (640, 480)
     stereo = StereoCamera(leftK, leftDistC, rightK, rightDistC, rectParams, sgbmPs, frameSize)
-    # Initialize openVO.StereoOdometer for use in updateOdometer
-    odometer = StereoOdometer(stereo)
 
     try:
         initCameras(leftCam, rightCam, stereo, setExposure=cameraParams['setExposure'])
@@ -121,7 +119,8 @@ if __name__ == "__main__":
 
     # multiprocessing, defines payloads to be run in parallel
     payloads = list()
-    payloads.append(("updateOdometer", updateOdometer, (not HEADLESS, THREADED_DISPLAY), lambda args: (odometer,), (), None))
+    payloads.append(("updateOdometer", updateOdometer, (not HEADLESS, THREADED_DISPLAY), makeOdometer,
+                     (leftK, leftDistC, rightK, rightDistC, rectParams, sgbmPs, frameSize), None))
     payloads.append(("hardware", PThardwareCommand, (), createHardwareManager, (), None))
     PayloadManager.initStart(payloads)
 

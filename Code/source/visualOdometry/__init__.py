@@ -1,1 +1,1 @@
-from .update import updateOdometer
+from .update import makeOdometer, updateOdometer
