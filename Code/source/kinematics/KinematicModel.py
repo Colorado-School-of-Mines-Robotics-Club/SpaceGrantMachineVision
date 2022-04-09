@@ -1,15 +1,16 @@
-from .WheelAssembly import WheelAssembly
-from elements.KinematicObject import KinematicObject
-from elements.RigidChassis import RigidChassis
 from typing import Tuple, List, Union
 
 try:
+    from .WheelAssembly import WheelAssembly
+    from elements.RigidChassis import RigidChassis
     from source.utilities import Config
 except ModuleNotFoundError:
+    from .WheelAssembly import WheelAssembly
+    from elements.RigidChassis import RigidChassis
     from Code.source.utilities import Config
 
 
-class BottermelonKinematics:
+class KinematicModel:
     def __init__(self):
         # read data in from the config file
         Config.init()

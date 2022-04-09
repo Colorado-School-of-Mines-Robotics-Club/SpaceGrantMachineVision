@@ -1,6 +1,6 @@
 from typing import Union, Tuple
 from math import pi
-from KinematicObject import KinematicObject
+from .KinematicObject import KinematicObject
 
 
 class Wheel(KinematicObject):

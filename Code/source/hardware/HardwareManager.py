@@ -17,9 +17,17 @@ except ImportError:
     pass
 
 # Custom imports
-from source.logger.Logger import Logger
-from .PIDController import PIDController
-from source.utilities.Config import Config
+try:
+    from source.logger.Logger import Logger
+    from .PIDController import PIDController
+    from source.utilities.Config import Config
+except ModuleNotFoundError as e:
+    try:
+        from Code.source.logger.Logger import Logger
+        from .PIDController import PIDController
+        from Code.source.utilities.Config import Config
+    except ModuleNotFoundError:
+        raise e
 
 
 class HardwareManager:

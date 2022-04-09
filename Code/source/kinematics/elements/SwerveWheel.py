@@ -1,5 +1,5 @@
 from typing import Union, Tuple
-from Wheel import Wheel
+from .Wheel import Wheel
 import math
 
 

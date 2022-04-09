@@ -1,0 +1,3 @@
+from Code.source.hardware.KinematicHardwareInterface import KinematicHardwareInterface
+
+KinematicHardwareInterface()

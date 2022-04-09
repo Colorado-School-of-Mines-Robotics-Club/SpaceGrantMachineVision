@@ -1,5 +1,5 @@
 from typing import Union, Tuple
-from KinematicObject import KinematicObject
+from .KinematicObject import KinematicObject
 import math
 
 
@@ -43,3 +43,8 @@ class ParallelogramFourBar(KinematicObject):
 
     def getPos(self) -> Tuple[float, float]:
         return self.offsetWidth, self.offsetHeight
+
+    @staticmethod
+    def staticInverseUpdate(length: float, targetHeight: float, maxAngle: float, minAngle: float):
+        targetAngle = super().constrain(math.asin(targetHeight / length), minAngle, maxAngle)
+        return targetAngle
