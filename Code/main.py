@@ -29,11 +29,6 @@ if __name__ == "__main__":
     # sets global flags from boolean arguments
     HEADLESS, CLEAR_LOG, RECORD, THREADED_DISPLAY, REMOTE_CONTROL = getArgFlags(argDict)
 
-    if REMOTE_CONTROL:
-        remoteControl(60.0)
-        sys.exit(0)
-
-    jit_compile_all(verbose=True)
     # load the configuration file
     Config.init()
     runParameters = Config.getRunParameters()
@@ -74,6 +69,12 @@ if __name__ == "__main__":
         logArguments(Logger, argDict)
         # log all configuration details
         logConfiguration(Logger)
+    
+    if REMOTE_CONTROL:
+        remoteControl(60.0)
+        sys.exit(0)
+
+    jit_compile_all(verbose=True)
 
     # Global constants for any hyper parameters for the code or physical constants
     # Define any global constants
