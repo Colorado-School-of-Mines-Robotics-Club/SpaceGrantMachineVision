@@ -19,6 +19,7 @@ class SwerveWheel(Wheel):
         self.maxA = swerveMaxAngle
         self.minA = swerveMinAngle
         self.posOffset = swerveOffset
+        swerveAngle = 0.0 if swerveAngle is None else swerveAngle
         rotationZ = super().constrain(swerveAngle, self.minA, self.maxA) if (swerveAngle is not None) else 0.0
         x = math.sin(swerveAngle) * self.posOffset
         y = math.cos(swerveAngle) * self.posOffset
@@ -43,4 +44,4 @@ class SwerveWheel(Wheel):
             swerveAngle = super().constrain(swerveAngle, self.minA, self.maxA)
             x = math.sin(swerveAngle) * self.posOffset
             y = math.cos(swerveAngle) * self.posOffset
-            super().setPose(angles=(0.0, super().angles[1], swerveAngle), position=(x, y, 0.0))
+            super().setPose(angles=(0.0, self.angles[1], swerveAngle), position=(x, y, 0.0))

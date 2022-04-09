@@ -2,11 +2,11 @@ from typing import Tuple, List, Union
 
 try:
     from .WheelAssembly import WheelAssembly
-    from elements.RigidChassis import RigidChassis
+    from .elements.RigidChassis import RigidChassis
     from source.utilities import Config
 except ModuleNotFoundError:
     from .WheelAssembly import WheelAssembly
-    from elements.RigidChassis import RigidChassis
+    from .elements.RigidChassis import RigidChassis
     from Code.source.utilities import Config
 
 
@@ -64,11 +64,17 @@ class KinematicModel:
                                          swerveMinAngle=wheelDim['maxTheta'])
         self.wheels = (front_left_wheel, front_right_wheel, back_left_wheel, back_right_wheel)
 
-    def update(self, wheelVelocities: List[Union[float, None]], swerveAngles: List[Union[float, None]],
-               suspensionHeightTargets: List[Union[float, None]]):
+    # suspensionHeightTargets units are in centimeters and then get converted to meters
+    def update(self, wheelVelocities: List[Union[float, None]] = None, swerveAngles: List[Union[float, None]] = None,
+               suspensionHeightTargets: List[Union[float, None]] = None):
+        if suspensionHeightTargets is not None:
+            suspensionHeightTargets = [target / 100.0 for target in suspensionHeightTargets]
         for idx, wheel in enumerate(self.wheels):
-            wheel.update(swerveAngle=swerveAngles[idx], wheelVelocity=wheelVelocities[idx],
-                         suspensionTarget=suspensionHeightTargets[idx])
+            input1 = swerveAngles[idx] if swerveAngles is not None else None
+            input2 = wheelVelocities[idx] if wheelVelocities is not None else None
+            input3 = suspensionHeightTargets[idx] if suspensionHeightTargets is not None else None
+            wheel.update(swerveAngle=input1, wheelVelocity=input2,
+                         suspensionTarget=input3)
         # TODO, not urgent
         # make a determination of the velocity from wheels and/or other math.
         self.chassis.update()
