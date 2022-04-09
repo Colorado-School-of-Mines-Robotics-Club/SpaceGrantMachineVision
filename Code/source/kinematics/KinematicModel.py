@@ -1,4 +1,5 @@
 from typing import Tuple, List, Union
+import math
 
 try:
     from .WheelAssembly import WheelAssembly
@@ -28,40 +29,40 @@ class KinematicModel:
         wheelDim = dimensions['wheel']
         front_left_wheel = WheelAssembly(susHeight=suspensionDim['height'] / 1000.0,
                                          susLength=suspensionDim['length'] / 1000.0,
-                                         susMaxAngle=suspensionDim['maxTheta'],
-                                         susMinAngle=suspensionDim['minTheta'],
+                                         susMaxAngle=suspensionDim['maxTheta'] * (math.pi / 180.0),
+                                         susMinAngle=suspensionDim['minTheta'] * (math.pi / 180.0),
                                          wheelRadius=wheelDim['radius'] / 1000.0,
-                                         wheelThickness=wheelDim['thickness'],
-                                         swerveOffset=wheelDim['offset'],
-                                         swerveMaxAngle=wheelDim['minTheta'],
-                                         swerveMinAngle=wheelDim['maxTheta'])
+                                         wheelThickness=wheelDim['thickness'] / 1000.0,
+                                         swerveOffset=wheelDim['offset'] / 1000.0,
+                                         swerveMaxAngle=wheelDim['minTheta'] * (math.pi / 180.0),
+                                         swerveMinAngle=wheelDim['maxTheta'] * (math.pi / 180.0))
         front_right_wheel = WheelAssembly(susHeight=suspensionDim['height'] / 1000.0,
                                           susLength=suspensionDim['length'] / 1000.0,
-                                          susMaxAngle=suspensionDim['maxTheta'],
-                                          susMinAngle=suspensionDim['minTheta'],
+                                          susMaxAngle=suspensionDim['maxTheta'] * (math.pi / 180.0),
+                                          susMinAngle=suspensionDim['minTheta'] * (math.pi / 180.0),
                                           wheelRadius=wheelDim['radius'] / 1000.0,
-                                          wheelThickness=wheelDim['thickness'],
-                                          swerveOffset=wheelDim['offset'],
-                                          swerveMaxAngle=wheelDim['maxTheta'],
-                                          swerveMinAngle=wheelDim['minTheta'])
+                                          wheelThickness=wheelDim['thickness'] / 1000.0,
+                                          swerveOffset=wheelDim['offset'] / 1000.0,
+                                          swerveMaxAngle=wheelDim['maxTheta'] * (math.pi / 180.0),
+                                          swerveMinAngle=wheelDim['minTheta'] * (math.pi / 180.0))
         back_left_wheel = WheelAssembly(susHeight=suspensionDim['height'] / 1000.0,
                                         susLength=suspensionDim['length'] / 1000.0,
-                                        susMaxAngle=suspensionDim['maxTheta'],
-                                        susMinAngle=suspensionDim['minTheta'],
+                                        susMaxAngle=suspensionDim['maxTheta'] * (math.pi / 180.0),
+                                        susMinAngle=suspensionDim['minTheta'] * (math.pi / 180.0),
                                         wheelRadius=wheelDim['radius'] / 1000.0,
-                                        wheelThickness=wheelDim['thickness'],
-                                        swerveOffset=wheelDim['offset'],
-                                        swerveMaxAngle=wheelDim['maxTheta'],
-                                        swerveMinAngle=wheelDim['minTheta'])
+                                        wheelThickness=wheelDim['thickness'] / 1000.0,
+                                        swerveOffset=wheelDim['offset'] / 1000.0,
+                                        swerveMaxAngle=wheelDim['maxTheta'] * (math.pi / 180.0),
+                                        swerveMinAngle=wheelDim['minTheta'] * (math.pi / 180.0))
         back_right_wheel = WheelAssembly(susHeight=suspensionDim['height'] / 1000.0,
                                          susLength=suspensionDim['length'] / 1000.0,
-                                         susMaxAngle=suspensionDim['maxTheta'],
-                                         susMinAngle=suspensionDim['minTheta'],
+                                         susMaxAngle=suspensionDim['maxTheta'] * (math.pi / 180.0),
+                                         susMinAngle=suspensionDim['minTheta'] * (math.pi / 180.0),
                                          wheelRadius=wheelDim['radius'] / 1000.0,
-                                         wheelThickness=wheelDim['thickness'],
-                                         swerveOffset=wheelDim['offset'],
-                                         swerveMaxAngle=wheelDim['minTheta'],
-                                         swerveMinAngle=wheelDim['maxTheta'])
+                                         wheelThickness=wheelDim['thickness'] / 1000.0,
+                                         swerveOffset=wheelDim['offset'] / 1000.0,
+                                         swerveMaxAngle=wheelDim['minTheta'] * (math.pi / 180.0),
+                                         swerveMinAngle=wheelDim['maxTheta'] * (math.pi / 180.0))
         self.wheels = (front_left_wheel, front_right_wheel, back_left_wheel, back_right_wheel)
 
     # suspensionHeightTargets units are in centimeters and then get converted to meters
