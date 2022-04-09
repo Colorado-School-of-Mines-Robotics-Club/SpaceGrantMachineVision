@@ -79,3 +79,12 @@ class KinematicModel:
         # TODO, not urgent
         # make a determination of the velocity from wheels and/or other math.
         self.chassis.update()
+
+    def getWheelVelocities(self) -> List[float]:
+        return [wheel.wheel.vel for wheel in self.wheels]
+
+    def getSwerveWheelAngles(self) -> List[float]:
+        return [wheel.wheel.getSwerveAngle() for wheel in self.wheels]
+
+    def getSuspensionAngles(self) -> List[float]:
+        return [wheel.suspension.getAngle(radians=True) for wheel in self.wheels]
