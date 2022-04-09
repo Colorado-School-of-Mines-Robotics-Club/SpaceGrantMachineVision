@@ -53,6 +53,7 @@ def segmentImage(image: np.ndarray, image3d=None, method='minibatchkmeans', K=3,
 
     img = cv2.cvtColor(resized_image, cv2.COLOR_BGR2HSV)
     combinedImage = np.dstack([img, resized_image_3d])
+    combinedImage = np.nan_to_num(combinedImage, neginf=0.0, posinf=0.0)
 
     _, _, channels = combinedImage.shape
     vectorized = np.float32(combinedImage.reshape((-1, channels)))
