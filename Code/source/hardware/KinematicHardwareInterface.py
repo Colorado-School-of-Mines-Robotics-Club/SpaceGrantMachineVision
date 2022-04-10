@@ -76,8 +76,8 @@ class KinematicHardwareInterface:
         output_data = [0.0 for i in range(total_length)]
         for idx, ws, wa, sa in enumerate(zip(wheel_speeds, swerve_wheel_angles, suspension_angles)):
             output_data[idx] = ws
-            output_data[idx + 4] = wa
-            output_data[idx + 5] = sa
+            output_data[2 * idx + 4] = wa
+            output_data[2 * idx + 5] = sa
         self.motorServo = output_data
         self.command = self.motorServo + self.ledStates
 
