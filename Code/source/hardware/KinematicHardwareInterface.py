@@ -81,6 +81,10 @@ class KinematicHardwareInterface:
         self.motorServo = output_data
         self.command = self.motorServo + self.ledStates
 
+    def updateFromState(self) -> None:
+        # TODO
+        pass
+
     # takes a List of length 4 with true false states
     def updateLEDs(self, ledStates: List[bool]):
         assert len(ledStates) == 4
@@ -93,6 +97,7 @@ class KinematicHardwareInterface:
         servo_pwms = [self.radians_to_pwm(com) for com in self.command[4:-1]]
         led_pwms = [self.bool_to_pwm(com) for com in self.ledStates]
         return motor_pwms + servo_pwms + led_pwms
+
 
 # pwms
 #   'linear': pwm to assign all motors
