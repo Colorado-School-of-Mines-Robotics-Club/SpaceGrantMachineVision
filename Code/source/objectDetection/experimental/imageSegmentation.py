@@ -36,7 +36,7 @@ def segmentImage(image: np.ndarray, image3d=None, method='minibatchkmeans', K=3,
     }
     assert downscaleMethod in resize_method_dict
 
-    if image3d.any() != None:
+    if image3d is not None:
         resized_image_3d = cv2.GaussianBlur(image3d, (3, 3), cv2.BORDER_DEFAULT)
         if downscale:
             width = int(image3d.shape[1] * downscaleRatio)
@@ -52,7 +52,10 @@ def segmentImage(image: np.ndarray, image3d=None, method='minibatchkmeans', K=3,
         resized_image = cv2.resize(image, dim, resize_method_dict[downscaleMethod])
 
     img = cv2.cvtColor(resized_image, cv2.COLOR_BGR2HSV)
-    combinedImage = np.dstack([img, resized_image_3d])
+    if image3d is not None:
+        combinedImage = np.dstack([img, resized_image_3d])
+    else:
+        combinedImage = img
     combinedImage = np.nan_to_num(combinedImage, neginf=0.0, posinf=0.0)
 
     _, _, channels = combinedImage.shape
@@ -65,8 +68,11 @@ def segmentImage(image: np.ndarray, image3d=None, method='minibatchkmeans', K=3,
     res = res.reshape(combinedImage.shape)
 
     # resplit
-    img = np.split(res, 2, axis=2)[0]
-    img3d = np.split(res, 2, axis=2)[1]
+    if image3d is not None:
+        img = np.split(res, 2, axis=2)[0]
+        img3d = np.split(res, 2, axis=2)[1]
+    else:
+        img = res
 
     result_image = cv2.cvtColor(img, cv2.COLOR_HSV2BGR)
 
