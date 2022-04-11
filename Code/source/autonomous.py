@@ -36,6 +36,9 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
             prevLeftMatches = leftMatches
             prevObjectBoundingBoxes = objectBoundingBoxes
 
+            # acquire previous segmented image
+            segmentedImage = PayloadManager.getOutput('clustering', timeout=0.001)  # wait ~0, most likely empty
+
             cameraStartTime = time.perf_counter()
             # Satisfies that read images stage of control flow
             # Uncropped Images are needed for computing disparity; everything else should use
@@ -77,6 +80,7 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
             im3d = PayloadManager.getOutput('updateOdometer')
             odometryFTs.append(time.perf_counter() - odometryStartTime)
 
+            PayloadManager.addInputs('clustering', [leftImage, im3d])
 
             # all additional functionality should be present within the === comments
             # additional data that needs to be stored for each iteration should be handled above
@@ -84,7 +88,7 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
             # TODO
             # Fill in remainder of functionality
             # stackedImage = experimental.combineImages(leftImage, im3d)
-            experimental.segmentImage(leftImage, K=5, iterations=1, show=not HEADLESS, threadedDisplay=THREADED_DISPLAY)
+            # experimental.segmentImage(leftImage, im3d, K=5, iterations=1, show=not HEADLESS, threadedDisplay=THREADED_DISPLAY)
 
             # # ===========================================================================================================
             # # redraws the map

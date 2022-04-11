@@ -20,9 +20,12 @@ class PayloadProcess:
 
     def run(self, inputQ, outputQ, actionQ):
         # build the static arguments
-        staticObjects = self.staticObjBuilder(self.staticObjBuilderArgs)
         qPipe = QueuePipe(inputQ, outputQ)
-        targetArgs = (qPipe,) + tuple(staticObjects) + self.args
+        if self.staticObjBuilder is not None:
+            staticObjects = self.staticObjBuilder(self.staticObjBuilderArgs)
+            targetArgs = (qPipe,) + tuple(staticObjects) + self.args
+        else:
+            targetArgs = (qPipe,) + self.args
         # define signal catches
         self.handleSignals()
         # run the loop for the target function
@@ -92,5 +95,5 @@ class PayloadProcess:
     def getOutputs(self) -> List[Any]:
         return self.queue.getOutputs()
 
-    def getOutput(self) -> Any:
-        return self.queue.getOutput()
+    def getOutput(self, timeout: Union[float, None] = None) -> Any:
+        return self.queue.getOutput(timeout=timeout)

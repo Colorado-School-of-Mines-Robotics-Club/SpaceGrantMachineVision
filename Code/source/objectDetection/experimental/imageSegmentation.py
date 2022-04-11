@@ -13,8 +13,10 @@ try:
 except ModuleNotFoundError:
     from Code.source.cameras.DisplayManager import DisplayManager
 
+
 def combineImages(image1: np.ndarray, image2: np.ndarray, ):
     return np.dstack([image1, image2])
+
 
 # https://www.kdnuggets.com/2019/08/introduction-image-segmentation-k-means-clustering.html
 def segmentImage(image: np.ndarray, image3d=None, method='minibatchkmeans', K=3, iterations=3, downscale=True,
@@ -88,5 +90,15 @@ def segmentImage(image: np.ndarray, image3d=None, method='minibatchkmeans', K=3,
             DisplayManager.show(f"segmentColors using {method}", displayImg)
         else:
             cv2.imshow(f"segmentColors using {method}", displayImg)
+
+    return result_image, centers, labels
+
+
+def runClustering(args: Tuple) -> Tuple:
+    queue, show, td = args
+    colorImage = queue.getInput()
+    image3d = queue.getInput()
+
+    result_image, centers, labels = segmentImage(colorImage, image3d, show=show, threadedDisplay=td)
 
     return result_image, centers, labels

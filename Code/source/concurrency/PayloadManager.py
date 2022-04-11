@@ -107,5 +107,5 @@ class PayloadManager:
         return cls.payloads[name].getOutputs()
 
     @classmethod
-    def getOutput(cls, name: str) -> Any:
-        return cls.payloads[name].getOutput()
+    def getOutput(cls, name: str, timeout: Union[float, None] = None) -> Any:
+        return cls.payloads[name].getOutput(timeout=timeout)

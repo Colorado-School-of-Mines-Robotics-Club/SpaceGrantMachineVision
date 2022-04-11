@@ -12,7 +12,7 @@ from source.logger import Logger, logArguments, logSystemInfo, logConfiguration
 from source.cameras import fetchCameraImages, initCameras, closeCameras, DisplayManager, CaptureManager, loadCalibrationFiles
 from source.visualOdometry import makeOdometer, updateOdometer
 from source.features import computeMatchingPoints, getPointsFromKeypoints, getAvgTranslationXY
-from source.objectDetection import objectDetection
+from source.objectDetection import objectDetection, experimental
 from source.simulation import Map, Robot
 from source.utilities import getAvgTimeArr, getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag,\
     handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag, Config, exceptions, jit_compile_all
@@ -122,6 +122,7 @@ if __name__ == "__main__":
     payloads.append(("updateOdometer", updateOdometer, (not HEADLESS, THREADED_DISPLAY), makeOdometer,
                      (leftK, leftDistC, rightK, rightDistC, rectParams, sgbmPs, frameSize), None))
     payloads.append(("hardware", PThardwareCommand, (), createHardwareManager, (), None))
+    payloads.append(("clustering", experimental.runClustering, (not HEADLESS, THREADED_DISPLAY), None, None, None))
     PayloadManager.initStart(payloads)
 
     # being primary loop

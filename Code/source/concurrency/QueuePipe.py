@@ -78,9 +78,9 @@ class QueuePipe:
         return self.getFromQueue(output=True)
 
     # gets the first item from the output queue
-    def getOutput(self) -> Any:
+    def getOutput(self, timeout: Union[float, None] = None) -> Any:
         try:
-            item = self.outputQ.get(timeout=self.timeout)
+            item = self.outputQ.get(timeout=self.timeout if timeout is None else timeout)
             self.currentOutputs -= 1
             return item
         except queue.Empty:
