@@ -73,6 +73,7 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
             objectDectFTs.append(time.perf_counter() - objectDectStartTime)
 
             # run astar pathfinding
+            # TODO
 
             odometryStartTime = time.perf_counter()
             currentPose = PayloadManager.getOutput('updateOdometer')
