@@ -30,7 +30,7 @@ class SwerveWheel(Wheel):
                          angularVelocity=angularVelocity, angularAcceleration=angularAcceleration)
 
     def getSwerveAngle(self) -> float:
-        return super().angles[2]
+        return self.angles[2]
 
     def update(self, swerveAngle: Union[float, None] = None, wheelAngularVelocity: Union[float, None] = None,
                wheelAngularAcceleration: Union[float, None] = None,

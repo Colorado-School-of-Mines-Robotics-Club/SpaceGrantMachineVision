@@ -75,7 +75,8 @@ class KinematicHardwareInterface:
 
         total_length = len(wheel_speeds) + len(swerve_wheel_angles) + len(suspension_angles)
         output_data = [0.0 for i in range(total_length)]
-        for idx, ws, wa, sa in enumerate(zip(wheel_speeds, swerve_wheel_angles, suspension_angles)):
+        for idx, data in enumerate(zip(wheel_speeds, swerve_wheel_angles, suspension_angles)):
+            ws, wa, sa = data
             output_data[idx] = ws
             output_data[2 * idx + 4] = wa
             output_data[2 * idx + 5] = sa
