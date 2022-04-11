@@ -33,7 +33,7 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
             prevLeftPts = leftPts
             prevLeftKp = leftKp
             prevLeftDesc = leftDesc
-            prevLeftMatches= leftMatches
+            prevLeftMatches = leftMatches
             prevObjectBoundingBoxes = objectBoundingBoxes
 
             cameraStartTime = time.perf_counter()

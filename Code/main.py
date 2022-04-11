@@ -99,7 +99,7 @@ if __name__ == "__main__":
     # Need to find image size without ThreadedCapture because we need it to init StereoCamera,
     # which is needed to init ThreadedCapture. Hard coding for now because I'm not sure if we want
     # to read a frame manually or just add a config file
-    frameSize= (640, 480)
+    frameSize = (640, 480)
     stereo = StereoCamera(leftK, leftDistC, rightK, rightDistC, rectParams, sgbmPs, frameSize)
 
     try:
