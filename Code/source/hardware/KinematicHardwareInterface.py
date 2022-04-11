@@ -14,14 +14,14 @@ except ModuleNotFoundError as e:
 
 
 class KinematicHardwareInterface:
-    def __init__(self, robotData: Union[RobotData, None] = None,
-                 ledStates: Union[List[bool, bool, bool, bool], None] = None) -> None:
+    def __init__(self, robotData: Union[RobotData, None] = None, ledStates: Union[List[bool], None] = None) -> None:
         self.kinematicModel = KinematicModel()
         self.robotData = RobotData(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
         if robotData is not None:
             self.robotData = robotData
         self.ledStates = [False, False, False, False]
         if ledStates is not None:
+            assert len(ledStates) == 4
             self.ledStates = ledStates
         self.motorServo = None
         self.command = None
@@ -87,7 +87,8 @@ class KinematicHardwareInterface:
         pass
 
     # takes a List of length 4 with true false states
-    def updateLEDs(self, ledStates: List[bool, bool, bool, bool]):
+    def updateLEDs(self, ledStates: List[bool]):
+        assert len(ledStates) == 4
         self.ledStates = ledStates
         self.command = self.motorServo + self.ledStates
 
