@@ -1,6 +1,6 @@
 from typing import Union
-from elements import SwerveWheel
-from Suspension import Suspension
+from .elements import SwerveWheel
+from .Suspension import Suspension
 
 
 class WheelAssembly:
