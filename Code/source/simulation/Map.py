@@ -20,7 +20,10 @@ class Map:
         self.grid = np.zeros((self.nodeLayout[0], self.nodeLayout[1], 3))
         self.DPerNode = float(D) / (self.nodeLayout[0])
 
-    def instruction_converter(self, route, compress=False):
+    def distancePathToActionPath(self, route, dpernode=None, compress=False) -> List:
+        if dpernode is not None:
+            self.DPerNode = dpernode
+
         operatives = []
         direction = 0
 
@@ -63,6 +66,10 @@ class Map:
             return compressed
         else:
             return operatives
+
+    def simplifyPathToArcs(self, path) -> List:
+        #TODO
+        pass
 
     # takes an optional color
     #       0 - blue

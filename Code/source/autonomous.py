@@ -17,7 +17,7 @@ from .concurrency import PayloadManager
 
 
 def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTolerance, iterationsToAverage, leftCam,
-               rightCam, leftWriter, rightWriter, orb, matcher, featureParams, objectDetectionParams):
+               rightCam, leftWriter, rightWriter, orb, matcher, featureParams, objectDetectionParams, worldMap):
     numTotalIterations, consecutiveErrors, iterationCounter, iterationTime = 0, 0, 0, 0
     iterationTimes, cameraFTs, featureFTs, objectDectFTs, odometryFTs = list(), list(), list(), list(), list()
     leftImage, rightImage, grayLeftImage = None, None, None
@@ -71,6 +71,8 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
                                                   simplifyFinalOutput=True, show=not HEADLESS,
                                                   threadedDisplay=THREADED_DISPLAY)
             objectDectFTs.append(time.perf_counter() - objectDectStartTime)
+
+            # run astar pathfinding
 
             odometryStartTime = time.perf_counter()
             currentPose = PayloadManager.getOutput('updateOdometer')

@@ -130,7 +130,8 @@ if __name__ == "__main__":
         try:
             Logger.log("Starting loop...")
             autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTolerance, iterationsToAverage,
-                       leftCam, rightCam, leftWriter, rightWriter, orb, matcher, featureParams, objectDetectionParams)
+                       leftCam, rightCam, leftWriter, rightWriter, orb, matcher, featureParams, objectDetectionParams,
+                       Map)
             Logger.log("Shutdown loop...")
             # sleep and then check for keyboardInterrupt will fully kill program
             time.sleep(1)
