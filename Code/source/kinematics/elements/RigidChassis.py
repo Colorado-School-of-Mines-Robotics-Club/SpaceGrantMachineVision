@@ -21,5 +21,6 @@ class RigidChassis(KinematicObject):
                angularAcceleration: Tuple[float, float, float] = (0.0, 0.0, 0.0)) -> None:
         super().update(velocity, angularVelocity, acceleration, angularAcceleration)
         # need to update the point in space based on the chassis position and rotation
-        for point in self.mountingPoints:
-            pass
+        if self.mountingPoints is not None:
+            for point in self.mountingPoints:
+                pass

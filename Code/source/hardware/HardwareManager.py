@@ -1,20 +1,52 @@
+# Built in python libs
 import threading
 from typing import List, Tuple, Union
 import time
-from .PIDController import PIDController
+
+# Additional libs
+import cv2
+import numpy as np
 
 try:
     import RPi.GPIO as GPIO
     from smbus2 import *
+    from serial import Serial
 except ModuleNotFoundError:
     pass
 except ImportError:
     pass
 
+# Custom imports
+try:
+    from source.logger.Logger import Logger
+    from .PIDController import PIDController
+    from source.utilities.Config import Config
+except ModuleNotFoundError as e:
+    try:
+        from Code.source.logger.Logger import Logger
+        from .PIDController import PIDController
+        from Code.source.utilities.Config import Config
+    except ModuleNotFoundError:
+        raise e
+
 
 class HardwareManager:
     def __init__(self):
-        self.init_time = time.perf_counter()
+        Config.init()
+        electronics = Config.getElectronicPortsDict()
+        motors = electronics['motors']
+        servos = electronics['servos']
+        leds = electronics['leds']
+        sensors = electronics['sensors']
+        accelerometer = sensors['accelerometer']
+        xbee = sensors['xbee']
+        poll_rates = electronics['poll_rates']
+        utility = electronics['utility']
+        pwm_board = electronics['pwm_board']
+
+        # clicks per rev for motor
+        self.clicks_per_rev = utility['clicks_per_rev']
+        self.deg_per_click = 360.0 / self.clicks_per_rev
 
         # declare the bus
         self.bus = SMBus(1)
@@ -23,41 +55,58 @@ class HardwareManager:
         self.pid: PIDController = PIDController()
         self.targets = self.pid.get_targets()
         self.directions = [0, 0, 0, 0]
+
+        # TODO
+        # these need to be the actual PWMs that the servos and motors have last been read from their read methods
+        # Since those read methods do not nessecarily read PWMs the conversions can occur in time with the PWM
+        # controller thread. This alleviates the computational cost from the strictly reading threads.
+        # This allows more time waiting on the bus, for more accurate values.
+        # This ultimtely means a conversion function will need to be used inside of write_pwm_targets on the arguments
+        # to the self.pid.get_pwm method
         self.curr_motor_pwm = [0, 0, 0, 0]
         self.curr_servo_pwm = [0, 0, 0, 0, 0, 0, 0, 0]
+
+        # this can be assumed to always be the led_target
         self.curr_led_pwm = [0, 0, 0, 0]
         self.dt = 0.0
 
-        # the values used by the example
-        POWER_CTL = 0x2D
-        MEASURE = 0x08
-        BW_RATE = 0x2C
-        DATA_FORMAT = 0x31
+        self.pwm_address = pwm_board['address']
 
-        self.address = 0x00  # made to make following lines work
+        self.accelerometer_address = accelerometer['address']
+        self.accel_reg = accelerometer['register']
+        self.accel_poll_rate = poll_rates['accelerometer']
 
-        # enable measurement
-        self.bus.write_byte_data(self.address, POWER_CTL, MEASURE)
-        # set bandwith rate
-        rate_flag = 0x0B
-        self.bus.write_byte_data(self.address, BW_RATE, rate_flag)
-        # set the measurement range for 10-bit readings
-        range_flag = 0x00
-        value = self.bus.read_byte_data(self.address, DATA_FORMAT)
-        value &= ~0x0F
-        value |= range_flag
-        value |= 0x08
-        self.bus.write_byte_data(self.address, DATA_FORMAT, value)
+        self.xbee_com = xbee['com_port']
+        self.xbee_baudrate = xbee['baudrate']
+        self.xbee_poll_rate = poll_rates['xbee']
 
-        self.pwm_address = 0x00
-        self.accelerometer_address = 0x68
+        self.motor_pins = [motors['front_left']['enc_pins'], motors['front_right']['enc_pins'],
+                           motors['back_left']['enc_pins'], motors['back_right']['enc_pins']]
 
-        # TODO
-        # save time slice info to be returned with this????
+        self.servo_pins = [servos['front_left_wheel']['pin'], servos['front_left_suspension']['pin'],
+                           servos['front_right_wheel']['pin'], servos['front_right_suspension']['pin'],
+                           servos['back_left_wheel']['pin'], servos['back_left_suspension']['pin'],
+                           servos['back_right_wheel']['pin'], servos['back_right_suspension']['pin']]
+
+        self.dir_pins = [motors['front_left']['dir_pins'], motors['front_right']['dir_pins'],
+                         motors['back_left']['dir_pins'], motors['back_right']['dir_pins']]
+
+        self.motor_reg = [motors['front_left']['registers'], motors['front_right']['registers'],
+                          motors['back_left']['registers'], motors['back_right']['registers']]
+
+        self.servo_reg = [servos['front_left_wheel']['registers'], servos['front_left_suspension']['registers'],
+                          servos['front_right_wheel']['registers'], servos['front_right_suspension']['registers'],
+                          servos['back_left_wheel']['registers'], servos['back_left_suspension']['registers'],
+                          servos['back_right_wheel']['registers'], servos['back_right_suspension']['registers']]
+
+        self.led_reg = [leds['ones'], leds['two'], leds['three'], leds['four']]
+
         self.curr_motors = [0, 0, 0, 0]
+        self.init_time = time.perf_counter()
+        self.motor_time_slices: List[float] = [self.init_time, self.init_time, self.init_time, self.init_time]
 
-        self.curr_encoders = [[0,0], [0,0], [0,0], [0,0]]
-        self.past_encoders = [0,0,0,0]
+        self.curr_encoders = [[0, 0], [0, 0], [0, 0], [0, 0]]
+        self.past_encoders = [0, 0, 0, 0]
 
         self.curr_servos = [0, 0, 0, 0, 0, 0, 0, 0]
         self.past_servos = [0, 0, 0, 0, 0, 0, 0, 0]
@@ -68,26 +117,19 @@ class HardwareManager:
         self.curr_gyro = [0, 0, 0]
         self.past_gyro = [0, 0, 0]
 
-        self.motor_pins = [[11, 13], [15, 36], [38, 12], [16, 18]]
-        self.servo_pins = [19, 21, 23, 37, 22, 24, 26, 32]
-        self.dir_pins = [(29, 30), (31, 32), (33, 34), (35, 36)]
-
-        self.motor_reg = [[7,6,9,8],[11,10,13,12],[15,14,17,16],[19,18,21,20]]
-        self.servo_reg = [[23,22,25,24],[27,26,29,28],[31,30,33,32],[35,34,37,36],[39,38,41,40],[43,42,45,44],[47,46,49,48],[51,50,53,52]]
-        self.accel_reg = 0x3B
-        self.led_reg = [[55,54,57,56],[59,58,61,60],[63,62,65,64],[67,66,69,68]]
+        self.past_xbee = None
+        self.curr_xbee = None
 
         # Split encoder reading into 4 threads for speed and accuracy
-        self.motor_threads = [threading.Thread(target=self.read_motor, args=(i,)) for i in range(4)]
-
+        self.motor_threads = [threading.Thread(target=self.read_motor, args=(i,), daemon=True) for i in range(4)]
         # one thread for reading servo return data
-        self.servos = threading.Thread(target=self.read_servo)
-
+        self.servos = threading.Thread(target=self.read_servo, args=(), daemon=True)
         # one thread for reading accelerometer data
-        self.accel = threading.Thread(target=self.read_accelerometer, args=(240.0,))
-
+        self.accel = threading.Thread(target=self.read_accelerometer, args=(self.accel_poll_rate,), daemon=True)
         # thread for writing to the PWM breakout board at a certain HZ
-        self.pwm_thread = threading.Thread(target=self.write_pwm_targets, args=(None,))
+        self.pwm_thread = threading.Thread(target=self.write_pwm_targets, args=(None,), daemon=True)
+        # thread for reading the xbee
+        self.xbee_thread = threading.Thread(target=self.read_xbee, args=(self.xbee_poll_rate,), daemon=True)
 
     def start_threads(self) -> 'HardwareManager':
         # start all data collection threads
@@ -96,7 +138,7 @@ class HardwareManager:
         self.servos.start()
         self.accel.start()
         self.pwm_thread.start()
-
+        self.xbee_thread.start()
         return self
 
     def join_threads(self) -> 'HardwareManager':
@@ -106,7 +148,7 @@ class HardwareManager:
         self.servos.join()
         self.accel.join()
         self.pwm_thread.join()
-
+        self.xbee_thread.join()
         return self
 
     @staticmethod
@@ -127,6 +169,7 @@ class HardwareManager:
 
     def write_pwm_targets(self, hz: Union[float, None] = None):
         while True:
+            _, _, self.curr_led_pwm = self.pid.get_targets_split()  # assume leds are at target always
             self.write_pwm(self.pid.get_pwm(self.curr_motor_pwm + self.curr_servo_pwm + self.curr_led_pwm))
             if hz is not None:
                 time.sleep(1.0 / hz)
@@ -214,12 +257,12 @@ class HardwareManager:
             if self.curr_encoders[thread][0] == self.past_encoders[thread]:
                 if self.curr_encoders[thread][1] == self.curr_encoders[thread][0]:
                     # increment motor angle by angular distance of one click
-                    # TODO: find the angle per click and add this instead of keeping track of number of "clicks"
-                    self.curr_motors[thread] += 1
+                    self.curr_motors[thread] += self.deg_per_click
                 else:
-                    self.curr_motors[thread] -= 1
+                    self.curr_motors[thread] -= self.deg_per_click
 
             self.past_encoders[thread] = self.curr_encoders[thread][0]
+            self.motor_time_slices[thread] = time.perf_counter() - self.motor_time_slices[thread]
 
     def read_servo(self):
         # Read the new servo values, and store in curr_servo array. Save the original value to the past_servo
@@ -227,13 +270,16 @@ class HardwareManager:
             self.past_servos = self.curr_servos
             self.curr_servos = [GPIO.input(i) for i in range(8)]
 
-    def read_accelerometer(self, hz=240.0):
-        # setup the accelerometer
+    def init_accelerometer(self):
         self.bus.write_byte_data(self.accelerometer_address, 0x19, 7)  # set sample rate
         self.bus.write_byte_data(self.accelerometer_address, 0x6B, 1)  # set power management
         self.bus.write_byte_data(self.accelerometer_address, 0x1A, 0)  # Set config
         self.bus.write_byte_data(self.accelerometer_address, 0x1B, 24)  # set gyro config
         self.bus.write_byte_data(self.accelerometer_address, 0x38, 1)  # interrupt enable register
+
+    def read_accelerometer(self, hz=240.0):
+        # setup the accelerometer
+        self.init_accelerometer()
         # temp area to store data
         sized = [0, 0, 0, 0, 0, 0]
         # Read the new accelerometer values, and store in curr_accel array. Save the original value to the past_accel
@@ -252,6 +298,18 @@ class HardwareManager:
             self.curr_accel = sized[3:len(sized)]
 
             time.sleep(1.0 / hz)
+
+    def read_xbee(self, hz=240.0):
+        try:
+            ser = Serial(self.xbee_com, self.xbee_baudrate)
+
+            while True:
+                self.past_xbee.append(self.curr_xbee)
+                self.curr_xbee = ser.readline()
+
+                time.sleep(1.0 / hz)
+        except Exception:  # TODO well define the exception and test above code
+            pass
 
     ''' 
     Decided to break this method into several different methods

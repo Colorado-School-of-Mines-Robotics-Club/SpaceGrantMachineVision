@@ -1,6 +1,6 @@
 import time
 from typing import Tuple, Union
-from Updateable import Updateable
+from .Updateable import Updateable
 
 
 class KinematicObject(Updateable):

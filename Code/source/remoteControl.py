@@ -1,33 +1,15 @@
 from threading import Thread
 import time
 import sys
-from dataclasses import dataclass
 import keyboard
 
-
-@dataclass
-class RobotData:
-    linear: float
-    angular: float
-    fl_height: float
-    fr_height: float
-    bl_height: float
-    br_height: float
-
-    def incrementAllHeights(self, delta: float) -> None:
-        self.fl_height += delta
-        self.fr_height += delta
-        self.bl_height += delta
-        self.br_height += delta
-
-    def roundData(self) -> None:
-        self.linear = round(self.linear, 1)
-        self.angular = round(self.angular, 1)
-        self.fl_height = round(self.fl_height, 1)
-        self.fr_height = round(self.fr_height, 1)
-        self.bl_height = round(self.bl_height, 1)
-        self.br_height = round(self.br_height, 1)
-
+try:
+    from source.hardware.RobotData import RobotData
+except ModuleNotFoundError as e:
+    try:
+        from Code.source.hardware.RobotData import RobotData
+    except ModuleNotFoundError:
+        raise e
 
 vel_data = RobotData(linear=0.0, angular=0.0, fl_height=0.0, fr_height=0.0, bl_height=0.0, br_height=0.0)
 DELTA_VEL = 0.1
