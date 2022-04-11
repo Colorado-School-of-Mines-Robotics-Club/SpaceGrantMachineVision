@@ -146,7 +146,10 @@
       "xbee": 240.0
     },
     "utility": {
-      "clicks_per_rev": 48.0
+      "clicks_per_rev": 48.0,
+      "max_pwm": 4095,
+      "max_vel": 2.0,
+      "max_rad": 3.141592
     }
   },
   "dimensions": {

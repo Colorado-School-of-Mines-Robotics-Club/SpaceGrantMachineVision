@@ -27,25 +27,26 @@ class KinematicHardwareInterface:
         self.command = None
         self.updateFromRobotData()  # sets up the initial command
 
-    @staticmethod
-    def ms_to_pwm(ms: float) -> int:
-        # TODO
-        return 0
+        Config.init()
+        self.max_pwm = Config.getElectronicPortsDict()['utility']['max_pwm']
+        self.max_vel = Config.getElectronicPortsDict()['utility']['max_vel']
+        self.max_rad = Config.getElectronicPortsDict()['utility']['max_rad']
 
-    @staticmethod
-    def radians_to_pwm(rad: float) -> int:
-        # TODO
-        return 0
+    def ms_to_pwm(self, ms: float) -> int:
+        if ms >= self.max_vel:
+            return self.max_pwm
+        return int((ms / self.max_vel) * self.max_pwm)
 
-    @staticmethod
-    def pwm_to_ms(pwm: int) -> float:
-        # TODO
-        return 0
+    def radians_to_pwm(self, rad: float) -> int:
+        if rad >= self.max_rad:
+            return self.max_pwm
+        return int((rad / self.max_rad) * self.max_pwm)
 
-    @staticmethod
-    def pwm_to_radians(pwm: int) -> float:
-        # TODO
-        return 0
+    def pwm_to_ms(self, pwm: int) -> float:
+        return (pwm / self.max_pwm) * self.max_vel
+
+    def pwm_to_radians(self, pwm: int) -> float:
+        return (pwm / self.max_pwm) * self.max_rad
 
     @staticmethod
     def bool_to_pwm(boolean: bool) -> int:
@@ -97,12 +98,3 @@ class KinematicHardwareInterface:
         servo_pwms = [self.radians_to_pwm(com) for com in self.command[4:-1]]
         led_pwms = [self.bool_to_pwm(com) for com in self.ledStates]
         return motor_pwms + servo_pwms + led_pwms
-
-
-# pwms
-#   'linear': pwm to assign all motors
-#   'angular': pwm to assign all wheel servos
-#   'height': pwm to assign all suspension servos
-def PWM_to_RobotData(robot: RobotData, pwms: Dict, pwm_to_vel: Callable, pwm_to_theta: Callable):
-    robot.linear = pwm_to_vel(pwms['linear'])
-    robot.angular = pwm_to_theta(pwms['angular'])
