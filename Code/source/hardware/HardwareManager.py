@@ -117,7 +117,7 @@ class HardwareManager:
         self.curr_gyro = [0, 0, 0]
         self.past_gyro = [0, 0, 0]
 
-        self.past_xbee = []
+        self.past_xbee = None
         self.curr_xbee = None
 
         # Split encoder reading into 4 threads for speed and accuracy
@@ -300,13 +300,16 @@ class HardwareManager:
             time.sleep(1.0 / hz)
 
     def read_xbee(self, hz=240.0):
-        ser = Serial(self.xbee_com, self.xbee_baudrate)
+        try:
+            ser = Serial(self.xbee_com, self.xbee_baudrate)
 
-        while True:
-            self.past_xbee.append(self.curr_xbee)
-            self.curr_xbee = ser.readline()
+            while True:
+                self.past_xbee.append(self.curr_xbee)
+                self.curr_xbee = ser.readline()
 
-            time.sleep(1.0 / hz)
+                time.sleep(1.0 / hz)
+        except Exception:  # TODO well define the exception and test above code
+            pass
 
     ''' 
     Decided to break this method into several different methods
