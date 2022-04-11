@@ -42,3 +42,6 @@ class Wheel(KinematicObject):
 
     def getDistance(self) -> float:
         return self.circumference * (self.angles[1] / (2.0 * math.pi))
+
+    def getVelocity(self) -> float:
+        return self.angVel[1]

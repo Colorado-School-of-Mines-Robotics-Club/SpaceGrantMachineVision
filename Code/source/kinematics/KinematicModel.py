@@ -34,8 +34,8 @@ class KinematicModel:
                                          wheelRadius=wheelDim['radius'] / 1000.0,
                                          wheelThickness=wheelDim['thickness'] / 1000.0,
                                          swerveOffset=wheelDim['offset'] / 1000.0,
-                                         swerveMaxAngle=wheelDim['minTheta'] * (math.pi / 180.0),
-                                         swerveMinAngle=wheelDim['maxTheta'] * (math.pi / 180.0))
+                                         swerveMaxAngle=wheelDim['maxTheta'] * (math.pi / 180.0),
+                                         swerveMinAngle=wheelDim['minTheta'] * (math.pi / 180.0))
         front_right_wheel = WheelAssembly(susHeight=suspensionDim['height'] / 1000.0,
                                           susLength=suspensionDim['length'] / 1000.0,
                                           susMaxAngle=suspensionDim['maxTheta'] * (math.pi / 180.0),
@@ -61,8 +61,8 @@ class KinematicModel:
                                          wheelRadius=wheelDim['radius'] / 1000.0,
                                          wheelThickness=wheelDim['thickness'] / 1000.0,
                                          swerveOffset=wheelDim['offset'] / 1000.0,
-                                         swerveMaxAngle=wheelDim['minTheta'] * (math.pi / 180.0),
-                                         swerveMinAngle=wheelDim['maxTheta'] * (math.pi / 180.0))
+                                         swerveMaxAngle=wheelDim['maxTheta'] * (math.pi / 180.0),
+                                         swerveMinAngle=wheelDim['minTheta'] * (math.pi / 180.0))
         self.wheels = (front_left_wheel, front_right_wheel, back_left_wheel, back_right_wheel)
 
     # suspensionHeightTargets units are in centimeters and then get converted to meters
@@ -81,7 +81,7 @@ class KinematicModel:
         self.chassis.update()
 
     def getWheelVelocities(self) -> List[float]:
-        return [wheel.wheel.vel for wheel in self.wheels]
+        return [wheel.wheel.getVelocity() for wheel in self.wheels]
 
     def getSwerveWheelAngles(self) -> List[float]:
         return [wheel.wheel.getSwerveAngle() for wheel in self.wheels]

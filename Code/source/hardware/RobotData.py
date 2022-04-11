@@ -11,10 +11,10 @@ class RobotData:
     br_height: float
 
     def assignAllHeights(self, height: float) -> None:
-        self.fl_height += height
-        self.fr_height += height
-        self.bl_height += height
-        self.br_height += height
+        self.fl_height = height
+        self.fr_height = height
+        self.bl_height = height
+        self.br_height = height
 
     def incrementAllHeights(self, delta: float) -> None:
         self.fl_height += delta
