@@ -20,7 +20,10 @@ from .logger import Logger
 vel_data = RobotData(linear=0.0, angular=0.0, fl_height=0.0, fr_height=0.0, bl_height=0.0, br_height=0.0)
 global_shutdown = False
 
-hardware = HardwareManager().start_threads()
+try:
+    hardware = HardwareManager().start_threads()
+except NameError:
+    hardware = None
 interface = KinematicHardwareInterface(robotData=vel_data)
 
 
