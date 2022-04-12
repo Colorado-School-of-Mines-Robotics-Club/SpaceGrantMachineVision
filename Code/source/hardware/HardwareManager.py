@@ -11,6 +11,7 @@ try:
     import RPi.GPIO as GPIO
     from smbus2 import *
     from serial import Serial
+    from digi.xbee.devices import XBeeDevice
 except ModuleNotFoundError:
     pass
 except ImportError:
@@ -301,13 +302,21 @@ class HardwareManager:
 
     def read_xbee(self, hz=240.0):
         try:
-            ser = Serial(self.xbee_com, self.xbee_baudrate)
+            xbee = XBeeDevice(self.xbee_com, self.xbee_baudrate)
 
             while True:
                 self.past_xbee.append(self.curr_xbee)
-                self.curr_xbee = ser.readline()
+
+                xbee_message = xbee.read_data()
+
+                remote = xbee_message.remote_device
+                data = xbee_message.data
+                is_broadcast = xbee_message.is_broadcast
+                timestamp = xbee_message.timestamp
+                self.curr_xbee = (remote, data, is_broadcast, timestamp)
 
                 time.sleep(1.0 / hz)
+
         except Exception:  # TODO well define the exception and test above code
             pass
 
