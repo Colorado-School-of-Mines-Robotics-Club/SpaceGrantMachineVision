@@ -305,9 +305,7 @@ def run_controller():
 if __name__ == "__main__":
 
     if platform.system() == "Linux" and not os.getuid() == 0:
-        from sys import platform
-        if platform == "linux" or platform == "linux2":
-            print("This script must be run as root")
-            sys.exit(-1)
+        print("This script must be run as root")
+        sys.exit(-1)
 
     run_controller()
