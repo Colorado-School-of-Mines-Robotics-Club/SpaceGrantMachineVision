@@ -1,7 +1,7 @@
 # Built in python libs
 import sys
 import os
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 # Additional libs
 import cv2
@@ -64,53 +64,6 @@ class Map:
         else:
             return operatives
 
-    def instruction_converter(route, DPerNode, compress = False):
-        operatives = []
-
-        direction = 0
-
-        for i in range(len(route) - 1):
-            start = route[i]
-            end = route[i+1]
-
-            if(end[0] - start[0] > 0):
-                new_dir = 180
-            elif(end[0] - start[0] < 0):
-                new_dir = 0
-            elif(end[1] - start[1] > 0):
-                new_dir = 90
-            elif(end[1] - start[1] < 0):
-                new_dir = -90
-            else:
-                new_dir = direction
-            
-            if(direction != new_dir):
-                operatives.append(("ANG", new_dir - direction))
-                direction = new_dir
-            
-            operatives.append(["LIN", DPerNode])
-
-
-        if(compress):
-            compressed = []
-            
-            for i in operatives:
-                if(compressed == []):
-                    compressed.append(i)
-                    continue
-
-                if(i[0] == "LIN" and compressed[-1][0] == "LIN"):
-                    compressed[-1][1] += i[1]
-                elif(i[0] == "LIN" and compressed[-1][0] == "ANG"):
-                    compressed.append(i)
-                elif(i[0] == "ANG" and compressed[-1][0] == "LIN"):
-                    compressed.append(i)
-
-
-            return compressed
-        else:
-            return operatives
-
     # takes an optional color
     #       0 - blue
     #       1 - green
@@ -148,3 +101,16 @@ class Map:
     def get_passable(self) -> np.ndarray:
         b, g, r = cv2.split(self.grid)
         return g
+
+    def poseToNode(self, x: float, z: float) -> Tuple[int, int]:
+        x = int(x * self.DPerNode)
+        z = int(z * self.DPerNode)
+
+        # want to offset position to a node value
+        x += math.floor(self.nodeLayout[0] / 2) + 1
+        z = self.nodeLayout[1] - z
+
+        return x, z  # final tuple format for current node
+
+    def getEndNode(self) -> Tuple[int, int]:
+        return math.floor(self.nodeLayout[0] / 2) + 1, int(self.nodeLayout[1] / 2)
