@@ -7,7 +7,7 @@ import keyboard
 import socket
 
 try:
-    from .source.hardware import RobotData, HardwareManager, KinematicHardwareInterface
+    from .hardware import RobotData, HardwareManager, KinematicHardwareInterface
 except ModuleNotFoundError as e:
     try:
         from Code.source.hardware import RobotData, HardwareManager, KinematicHardwareInterface

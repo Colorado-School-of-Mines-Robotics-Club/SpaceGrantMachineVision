@@ -9,6 +9,7 @@ import sys
 from dataclasses import dataclass
 import keyboard
 import os
+import platform
 
 from source.hardware.RobotData import RobotData
 
@@ -303,7 +304,7 @@ def run_controller():
 
 if __name__ == "__main__":
 
-    if not os.getuid() == 0:
+    if platform.system() == "Linux" and not os.getuid() == 0:
         from sys import platform
         if platform == "linux" or platform == "linux2":
             print("This script must be run as root")
