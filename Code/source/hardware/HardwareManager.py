@@ -10,7 +10,6 @@ import numpy as np
 try:
     import RPi.GPIO as GPIO
     from smbus2 import *
-    from serial import Serial
     from digi.xbee.devices import XBeeDevice
 except ModuleNotFoundError:
     pass
