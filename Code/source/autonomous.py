@@ -39,7 +39,7 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
             prevObjectBoundingBoxes = objectBoundingBoxes
 
             # acquire previous segmented image
-            segmentedImage = PayloadManager.getOutput('clustering', timeout=0.001)  # wait ~0, most likely empty
+            segmentedImage = PayloadManager.getOutput('clustering', timeout=0.0)
 
             cameraStartTime = time.perf_counter()
             # Satisfies that read images stage of control flow

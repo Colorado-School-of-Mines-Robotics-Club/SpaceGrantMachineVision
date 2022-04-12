@@ -7,10 +7,10 @@ import keyboard
 import socket
 
 try:
-    from .source.hardware.RobotData import RobotData
+    from .source.hardware import RobotData, HardwareManager, KinematicHardwareInterface
 except ModuleNotFoundError as e:
     try:
-        from Code.source.hardware.RobotData import RobotData
+        from Code.source.hardware import RobotData, HardwareManager, KinematicHardwareInterface
     except ModuleNotFoundError:
         raise e
 
@@ -19,6 +19,9 @@ from .logger import Logger
 
 vel_data = RobotData(linear=0.0, angular=0.0, fl_height=0.0, fr_height=0.0, bl_height=0.0, br_height=0.0)
 global_shutdown = False
+
+hardware = HardwareManager().start_threads()
+interface = KinematicHardwareInterface(robotData=vel_data)
 
 
 def incomingDataLoop(tcp_port: int = 9500):
@@ -48,7 +51,11 @@ def incomingDataLoop(tcp_port: int = 9500):
         final_data = pickle.loads(incoming_data)
         vel_data.from_list(final_data)
 
-        # TODO: Update robot here
+        # Update the robot
+        global interface
+        global hardware
+        interface.updateFromRobotData(robotData=vel_data)
+        hardware.update_pwm_targets(interface.getCommandPWM())
 
     return
 
