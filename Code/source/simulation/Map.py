@@ -114,3 +114,8 @@ class Map:
 
     def getEndNode(self) -> Tuple[int, int]:
         return math.floor(self.nodeLayout[0] / 2) + 1, int(self.nodeLayout[1] / 2)
+
+    def incrementNodeScoresFromPose(self, objects: List) -> None:
+        for wx, wy, wz in objects:
+            x, y = self.poseToNode(wx, wz)
+            self.updatePoint(x, y, score=5)

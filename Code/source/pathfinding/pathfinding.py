@@ -26,4 +26,6 @@ def plot_graph(grid, start, goal, path=None):
     if type(path) != bool:
         ax.plot(path[:, 1], path[:, 0], color="black")
 
-    plt.show()
+    # convert canvas to image
+    img = cv2.cvtColor(np.asarray(ax.canvas.buffer_rgba()), cv2.COLOR_RGBA2BGR)
+    return img

@@ -1,5 +1,5 @@
 # Built in python libs
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 # Additional libs
 import numpy as np
@@ -73,6 +73,15 @@ def getBoundingBoxPoints(box: np.ndarray) -> np.ndarray:
     x2 = pts[2]
     y2 = pts[3]
     return np.array([(x1, y1), (x2, y1), (x2, y2), (x1, y2)]).astype('int64')
+
+
+def getBoundingBoxCenter(box: Union[np.ndarray, Tuple]) -> Tuple[int, int]:
+    if isinstance(box, tuple):
+        x, y, h, w = box
+        return x + w // 2, y + h // 2
+    elif isinstance(box, np.ndarray):
+        x1, y1, x2, y2 = getBoundingBoxCords(box)
+        return x1 + (x2 - x1) // 2, y1 + (y2 - y1) // 2
 
 
 def getBoundingBoxArea(box: np.ndarray) -> int:
@@ -153,5 +162,11 @@ def simplifyBoundingBoxes(boundingBoxes: List) -> List:
     return simplifiedBoxes
 
 
-def boundingBoxToXYZ(bbox: np.ndarray):
-    pass
+def boundingBoxToXYZ(image3d: np.ndarray, bbox: np.ndarray):
+    x, y = getBoundingBoxCenter(bbox)
+    x_channel, y_channel, z_channel = cv2.split(image3d)
+    return x_channel[x][y], y_channel[x][y], z_channel[x][y]
+
+
+def getBoxesXYZ(image3d: np.ndarray, boxes: Union[List, np.ndarray]) -> List:
+    return [boundingBoxToXYZ(image3d, box) for box in boxes]
