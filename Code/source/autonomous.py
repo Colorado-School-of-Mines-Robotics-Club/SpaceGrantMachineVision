@@ -11,10 +11,9 @@ from .cameras import fetchAndShowCameras, DisplayManager, CaptureManager
 from .features import getImageKeyDesc, getPointsFromKeypoints
 from .objectDetection import objectDetection, experimental
 from .simulation import Map, Robot
-from .utilities import getAvgTimeArr, getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag,\
-    handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag, Config, exceptions, jit_compile_all
+from .utilities import getAvgTimeArr, exceptions, getBoxesXYZ
 from .concurrency import PayloadManager
-from .pathfinding import astar
+from .pathfinding import astar, plot_graph
 
 
 def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTolerance, iterationsToAverage, leftCam,
@@ -75,7 +74,9 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
 
             PayloadManager.addInputs('clustering', [leftImage, im3d])
 
-            # TODO update map from object boxes and im3d
+            # get the real world cordinates and update the map
+            box_cords = getBoxesXYZ(im3d, objectBoundingBoxes)
+            worldMap.incrementNodeScoresFromPose(box_cords)
 
             # get current x, y position
             x, z = float(currentPose[0, 3]), float(currentPose[2, 3])
@@ -83,8 +84,11 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
 
             route = astar(worldMap.get_grid(), current_node, worldMap.getEndNode(), weight=2.0,
                           passable=worldMap.get_passable())
-            # TODO ensure this call does not crash if we somehow move backwards or off the map?
-            # world_route = worldMap.convert_route_to_dist(route)
+
+            if not HEADLESS:
+                plot_graph(worldMap.get_grid(), current_node, worldMap.getEndNode(), route)
+
+            world_route = worldMap.convert_route_to_dist(route)
 
             # TODO update interface from world_route
 
