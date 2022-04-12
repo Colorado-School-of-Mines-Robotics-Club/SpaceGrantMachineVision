@@ -24,8 +24,10 @@
             "request": "launch",
             "program": "controlTerminal.py",
             "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}/Scripts/",
-            "sudo": true
+            "cwd": "${workspaceFolder}/Code/",
+            "linux": {
+                "sudo": true
+            }
         }
     ]
 }
