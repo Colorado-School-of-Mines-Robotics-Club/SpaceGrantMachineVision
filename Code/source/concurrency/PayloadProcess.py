@@ -92,8 +92,8 @@ class PayloadProcess:
     def putOutputs(self, outputs: Union[List[Any], Any]):
         self.queue.addOutputs(outputs)
 
-    def getOutputs(self) -> List[Any]:
-        return self.queue.getOutputs()
+    def getOutputs(self, timeout: Union[float, None] = None) -> List[Any]:
+        return self.queue.getOutputs(timeout=timeout)
 
     def getOutput(self, timeout: Union[float, None] = None) -> Any:
         return self.queue.getOutput(timeout=timeout)

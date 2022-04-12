@@ -114,7 +114,7 @@ if __name__ == "__main__":
     handleThreadedDisplayFlag(THREADED_DISPLAY, HEADLESS)
 
     # define the map
-    worldMap = Map()
+    worldMap = Map(D=15.24)
     Robot = Robot()
     interface = KinematicHardwareInterface()
 

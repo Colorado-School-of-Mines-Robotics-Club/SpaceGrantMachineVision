@@ -18,7 +18,7 @@ class Map:
         self.scaleFactor = scaleFactor
         self.imageSize = (self.nodeLayout[0] * self.scaleFactor, self.nodeLayout[1] * self.scaleFactor, 3)
         self.grid = np.zeros((self.nodeLayout[0], self.nodeLayout[1], 3))
-        self.DPerNode = float(D) / (self.nodeLayout[0])
+        self.DPerNode = float(D) / (self.nodeLayout[1])
 
     def instruction_converter(self, route, compress=False):
         operatives = []

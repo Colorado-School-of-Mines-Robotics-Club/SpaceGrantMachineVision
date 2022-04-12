@@ -84,32 +84,34 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
 
             PayloadManager.addInputs('clustering', [leftImage, im3d])
 
+            # TODO update map from object boxes and im3d
+
             # get current x, y position
             x, z = float(currentPose[0, 3]), float(currentPose[2, 3])
             current_node = worldMap.poseToNode(x, z)
-            end_node = worldMap.getEndNode()
 
-            route = astar(worldMap.get_grid(), current_node, end_node, weight=2.0, passable=worldMap.get_passable())
+            route = astar(worldMap.get_grid(), current_node, worldMap.getEndNode(), weight=2.0,
+                          passable=worldMap.get_passable())
+            # TODO ensure this call does not crash if we somehow move backwards or off the map?
+            # world_route = worldMap.convert_route_to_dist(route)
 
-            # PayloadManager.addInputs('hardware')
+            # TODO update interface from world_route
 
-            # all additional functionality should be present within the === comments
-            # additional data that needs to be stored for each iteration should be handled above
-            # ===========================================================================================================
-            # TODO
-            # Fill in remainder of functionality
-            # stackedImage = experimental.combineImages(leftImage, im3d)
-            # experimental.segmentImage(leftImage, im3d, K=5, iterations=1, show=not HEADLESS, threadedDisplay=THREADED_DISPLAY)
+            _ = PayloadManager.getOutputs('hardware', timeout=0.001)
+            PayloadManager.addInputs('hardware', interface.getCommandPWM())
 
-            # # ===========================================================================================================
-            # # redraws the map
-            # mapDisplay = Map.draw()
+            # TODO ??
+
+            # ==========================================================================================================
+            # redraws the map
+            mapDisplay = worldMap.draw()
             # mapDisplay = Robot.draw(mapDisplay)
-            # if not HEADLESS:
-            #     if THREADED_DISPLAY:
-            #         DisplayManager.show("Current Map", mapDisplay)
-            #     else:
-            #         cv2.imshow("Current Map", mapDisplay)
+            if not HEADLESS:
+                if THREADED_DISPLAY:
+                    DisplayManager.show("Current Map", mapDisplay)
+                else:
+                    cv2.imshow("Current Map", mapDisplay)
+                cv2.waitKey(1)
             # handles saving the video feed
             if RECORD:
                 leftWriter.write(leftImage)

@@ -15,7 +15,7 @@ class QueuePipe:
         self.timeout = timeout
 
     # acquires all items from either queue
-    def getFromQueue(self, output=False) -> List[Any]:
+    def getFromQueue(self, output=False, timeout: Union[float, None] = None) -> List[Any]:
         targetQueue = self.inputQ
         targetEmpty = self.inputEmpty
         if output:
@@ -24,7 +24,7 @@ class QueuePipe:
         items = list()
         while not targetEmpty:
             try:
-                items.append(targetQueue.get(self.timeout))
+                items.append(targetQueue.get(timeout if timeout is not None else self.timeout))
                 if output:
                     self.currentOutputs -= 1
                 else:
@@ -74,8 +74,8 @@ class QueuePipe:
             return None
 
     # acquires items from output queue and returns
-    def getOutputs(self) -> List[Any]:
-        return self.getFromQueue(output=True)
+    def getOutputs(self, timeout: Union[float, None] = None) -> List[Any]:
+        return self.getFromQueue(output=True, timeout=timeout)
 
     # gets the first item from the output queue
     def getOutput(self, timeout: Union[float, None] = None) -> Any:

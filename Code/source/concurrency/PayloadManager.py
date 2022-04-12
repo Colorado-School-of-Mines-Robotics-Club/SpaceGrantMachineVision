@@ -103,8 +103,8 @@ class PayloadManager:
         cls.payloads[name].putInputs(inputs)
 
     @classmethod
-    def getOutputs(cls, name: str) -> List[Any]:
-        return cls.payloads[name].getOutputs()
+    def getOutputs(cls, name: str, timeout: Union[float, None] = None) -> List[Any]:
+        return cls.payloads[name].getOutputs(timeout=timeout)
 
     @classmethod
     def getOutput(cls, name: str, timeout: Union[float, None] = None) -> Any:
