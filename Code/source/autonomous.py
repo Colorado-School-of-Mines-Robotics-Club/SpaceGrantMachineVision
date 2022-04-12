@@ -8,7 +8,7 @@ import cv2
 # Custom imports
 from .logger import Logger, logArguments, logSystemInfo, logConfiguration
 from .cameras import fetchAndShowCameras, DisplayManager, CaptureManager
-from .features import computeMatchingPoints, getPointsFromKeypoints
+from .features import getImageKeyDesc, getPointsFromKeypoints
 from .objectDetection import objectDetection, experimental
 from .simulation import Map, Robot
 from .utilities import getAvgTimeArr, getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag,\
@@ -54,16 +54,7 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
 
             featureStartTime = time.perf_counter()
             # feature points for left image
-            # the point at index [0], [1], [2], etc. in both is the same real life feature
-            # COMPUTES MATCHING FEATURES ACROSS BOTH CURRENT IMAGES
-            # TODO since we aren't using this for visual odometry, if we don't need the feature matches
-            # for anything else, we can reduce this method to only detect features and save computation time
-            prevLeftPts, leftPts, prevLeftKp, prevLeftDesc, leftKp, leftDesc, leftMatches = \
-                computeMatchingPoints(prevGrayLeftImage, grayLeftImage, orb, matcher, prevLeftKp, prevLeftDesc,
-                                      ratio=featureParams['startingRatio'],
-                                      featureRatio=featureParams["featureRatio"], stepSize=featureParams["stepSize"],
-                                      timeout=featureParams["timeout"], show=not HEADLESS,
-                                      threadedDisplay=THREADED_DISPLAY, windowName="LeftCaptures Matched Features")
+            leftKp, leftDesc = getImageKeyDesc(leftImage, orb)
             featureFTs.append(time.perf_counter() - featureStartTime)
 
             objectDectStartTime = time.perf_counter()
@@ -97,21 +88,11 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
 
             # TODO update interface from world_route
 
-            _ = PayloadManager.getOutputs('hardware', timeout=0.001)
             PayloadManager.addInputs('hardware', interface.getCommandPWM())
 
             # TODO ??
 
             # ==========================================================================================================
-            # redraws the map
-            mapDisplay = worldMap.draw()
-            # mapDisplay = Robot.draw(mapDisplay)
-            if not HEADLESS:
-                if THREADED_DISPLAY:
-                    DisplayManager.show("Current Map", mapDisplay)
-                else:
-                    cv2.imshow("Current Map", mapDisplay)
-                cv2.waitKey(1)
             # handles saving the video feed
             if RECORD:
                 leftWriter.write(leftImage)
