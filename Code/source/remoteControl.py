@@ -21,6 +21,7 @@ vel_data = RobotData(linear=0.0, angular=0.0, fl_height=0.0, fr_height=0.0, bl_h
 global_shutdown = False
 
 hardware = None
+interface = None
 
 def incomingDataLoop(tcp_port: int = 9500):
     server_address = ("localhost", tcp_port)
@@ -47,6 +48,7 @@ def incomingDataLoop(tcp_port: int = 9500):
             Logger.log("Connection closed.")
             break
         final_data = pickle.loads(incoming_data)
+        global vel_data
         vel_data.from_list(final_data)
 
         # Update the robot
@@ -66,7 +68,9 @@ def remoteControl(hz: float = 60.0) -> None:
         hardware = HardwareManager().start_threads()
     except NameError:
         hardware = None
+    time.sleep(0.5)
     global interface
+    global vel_data
     interface = KinematicHardwareInterface(robotData = vel_data)
 
     while not global_shutdown:
@@ -74,4 +78,5 @@ def remoteControl(hz: float = 60.0) -> None:
         time.sleep(1.0)
     
     # Shutdown robot here
-    hardware.join_threads()
+    if hardware is not None:
+        hardware.join_threads()
