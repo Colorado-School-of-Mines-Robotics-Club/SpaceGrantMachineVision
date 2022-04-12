@@ -8,7 +8,6 @@ from threading import Thread
 import sys
 from dataclasses import dataclass
 import keyboard
-from elevate import elevate
 import os
 
 from .hardware.RobotData import RobotData
