@@ -114,7 +114,7 @@ if __name__ == "__main__":
     handleThreadedDisplayFlag(THREADED_DISPLAY, HEADLESS)
 
     # define the map
-    Map = Map()
+    worldMap = Map()
     Robot = Robot()
 
     # multiprocessing, defines payloads to be run in parallel
@@ -131,7 +131,8 @@ if __name__ == "__main__":
         try:
             Logger.log("Starting loop...")
             autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTolerance, iterationsToAverage,
-                       leftCam, rightCam, leftWriter, rightWriter, orb, matcher, featureParams, objectDetectionParams)
+                       leftCam, rightCam, leftWriter, rightWriter, orb, matcher, featureParams, objectDetectionParams,
+                       worldMap)
             Logger.log("Shutdown loop...")
             # sleep and then check for keyboardInterrupt will fully kill program
             time.sleep(1)

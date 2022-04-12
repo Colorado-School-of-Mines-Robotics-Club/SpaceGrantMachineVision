@@ -14,10 +14,11 @@ from .simulation import Map, Robot
 from .utilities import getAvgTimeArr, getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag,\
     handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag, Config, exceptions, jit_compile_all
 from .concurrency import PayloadManager
+from .pathfinding import astar
 
 
 def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTolerance, iterationsToAverage, leftCam,
-               rightCam, leftWriter, rightWriter, orb, matcher, featureParams, objectDetectionParams):
+               rightCam, leftWriter, rightWriter, orb, matcher, featureParams, objectDetectionParams, worldMap):
     numTotalIterations, consecutiveErrors, iterationCounter, iterationTime = 0, 0, 0, 0
     iterationTimes, cameraFTs, featureFTs, objectDectFTs, odometryFTs = list(), list(), list(), list(), list()
     leftImage, rightImage, grayLeftImage = None, None, None
@@ -80,7 +81,13 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
             im3d = PayloadManager.getOutput('updateOdometer')
             odometryFTs.append(time.perf_counter() - odometryStartTime)
 
+            # get current x, y position
+            x, z = float(currentPose[0, 3]), float(currentPose[2, 3])
+            current_node = worldMap.poseToNode(x, z)
+
             PayloadManager.addInputs('clustering', [leftImage, im3d])
+
+            # route = astar(worldMap.get_grid(), weight=2.0)
 
             # all additional functionality should be present within the === comments
             # additional data that needs to be stored for each iteration should be handled above
