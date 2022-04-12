@@ -70,10 +70,17 @@ def incomingDataLoop(tcp_port: int = 9500):
             break
         final_data = pickle.loads(incoming_data)
         vel_data.from_list(final_data)
+
+        # TODO: Update robot here
+
     return
 
 def remoteControl(hz: float = 60.0) -> None:
 
+    # Initialize robot here
+
     while not global_shutdown:
-        incomingDataLoop()
+        incomingDataLoop() # This function loops until the connection is closed.
         time.sleep(1.0)
+    
+    # Shutdown robot here
