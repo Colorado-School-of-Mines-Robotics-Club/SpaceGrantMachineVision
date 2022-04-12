@@ -151,3 +151,7 @@ def simplifyBoundingBoxes(boundingBoxes: List) -> List:
         connectedBoxes = [np.asarray([[0, 0], [0, 0]]).astype('int64')]
         connectedBoxes.pop(0)
     return simplifiedBoxes
+
+
+def boundingBoxToXYZ(bbox: np.ndarray):
+    pass
