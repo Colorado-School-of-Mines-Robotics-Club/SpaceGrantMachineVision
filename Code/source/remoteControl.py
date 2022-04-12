@@ -20,12 +20,7 @@ from .logger import Logger
 vel_data = RobotData(linear=0.0, angular=0.0, fl_height=0.0, fr_height=0.0, bl_height=0.0, br_height=0.0)
 global_shutdown = False
 
-try:
-    hardware = HardwareManager().start_threads()
-except NameError:
-    hardware = None
-interface = KinematicHardwareInterface(robotData=vel_data)
-
+hardware = None
 
 def incomingDataLoop(tcp_port: int = 9500):
     server_address = ("localhost", tcp_port)
@@ -66,9 +61,17 @@ def incomingDataLoop(tcp_port: int = 9500):
 def remoteControl(hz: float = 60.0) -> None:
 
     # Initialize robot here
+    global hardware
+    try:
+        hardware = HardwareManager().start_threads()
+    except NameError:
+        hardware = None
+    global interface
+    interface = KinematicHardwareInterface(robotData = vel_data)
 
     while not global_shutdown:
         incomingDataLoop()  # This function loops until the connection is closed.
         time.sleep(1.0)
     
     # Shutdown robot here
+    hardware.join_threads()
