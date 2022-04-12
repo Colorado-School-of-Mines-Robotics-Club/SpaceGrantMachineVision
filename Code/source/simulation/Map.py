@@ -106,3 +106,11 @@ class Map:
         x = int(x * self.DPerNode)
         z = int(z * self.DPerNode)
 
+        # want to offset position to a node value
+        x += math.floor(self.nodeLayout[0] / 2) + 1
+        z = self.nodeLayout[1] - z
+
+        return x, z  # final tuple format for current node
+
+    def getEndNode(self) -> Tuple[int, int]:
+        return math.floor(self.nodeLayout[0] / 2) + 1, int(self.nodeLayout[1] / 2)

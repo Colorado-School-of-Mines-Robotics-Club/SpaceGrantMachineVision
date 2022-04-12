@@ -17,7 +17,7 @@ from source.simulation import Map, Robot
 from source.utilities import getAvgTimeArr, getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag,\
     handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag, Config, exceptions, jit_compile_all
 from source.concurrency import PayloadManager
-from source.hardware import PThardwareCommand, createHardwareManager
+from source.hardware import PThardwareCommand, createHardwareManager, KinematicHardwareInterface
 
 from source.autonomous import autonomous
 from source.remoteControl import remoteControl
@@ -116,6 +116,7 @@ if __name__ == "__main__":
     # define the map
     worldMap = Map()
     Robot = Robot()
+    interface = KinematicHardwareInterface()
 
     # multiprocessing, defines payloads to be run in parallel
     payloads = list()
@@ -132,7 +133,7 @@ if __name__ == "__main__":
             Logger.log("Starting loop...")
             autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTolerance, iterationsToAverage,
                        leftCam, rightCam, leftWriter, rightWriter, orb, matcher, featureParams, objectDetectionParams,
-                       worldMap)
+                       worldMap, interface)
             Logger.log("Shutdown loop...")
             # sleep and then check for keyboardInterrupt will fully kill program
             time.sleep(1)
