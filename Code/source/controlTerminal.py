@@ -10,7 +10,7 @@ from dataclasses import dataclass
 import keyboard
 import os
 
-from .hardware.RobotData import RobotData
+from hardware.RobotData import RobotData
 
 import cv2
 
