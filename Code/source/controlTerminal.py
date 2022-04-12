@@ -11,33 +11,10 @@ import keyboard
 from elevate import elevate
 import os
 
+from .hardware.RobotData import RobotData
+
 import cv2
-            
-@dataclass
-class RobotData:
-    linear: float
-    angular: float
-    fl_height: float
-    fr_height: float
-    bl_height: float
-    br_height: float
 
-    def incrementAllHeights(self, delta):
-        self.fl_height += delta
-        self.fr_height += delta
-        self.bl_height += delta
-        self.br_height += delta
-
-    def roundData(self):
-        self.linear = round(self.linear, 1)
-        self.angular = round(self.angular, 1)
-        self.fl_height = round(self.fl_height, 1)
-        self.fr_height = round(self.fr_height, 1)
-        self.bl_height = round(self.bl_height, 1)
-        self.br_height = round(self.br_height, 1)
-    
-    def to_list(self):
-        return [ self.linear, self.angular, self.fl_height, self.fr_height, self.bl_height, self.br_height ]
 
 vel_data = RobotData(linear=0.0, angular=0.0, fl_height=0.0, fr_height=0.0, bl_height=0.0, br_height=0.0)
 DELTA_VEL = 0.1
@@ -45,6 +22,7 @@ DELTA_ANG = 5.0
 DELTA_HEIGHT = 1.0
 key_state = {}
 global_shutdown = False
+
 
 def key_update(key, state):
     # key = key.name
@@ -61,6 +39,7 @@ def key_update(key, state):
     # # no change
     # return False
     return True
+
 
 def key_press(key):
     if key.name == 'esc':
@@ -182,8 +161,11 @@ def user_display(hz: float = 60.0) -> None:
         except KeyboardInterrupt:
             exit(0)
 
+
 server_address = None
 client_socket = None
+
+
 def init_robot_connection(ip_address: str = "localhost", tcp_port: int = 9500):
     global server_address
     server_address = (ip_address, tcp_port)
@@ -200,6 +182,7 @@ def init_robot_connection(ip_address: str = "localhost", tcp_port: int = 9500):
             time.sleep(1.0)
             pass
 
+
 def send_robot_data():
     global client_socket
     global vel_data
@@ -213,11 +196,14 @@ def send_robot_data():
         pass
     return
 
+
 def remoteViewer(ip_address: str = "localhost", tcp_port: int = 9501) -> None:
     print("Starting remote viewer client")
 
+    global server_address
     server_address = (ip_address, tcp_port)
 
+    global client_socket
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     window_open = False
     running = True
@@ -263,17 +249,20 @@ def remoteViewer(ip_address: str = "localhost", tcp_port: int = 9501) -> None:
             window_open = False
         time.sleep(1.0)
 
+
 def handle_sigint_signal(cls, sig, frame):
     print("Received SIGINT signal")
     global global_shutdown
     global_shutdown = True
     return
 
+
 def handle_sigterm_signal(cls, sig, frame):
     print("Received SIGTERM signal")
     global global_shutdown
     global_shutdown = True
     return
+
 
 def run_controller():
     hz = 60.0
@@ -311,6 +300,7 @@ def run_controller():
     if viewer_thread.is_alive():
         print("Waiting on RemoteViewer")
         viewer_thread.join()
+
 
 if __name__ == "__main__":
 
