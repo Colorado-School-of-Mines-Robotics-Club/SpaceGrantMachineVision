@@ -2,12 +2,30 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "main.py",
+            "name": "Auto",
             "type": "python",
             "request": "launch",
             "program": "main.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}/Code/"
+        },
+        {
+            "name": "RC",
+            "type": "python",
+            "request": "launch",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/Code/",
+            "args": ["-RC"]
+        },
+        {
+            "name": "Controller",
+            "type": "python",
+            "request": "launch",
+            "program": "controlTerminal.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/Scripts/",
+            "sudo": true
         }
     ]
 }
