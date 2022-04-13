@@ -4,6 +4,7 @@ import time
 
 # Additional libs
 import cv2
+import numpy as np
 
 # Custom imports
 from .logger import Logger, logArguments, logSystemInfo, logConfiguration
@@ -16,9 +17,8 @@ from .concurrency import PayloadManager
 from .pathfinding import astar, plot_graph
 
 
-def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTolerance, iterationsToAverage, leftCam,
-               rightCam, leftWriter, rightWriter, orb, matcher, featureParams, objectDetectionParams, worldMap,
-               interface):
+def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, VIDEO, errorTolerance, iterationsToAverage,
+               leftCam, rightCam, leftWriter, rightWriter, orb, objectDetectionParams, worldMap, interface):
     numTotalIterations, consecutiveErrors, iterationCounter, iterationTime = 0, 0, 0, 0
     iterationTimes, cameraFTs, featureFTs, objectDectFTs, odometryFTs = list(), list(), list(), list(), list()
     leftImage, rightImage, grayLeftImage = None, None, None
@@ -29,6 +29,9 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
         if LOG_ITERATION_INFO:
             Logger.log(f"#{numTotalIterations}: Started @ {iterationStartTime}")
         try:
+            if numTotalIterations == 59:
+                print("should be a bug here")
+
             # save previous feature information
             prevGrayLeftImage = grayLeftImage
             prevLeftPts = leftPts
@@ -45,8 +48,15 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
             # Uncropped Images are needed for computing disparity; everything else should use
             # the cropped images which only contain pixels where the unditortion/rectification
             # map is valid. In general leftImage should be considered the primary image source.
-            uncroppedLeftImage, uncroppedRightImage, leftImage, rightImage, grayLeftImage, _ = \
-                fetchAndShowCameras(leftCam, rightCam, show=not HEADLESS, threadedDisplay=THREADED_DISPLAY)
+            # uncroppedLeftImage, uncroppedRightImage, leftImage, rightImage, grayLeftImage, _ = \
+            #     fetchAndShowCameras(leftCam, rightCam, show=not HEADLESS, threadedDisplay=THREADED_DISPLAY)
+            if VIDEO:
+                leftFrameData, rightFrameData = PayloadManager.getOutput('cameras')
+            else:
+                frameData = PayloadManager.getOutputs('cameras')
+                leftFrameData, rightFrameData = frameData[len(frameData) - 1]
+            uncroppedLeftImage, leftImage, leftFrameTime = leftFrameData
+            uncroppedRightImage, rightImage, rightFrameTime = rightFrameData
 
             PayloadManager.addInputs('updateOdometer', [uncroppedLeftImage, uncroppedRightImage])
             cameraFTs.append(time.perf_counter() - cameraStartTime)
@@ -68,8 +78,10 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
             objectDectFTs.append(time.perf_counter() - objectDectStartTime)
 
             odometryStartTime = time.perf_counter()
-            currentPose = PayloadManager.getOutput('updateOdometer')
-            im3d = PayloadManager.getOutput('updateOdometer')
+            currentPose, im3d = PayloadManager.getOutput('updateOdometer')
+            # as of right now filter out all inf and -inf
+            # TODO do this better?? in openVO most likely
+            im3d = np.nan_to_num(im3d, neginf=0.0, posinf=0.0)
             odometryFTs.append(time.perf_counter() - odometryStartTime)
 
             PayloadManager.addInputs('clustering', [leftImage, im3d])
@@ -86,13 +98,18 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTole
                           passable=worldMap.get_passable())
 
             if not HEADLESS:
-                plot_graph(worldMap.get_grid(), current_node, worldMap.getEndNode(), route)
+                # plot_graph(worldMap.get_grid(), current_node, worldMap.getEndNode(), route)
+                if THREADED_DISPLAY:
+                    DisplayManager.show("World Map", worldMap.draw())
+                else:
+                    cv2.imshow("World Map", worldMap.draw())
 
-            world_route = worldMap.convert_route_to_dist(route)
-
-            # TODO update interface from world_route
-
-            PayloadManager.addInputs('hardware', interface.getCommandPWM())
+            if isinstance(route, np.ndarray):
+                world_route = worldMap.convert_route_to_dist(route)
+                # TODO update interface from world_route
+                PayloadManager.addInputs('hardware', interface.getCommandPWM())
+            else:
+                PayloadManager.addInputs('hardware', [0 for i in range(16)])
 
             # TODO ??
 

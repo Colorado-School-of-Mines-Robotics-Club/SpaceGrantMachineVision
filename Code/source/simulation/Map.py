@@ -118,4 +118,7 @@ class Map:
     def incrementNodeScoresFromPose(self, objects: List) -> None:
         for wx, wy, wz in objects:
             x, y = self.poseToNode(wx, wz)
-            self.updatePoint(x, y, score=5)
+            try:
+                self.updatePoint(x, y, score=5)
+            except IndexError:
+                pass

@@ -9,7 +9,8 @@ from openVO import StereoCamera
 
 # Custom imports
 from source.logger import Logger, logArguments, logSystemInfo, logConfiguration
-from source.cameras import fetchCameraImages, initCameras, closeCameras, DisplayManager, CaptureManager, loadCalibrationFiles
+from source.cameras import fetchCameraImages, initCameras, closeCameras, DisplayManager, loadCalibrationFiles,\
+    PTframes, frameStaticBuilder
 from source.visualOdometry import makeOdometer, updateOdometer
 from source.features import computeMatchingPoints, getPointsFromKeypoints, getAvgTranslationXY
 from source.objectDetection import objectDetection, experimental
@@ -50,6 +51,7 @@ if __name__ == "__main__":
     RECORD = RECORD or runParameters['record']
     THREADED_DISPLAY = THREADED_DISPLAY or runParameters['threadeddisplay']
     VIDEO_PATH = argDict['video']
+    VIDEO = True if VIDEO_PATH != '' else False
     if not runParameters['video'] == '':
         VIDEO_PATH = runParameters['video']
     CAMERAS_PATH = argDict['cameras']
@@ -100,15 +102,15 @@ if __name__ == "__main__":
     # Need to find image size without ThreadedCapture because we need it to init StereoCamera,
     # which is needed to init ThreadedCapture. Hard coding for now because I'm not sure if we want
     # to read a frame manually or just add a config file
-    frameSize = (640, 480)
-    stereo = StereoCamera(leftK, leftDistC, rightK, rightDistC, rectParams, sgbmPs, frameSize)
+    frameSize = Config.getFrameSize()
+    # stereo = StereoCamera(leftK, leftDistC, rightK, rightDistC, rectParams, sgbmPs, frameSize)
 
-    try:
-        initCameras(leftCam, rightCam, stereo, setExposure=cameraParams['setExposure'])
-    except exceptions.CameraReadError:
-        Logger.log("Could not open one or more of the cameras")
-        time.sleep(1)
-        sys.exit(1)
+    # try:
+    #     initCameras(leftCam, rightCam, stereo, setExposure=cameraParams['setExposure'])
+    # except exceptions.CameraReadError:
+    #     Logger.log("Could not open one or more of the cameras")
+    #     time.sleep(1)
+    #     sys.exit(1)
 
     leftWriter, rightWriter = handleRecordFlag(RECORD, leftCam, rightCam, fetchCameraImages)
 
@@ -116,11 +118,17 @@ if __name__ == "__main__":
 
     # define the map
     worldMap = Map(D=15.24)
-    Robot = Robot()
+    # robot = Robot()
     interface = KinematicHardwareInterface()
+
+    # # TESTING FOR PAYLOAD MANAGER
+    # stereo, leftCapture, rightCapture = frameStaticBuilder((leftCam, rightCam, leftK, rightK, leftDistC, rightDistC, rectParams, sgbmPs, frameSize))
+    # data = PTframes((None, stereo, leftCapture, rightCapture, 5.0))
 
     # multiprocessing, defines payloads to be run in parallel
     payloads = list()
+    payloads.append(("cameras", PTframes, (.005, not HEADLESS, THREADED_DISPLAY), frameStaticBuilder,
+                     (leftCam, rightCam, leftK, rightK, leftDistC, rightDistC, rectParams, sgbmPs, frameSize), None))
     payloads.append(("updateOdometer", updateOdometer, (not HEADLESS, THREADED_DISPLAY), makeOdometer,
                      (leftK, leftDistC, rightK, rightDistC, rectParams, sgbmPs, frameSize), None))
     payloads.append(("hardware", PThardwareCommand, (False,), createHardwareManager, (), None))
@@ -132,8 +140,8 @@ if __name__ == "__main__":
     while True:
         try:
             Logger.log("Starting loop...")
-            autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, errorTolerance, iterationsToAverage,
-                       leftCam, rightCam, leftWriter, rightWriter, orb, matcher, featureParams, objectDetectionParams,
+            autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, VIDEO, errorTolerance,
+                       iterationsToAverage, leftCam, rightCam, leftWriter, rightWriter, orb, objectDetectionParams,
                        worldMap, interface)
             Logger.log("Shutdown loop...")
             # sleep and then check for keyboardInterrupt will fully kill program
@@ -152,7 +160,7 @@ if __name__ == "__main__":
     Logger.log("    Closing processes through PayloadManager")
     PayloadManager.closeAll(timeout=0.5)
     Logger.log("    Closing cameras...")
-    closeCameras()
+    # closeCameras()
     Logger.log("    Closing video writers...")
     handleRecordFlagClose(leftWriter, rightWriter)
     Logger.log("    Closing displays through DisplayManager...")

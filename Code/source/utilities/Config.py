@@ -114,3 +114,7 @@ class Config:
     def getDimensionsDict(cls) -> Dict:
         return cls.dimensions
 
+    @classmethod
+    def getFrameSize(cls) -> Tuple[int, int]:
+        frameSize = cls.cameraPorts['frame_size']
+        return frameSize[0], frameSize[1]

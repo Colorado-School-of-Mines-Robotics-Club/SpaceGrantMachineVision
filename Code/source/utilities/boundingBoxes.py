@@ -162,11 +162,23 @@ def simplifyBoundingBoxes(boundingBoxes: List) -> List:
     return simplifiedBoxes
 
 
-def boundingBoxToXYZ(image3d: np.ndarray, bbox: np.ndarray):
+def boundingBoxToXYZ(channels: Tuple[np.ndarray, np.ndarray, np.ndarray], bbox: np.ndarray, dim: Tuple[int, int, int]):
     x, y = getBoundingBoxCenter(bbox)
-    x_channel, y_channel, z_channel = cv2.split(image3d)
-    return x_channel[x][y], y_channel[x][y], z_channel[x][y]
+    x_channel, y_channel, z_channel = channels
+    # fit the x y cordinates to be on the image dimensions
+    height, width, channels = dim
+    if x > width:
+        x = width
+    if x < 0:
+        x = 0
+    if y > height:
+        y = height
+    if y < 0:
+        y = 0
+    return x_channel[y][x], y_channel[y][x], z_channel[y][x]
 
 
 def getBoxesXYZ(image3d: np.ndarray, boxes: Union[List, np.ndarray]) -> List:
-    return [boundingBoxToXYZ(image3d, box) for box in boxes]
+    dim = image3d.shape
+    channels = cv2.split(image3d)
+    return [boundingBoxToXYZ(channels, box, dim) for box in boxes]

@@ -87,7 +87,7 @@ def handleRecordFlag(RECORD: bool, leftCam: Union[str, int], rightCam: Union[str
         while not os.path.isdir(videoPath):
             videoPath = "../" + videoPath
         _, _, left, _ = fetchCameraImages(leftCam, rightCam)
-        height, width, _ = uncroppedLeft.shape
+        height, width, _ = left.shape
         fourcc = cv2.VideoWriter_fourcc('W', 'M', 'V', '2')
         fps = 16.0
         leftWriter = cv2.VideoWriter(f"{videoPath}leftOutput.wmv", fourcc=fourcc, fps=fps, frameSize=(width, height))
