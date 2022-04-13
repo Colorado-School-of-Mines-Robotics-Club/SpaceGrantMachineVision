@@ -12,7 +12,7 @@ from simple_pid import PID
 class PIDController:
     def __init__(self, mkp=5.0, mki=1.0, mkd=1.0, motor_set=0.0, motor_st=0.05, motor_limits=(0, 4095),
                  skp=5.0, ski=5.0, skd=1.0, servo_set=0.0, servo_st=0.05, servo_limits=(0, 4095),
-                 num_motors=4, num_servos=8, num_leds=4):
+                 num_motors=4, num_servos=8, num_leds=4, passthrough=False):
         self.num_motors = num_motors
         self.num_servos = num_servos
         self.num_leds = num_leds
@@ -23,6 +23,7 @@ class PIDController:
         self.motor_targets = [0 for i in range(self.num_motors)]
         self.servo_targets = [0 for i in range(self.num_servos)]
         self.led_targets = [0 for i in range(self.num_leds)]
+        self.passthrough = passthrough
 
     def get_targets(self) -> List[int]:
         return self.motor_targets + self.servo_targets + self.led_targets
@@ -51,6 +52,8 @@ class PIDController:
                 self.led_targets = led_targets
 
     def get_pwm(self, all_pwms=None) -> List[int]:
+        if self.passthrough:
+            return self.get_targets()
         if all_pwms is None:
             all_pwms = [0 for i in range(16)]
         else:
@@ -58,15 +61,18 @@ class PIDController:
         motor_pwm, servo_pwm = self._get_motor_servo_pwm(all_pwms[0:self._s1], all_pwms[self._s1:self._s2])
         return motor_pwm + servo_pwm + self.led_targets
 
-    def _get_motor_servo_pwm(self, current_motor_pwms=None, current_servo_pwms=None) -> Tuple[List[int], List[int]]:
+    def _get_motor_servo_pwm(self, current_motor_pwms=None, current_servo_pwms=None) ->\
+            Tuple[List[int], List[int]]:
         motor_pwms = self.motor_targets
         servo_pwms = self.servo_targets
         if current_motor_pwms is not None:
-            motor_pwms = [int(pid(current_motor_pwms[i])) for i, pid in enumerate(self.motor_controllers)]
+                motor_pwms = [int(pid(current_motor_pwms[i])) for i, pid in enumerate(self.motor_controllers)]
         if current_servo_pwms is not None:
-            servo_pwms = [int(pid(current_servo_pwms[i])) for i, pid in enumerate(self.servo_controllers)]
+                servo_pwms = [int(pid(current_servo_pwms[i])) for i, pid in enumerate(self.servo_controllers)]
         return motor_pwms, servo_pwms
 
     def update(self, current_pwms=None, targets=None) -> List[int]:
+        if targets is not None and self.passthrough:
+            return targets
         self.update_targets(targets)
         return self.get_pwm(current_pwms)

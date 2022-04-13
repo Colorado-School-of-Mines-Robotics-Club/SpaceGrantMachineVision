@@ -31,7 +31,8 @@ except ModuleNotFoundError as e:
 
 
 class HardwareManager:
-    def __init__(self):
+    def __init__(self, feedback=True):
+        self.feedback = feedback
         Config.init()
         electronics = Config.getElectronicPortsDict()
         motors = electronics['motors']
@@ -52,7 +53,9 @@ class HardwareManager:
         self.bus = SMBus(1)
 
         # declare the PWM Controller and last sent PWM values
-        self.pid: PIDController = PIDController()
+        # TODO
+        # load constraint and setpoint data from config file for the PID controller
+        self.pid: PIDController = PIDController(passthrough=True)
         self.targets = self.pid.get_targets()
         self.directions = [0, 0, 0, 0]
 
@@ -138,22 +141,24 @@ class HardwareManager:
 
     def start_threads(self) -> 'HardwareManager':
         # start all data collection threads
-        for thread in self.motor_threads:
-            thread.start()
-        self.servos.start()
-        self.accel.start()
+        if self.feedback:
+            for thread in self.motor_threads:
+                thread.start()
+            self.servos.start()
+            self.accel.start()
+            self.xbee_thread.start()
         self.pwm_thread.start()
-        self.xbee_thread.start()
         return self
 
     def join_threads(self) -> 'HardwareManager':
         # stops all data collection threads
-        for thread in self.motor_threads:
-            thread.join()
-        self.servos.join()
-        self.accel.join()
+        if self.feedback:
+            for thread in self.motor_threads:
+                thread.join()
+            self.servos.join()
+            self.accel.join()
+            self.xbee_thread.join()
         self.pwm_thread.join()
-        self.xbee_thread.join()
         return self
 
     @staticmethod

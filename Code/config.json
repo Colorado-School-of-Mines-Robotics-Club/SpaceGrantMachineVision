@@ -104,7 +104,7 @@
         "pin": 35
       },
       "front_left_suspension": {
-        "registers": [47, 46, 49, 48],
+        "registers": [51, 50, 53, 52],
         "pin": 37
       },
       "front_right_wheel": {
@@ -112,7 +112,7 @@
         "pin": 15
       },
       "front_right_suspension": {
-        "registers": [23, 22, 25, 24],
+        "registers": [27, 26, 29, 28],
         "pins": 7
       },
       "back_left_wheel": {
@@ -120,7 +120,7 @@
         "pin": 26
       },
       "back_left_suspension": {
-        "registers": [51, 50, 53, 52],
+        "registers": [47, 46, 49, 48],
         "pin": 28
       },
       "back_right_wheel": {
@@ -128,7 +128,7 @@
         "pin": 23
       },
       "back_right_suspension": {
-        "registers": [27, 26, 29, 28],
+        "registers": [23, 22, 25, 24],
         "pin": 12
       }
     },
