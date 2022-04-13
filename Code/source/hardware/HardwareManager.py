@@ -227,13 +227,13 @@ class HardwareManager:
 
             # write the 4 registers, data = [reg, byte_to_write]
             # first register is the first byte of high
-            self.bus.write_i2c_block_data(self.pwm_address, reg[0], high1)
+            self.bus.write_i2c_block_data(self.pwm_address, reg[0], [high1])
             # second register is the second byte of high
-            self.bus.write_i2c_block_data(self.pwm_address, reg[1], high2)
+            self.bus.write_i2c_block_data(self.pwm_address, reg[1], [high2])
             # 3rd register is the first byte of low
-            self.bus.write_i2c_block_data(self.pwm_address, reg[2], low1)
+            self.bus.write_i2c_block_data(self.pwm_address, reg[2], [low1])
             # 4th register is the second byte of low
-            self.bus.write_i2c_block_data(self.pwm_address, reg[3], low2)
+            self.bus.write_i2c_block_data(self.pwm_address, reg[3], [low2])
 
             # increment the writes_counter by one; only one value in the writes array was used
             writes_counter += 1
