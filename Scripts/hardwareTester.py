@@ -15,8 +15,9 @@ interface = KinematicHardwareInterface(robotData=robotData)
 
 print("testing radians_to_pwm function")
 for i in range(5):
-    print(interface.radians_to_pwm(i))
-    print(interface.radians_to_pwm(i * -1))
+    val1 = interface.radians_to_pwm(i)
+    val2 = interface.radians_to_pwm(i * -1)
+    print(f"Radians: {i} -> {val1}, & Radians: {i * -1} -> {val2}")
 
 # baseline commands should be all zeros
 print("Baseline all zeros")

@@ -16,6 +16,12 @@ class RobotData:
         self.bl_height += delta
         self.br_height += delta
 
+    def assignAllHeights(self, height):
+        self.fl_height = height
+        self.fr_height = height
+        self.bl_height = height
+        self.br_height = height
+
     def roundData(self):
         self.linear = round(self.linear, 1)
         self.angular = round(self.angular, 1)

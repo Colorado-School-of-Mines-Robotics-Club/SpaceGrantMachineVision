@@ -26,7 +26,6 @@ class KinematicHardwareInterface:
             self.ledStates = ledStates
         self.motorServo = None
         self.command = None
-        self.updateFromRobotData()  # sets up the initial command
 
         Config.init()
         self.max_pwm = Config.getElectronicPortsDict()['utility']['max_pwm']
@@ -50,7 +49,11 @@ class KinematicHardwareInterface:
         return sign * int((abs(ms) / self.max_vel) * self.max_pwm)
 
     def radians_to_pwm(self, rad: float) -> int:
-        return self.servo_center + (rad / self.max_rad)
+        sign = -1 if rad < 0.0 else 1
+        rad = sign * self.max_rad if abs(rad) > self.max_servo_pwm else rad
+        servo_dev = (rad / self.max_rad) * self.max_servo_dev
+        servo_dev = servo_dev if abs(servo_dev) <= self.max_servo_dev else sign * self.max_servo_dev
+        return self.servo_center + servo_dev
 
     @staticmethod
     def bool_to_pwm(boolean: bool) -> int:
