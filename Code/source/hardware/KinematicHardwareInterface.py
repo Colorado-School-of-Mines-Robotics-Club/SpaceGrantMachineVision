@@ -32,6 +32,10 @@ class KinematicHardwareInterface:
         self.max_pwm = Config.getElectronicPortsDict()['utility']['max_pwm']
         self.max_vel = Config.getElectronicPortsDict()['utility']['max_vel']
         self.max_rad = Config.getElectronicPortsDict()['utility']['max_rad']
+        self.max_servo_pwm = Config.getElectronicPortsDict()['utility']['max_servo_pwm']
+        self.min_servo_pwm = Config.getElectronicPortsDict()['utility']['min_servo_pwm']
+        self.servo_center = int(((self.max_servo_pwm - self.min_servo_pwm) / 2) + self.min_servo_pwm)
+        self.max_servo_dev = self.max_servo_pwm - self.servo_center
 
     def ms_to_pwm(self, ms: float) -> int:
         sign = -1 if ms < 0.0 else 1
@@ -40,10 +44,7 @@ class KinematicHardwareInterface:
         return sign * int((abs(ms) / self.max_vel) * self.max_pwm)
 
     def radians_to_pwm(self, rad: float) -> int:
-        sign = -1 if rad < 0.0 else 1
-        if abs(rad) >= self.max_rad:
-            return sign * self.max_pwm
-        return sign * int((abs(rad) / self.max_rad) * self.max_pwm)
+        return self.servo_center + (rad / self.max_rad)
 
     @staticmethod
     def bool_to_pwm(boolean: bool) -> int:
