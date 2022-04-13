@@ -24,7 +24,7 @@ hardware = None
 interface = None
 
 def incomingDataLoop(tcp_port: int = 9500):
-    server_address = ("localhost", tcp_port)
+    server_address = ('', tcp_port)
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     server_socket.settimeout(1.0)

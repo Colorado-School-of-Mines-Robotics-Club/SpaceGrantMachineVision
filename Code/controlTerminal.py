@@ -181,6 +181,10 @@ def init_robot_connection(ip_address: str = "localhost", tcp_port: int = 9500):
             print("Could not connect to server. Retrying...")
             time.sleep(1.0)
             pass
+        except TimeoutError:
+            print("Could not connect to server. Connection timeout. Retrying...")
+            time.sleep(1.0)
+            pass
 
 
 def send_robot_data():
@@ -267,10 +271,12 @@ def handle_sigterm_signal(cls, sig, frame):
 def run_controller():
     hz = 60.0
 
-    viewer_thread = Thread(target=remoteViewer, args=("localhost",), name="Remote_Viewer", daemon=True)
+    ip_address = "138.67.11.112"
+
+    viewer_thread = Thread(target=remoteViewer, args=(ip_address,), name="Remote_Viewer", daemon=True)
     # viewer_thread.start()
 
-    init_robot_connection()
+    init_robot_connection(ip_address=ip_address)
 
     # start key listener thread
     keyboard.on_press(key_press)
