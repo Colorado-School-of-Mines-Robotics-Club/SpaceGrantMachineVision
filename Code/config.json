@@ -159,7 +159,9 @@
       "clicks_per_rev": 48.0,
       "max_pwm": 4095,
       "max_vel": 2.0,
-      "max_rad": 3.141592
+      "max_rad": 1.5708,
+      "min_servo_pwm": 205,
+      "max_servo_pwm": 410
     }
   },
   "dimensions": {
