@@ -131,6 +131,11 @@ class HardwareManager:
         # thread for reading the xbee
         self.xbee_thread = threading.Thread(target=self.read_xbee, args=(self.xbee_poll_rate,), daemon=True)
 
+        # set the PWM board to 50hz
+        self.bus.write_byte_data(self.pwm_address, 0x00, 0x00)
+        self.bus.write_byte_data(self.pwm_address, 0x01, 0x18)
+        self.bus.write_byte_data(self.pwm_address, 0xFE, 0x7A)
+
     def start_threads(self) -> 'HardwareManager':
         # start all data collection threads
         for thread in self.motor_threads:
