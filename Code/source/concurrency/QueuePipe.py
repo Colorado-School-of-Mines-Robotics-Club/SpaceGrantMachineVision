@@ -36,8 +36,12 @@ class QueuePipe:
     # adds items to either queue
     def addToQueue(self, items: Union[List[Any], Any], output=False):
         try:
-            if isinstance(items, np.ndarray) and len(items.shape) == 2:
-                raise TypeError("np.ndarray is iterable, but should b")
+            if isinstance(items, np.ndarray) or isinstance(items, tuple):
+                if output:
+                    self.outputQ.put(items)
+                else:
+                    self.inputQ.put(items)
+                return
             for item in items:
                 if output:
                     self.outputQ.put(item)

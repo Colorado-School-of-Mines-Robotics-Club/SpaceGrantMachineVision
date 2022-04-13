@@ -24,7 +24,8 @@
     "useCapDShow": true,
     "setExposure": false,
     "leftPort" : 0,
-    "rightPort" : 1
+    "rightPort" : 1,
+    "frame_size":  [640, 480]
   },
   "orb_params": {
     "nfeatures": 500,
