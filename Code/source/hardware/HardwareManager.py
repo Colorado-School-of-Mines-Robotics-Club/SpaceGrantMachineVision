@@ -95,6 +95,12 @@ class HardwareManager:
         self.dir_pins = [motors['front_left']['dir_pins'], motors['front_right']['dir_pins'],
                          motors['back_left']['dir_pins'], motors['back_right']['dir_pins']]
 
+        for pin in self.dir_pins:
+            try:
+                GPIO.setup(pin, GPIO.OUT)
+            except Exception:
+                pass
+
         self.motor_reg = [motors['front_left']['registers'], motors['front_right']['registers'],
                           motors['back_left']['registers'], motors['back_right']['registers']]
 
