@@ -170,4 +170,5 @@ if __name__ == "__main__":
     cv2.waitKey(1)
     Logger.log("    Shutting down logger...")
     Logger.shutdown()  # Shuts down the logging system and prints a closing message to the file
+    print("Exiting...")
     sys.exit(0)
