@@ -102,7 +102,7 @@ class HardwareManager:
                           servos['back_left_wheel']['registers'], servos['back_left_suspension']['registers'],
                           servos['back_right_wheel']['registers'], servos['back_right_suspension']['registers']]
 
-        self.led_reg = [leds['ones'], leds['two'], leds['three'], leds['four']]
+        self.led_reg = [leds['one'], leds['two'], leds['three'], leds['four']]
 
         self.curr_motors = [0, 0, 0, 0]
         self.init_time = time.perf_counter()
