@@ -32,10 +32,16 @@ class KinematicHardwareInterface:
         self.max_pwm = Config.getElectronicPortsDict()['utility']['max_pwm']
         self.max_vel = Config.getElectronicPortsDict()['utility']['max_vel']
         self.max_rad = Config.getElectronicPortsDict()['utility']['max_rad']
+        trim_dict = Config.getServoTrimDict()
+        self.trim_values = []
+        for key in trim_dict:
+            self.trim_values.append(trim_dict[key])
         self.max_servo_pwm = Config.getElectronicPortsDict()['utility']['max_servo_pwm']
         self.min_servo_pwm = Config.getElectronicPortsDict()['utility']['min_servo_pwm']
         self.servo_center = int(((self.max_servo_pwm - self.min_servo_pwm) / 2) + self.min_servo_pwm)
         self.max_servo_dev = self.max_servo_pwm - self.servo_center
+
+        self.updateFromRobotData()  # sets up the initial command
 
     def ms_to_pwm(self, ms: float) -> int:
         sign = -1 if ms < 0.0 else 1
@@ -58,9 +64,9 @@ class KinematicHardwareInterface:
         if robotData is not None:
             self.robotData = robotData
         self.kinematicModel.update(wheelVelocities=[self.robotData.linear for i in range(4)],
-                                   swerveAngles=[self.robotData.angular * math.pi / 180.0 for i in range(4)],
-                                   suspensionHeightTargets=[self.robotData.fl_height, self.robotData.fr_height,
-                                                            self.robotData.bl_height, self.robotData.br_height])
+                                   swerveAngles=[(self.robotData.angular + self.trim_values[i * 2] * math.pi / 180.0) for i in range(4)],
+                                   suspensionHeightTargets=[self.robotData.fl_height + self.trim_values[1], self.robotData.fr_height + self.trim_values[3],
+                                                            self.robotData.bl_height + self.trim_values[5], self.robotData.br_height + self.trim_values[7]])
         wheel_speeds = self.kinematicModel.getWheelVelocities()
         swerve_wheel_angles = self.kinematicModel.getSwerveWheelAngles()
         suspension_angles = self.kinematicModel.getSuspensionAngles()

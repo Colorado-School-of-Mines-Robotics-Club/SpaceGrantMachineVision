@@ -65,6 +65,16 @@
   "file_paths": {
     "videoPath": "Data/Cameras/RawOutput/"
   },
+  "servo_trim": {
+    "front_left_wheel": 0.0,
+    "front_left_suspension": 0.0,
+    "front_right_wheel": 0.0,
+    "front_right_suspension": 0.0,
+    "back_left_wheel": 0.0,
+    "back_left_suspension": 0.0,
+    "back_right_wheel": 0.0,
+    "back_right_suspension": 0.0
+  },
   "electronics": {
     "motors": {
       "front_left": {

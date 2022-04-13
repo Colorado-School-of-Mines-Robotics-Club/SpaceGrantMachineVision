@@ -44,6 +44,7 @@ class Config:
             cls.sgbmParams = cls.data['sgbm_params']
             cls.wlsParams = cls.data['wls_filter_params']
             cls.filepaths = cls.data['file_paths']
+            cls.trim = cls.data['servo_trim']
             cls.electronicPorts = cls.data['electronics']
             cls.dimensions = cls.data['dimensions']
         except FileNotFoundError:
@@ -96,6 +97,10 @@ class Config:
     @classmethod
     def getFilepathsDict(cls) -> Dict:
         return cls.filepaths
+
+    @classmethod
+    def getServoTrimDict(cls) -> Dict:
+        return cls.trim
 
     @classmethod
     def getElectronicPortsDict(cls) -> Dict:
