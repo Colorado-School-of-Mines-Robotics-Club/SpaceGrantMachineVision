@@ -54,6 +54,8 @@ if __name__ == "__main__":
     VIDEO = True if VIDEO_PATH != '' else False
     if not runParameters['video'] == '':
         VIDEO_PATH = runParameters['video']
+    if runParameters['remoteControl']:
+        REMOTE_CONTROL = True
     CAMERAS_PATH = argDict['cameras']
 
     # clears log file if the CLEAR_LOG is present
