@@ -9,6 +9,7 @@ import numpy as np
 
 try:
     import RPi.GPIO as GPIO
+    GPIO.setmode(GPIO.BCM)
     from smbus2 import *
     from digi.xbee.devices import XBeeDevice
 except ModuleNotFoundError:
