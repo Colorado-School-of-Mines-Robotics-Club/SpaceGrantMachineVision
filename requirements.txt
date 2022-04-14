@@ -10,3 +10,7 @@ matplotlib~=3.5.1
 simple_pid
 sklearn
 digi-xbee
+board
+adafruit-circuitpython-pca9685
+adafruit-circuitpython-motor
+adafruit-circuitpython-mpu6050

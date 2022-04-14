@@ -7,21 +7,22 @@ import time
 import cv2
 import numpy as np
 
-from board import SCL, SDA
-import busio
-
-from adafruit_motor import servo
-from adafruit_pca9685 import PCA9685
-
 try:
     import RPi.GPIO as GPIO
     GPIO.cleanup()
     GPIO.setmode(GPIO.BCM)
     from smbus2 import *
     from digi.xbee.devices import XBeeDevice
+    from board import SCL, SDA
+    import busio
+    from adafruit_motor import servo
+    from adafruit_pca9685 import PCA9685
+    from adafruit_mpu6050 import MPU6050
 except ModuleNotFoundError:
     pass
 except ImportError:
+    pass
+except NotImplementedError:
     pass
 
 # Custom imports
