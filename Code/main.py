@@ -51,7 +51,6 @@ if __name__ == "__main__":
     RECORD = RECORD or runParameters['record']
     THREADED_DISPLAY = THREADED_DISPLAY or runParameters['threadeddisplay']
     VIDEO_PATH = argDict['video']
-    VIDEO = True if VIDEO_PATH != '' else False
     if not runParameters['video'] == '':
         VIDEO_PATH = runParameters['video']
     if runParameters['remoteControl']:
@@ -98,6 +97,7 @@ if __name__ == "__main__":
 
     leftCam, rightCam = handleVideoFlag(VIDEO_PATH, cameraParams["useCapDShow"], cameraParams['leftPort'],
                                         cameraParams['rightPort'])
+    VIDEO = False if isinstance(leftCam, int) else True
 
     # Initialize openVO.StereoCamera for use in ThreadedCapture
     leftK, rightK, leftDistC, rightDistC, rectParams = loadCalibrationFiles(CAMERAS_PATH)

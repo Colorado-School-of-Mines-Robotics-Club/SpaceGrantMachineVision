@@ -16,15 +16,12 @@ class QueuePipe:
 
     # acquires all items from either queue
     def getFromQueue(self, output=False, timeout: Union[float, None] = None) -> List[Any]:
-        targetQueue = self.inputQ
-        targetEmpty = self.inputEmpty
-        if output:
-            targetQueue = self.outputQ
-            targetEmpty = self.outputEmpty
+        targetQueue = self.inputQ if not output else self.outputQ
+        targetEmpty = self.inputEmpty if not output else self.outputEmpty
         items = list()
-        while not targetEmpty:
+        while not targetEmpty():
             try:
-                items.append(targetQueue.get(timeout if timeout is not None else self.timeout))
+                items.append(targetQueue.get(timeout=timeout if timeout is not None else self.timeout))
                 if output:
                     self.currentOutputs -= 1
                 else:

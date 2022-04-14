@@ -30,9 +30,6 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, VIDEO, er
         if LOG_ITERATION_INFO:
             Logger.log(f"#{numTotalIterations}: Started @ {iterationStartTime}")
         try:
-            if numTotalIterations == 59:
-                print("should be a bug here")
-
             # save previous feature information
             prevGrayLeftImage = grayLeftImage
             prevLeftPts = leftPts
