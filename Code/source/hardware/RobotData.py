@@ -40,3 +40,8 @@ class RobotData:
 
     def to_list(self):
         return [self.linear, self.angular, self.fl_height, self.fr_height, self.bl_height, self.br_height]
+
+    def reset(self):
+        self.linear = 0.0
+        self.angular = 0.0
+        self.assignAllHeights(0.0)

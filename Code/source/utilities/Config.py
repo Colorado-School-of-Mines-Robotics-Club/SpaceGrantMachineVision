@@ -23,6 +23,7 @@ class Config:
     filepaths = dict()
     electronicPorts = dict()
     dimensions = dict()
+    trim = dict()
 
     @classmethod
     def init(cls):
@@ -118,3 +119,7 @@ class Config:
     def getFrameSize(cls) -> Tuple[int, int]:
         frameSize = cls.cameraPorts['frame_size']
         return frameSize[0], frameSize[1]
+
+    @classmethod
+    def getMaxVel(cls) -> float:
+        return cls.electronicPorts['utility']['max_vel']

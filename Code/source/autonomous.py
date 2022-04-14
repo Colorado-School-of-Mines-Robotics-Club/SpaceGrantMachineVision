@@ -12,13 +12,14 @@ from .cameras import fetchAndShowCameras, DisplayManager, CaptureManager
 from .features import getImageKeyDesc, getPointsFromKeypoints
 from .objectDetection import objectDetection, experimental
 from .simulation import Map, Robot
-from .utilities import getAvgTimeArr, exceptions, getBoxesXYZ
+from .utilities import getAvgTimeArr, exceptions, getBoxesXYZ, Config
 from .concurrency import PayloadManager
 from .pathfinding import astar, plot_graph
 
 
 def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, VIDEO, errorTolerance, iterationsToAverage,
-               leftCam, rightCam, leftWriter, rightWriter, orb, objectDetectionParams, worldMap, interface):
+               leftCam, rightCam, leftWriter, rightWriter, orb, objectDetectionParams, worldMap, interface, robotData):
+    Config.init()
     numTotalIterations, consecutiveErrors, iterationCounter, iterationTime = 0, 0, 0, 0
     iterationTimes, cameraFTs, featureFTs, objectDectFTs, odometryFTs = list(), list(), list(), list(), list()
     leftImage, rightImage, grayLeftImage = None, None, None
@@ -106,7 +107,12 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, VIDEO, er
 
             if isinstance(route, np.ndarray):
                 world_route = worldMap.convert_route_to_dist(route)
-                # TODO update interface from world_route
+                com_route = worldMap.instruction_converter(world_route)
+                robotData.reset()
+                robotData.linear = Config.getMaxVel()
+                if com_route[0][0] == "ANG":
+                    robotData.angular = com_route[0][1]
+                interface.updateFromRobotData(robotData)
                 PayloadManager.addInputs('hardware', interface.getCommandPWM())
             else:
                 PayloadManager.addInputs('hardware', [0 for i in range(16)])

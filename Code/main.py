@@ -18,7 +18,7 @@ from source.simulation import Map, Robot
 from source.utilities import getAvgTimeArr, getArgDict, getArgFlags, handleRecordFlag, handleClearLogFlag,\
     handleVideoFlag, handleRecordFlagClose, handleThreadedDisplayFlag, Config, exceptions, jit_compile_all
 from source.concurrency import PayloadManager
-from source.hardware import PThardwareCommand, createHardwareManager, KinematicHardwareInterface
+from source.hardware import PThardwareCommand, createHardwareManager, KinematicHardwareInterface, RobotData
 
 from source.autonomous import autonomous
 from source.remoteControl import remoteControl
@@ -120,7 +120,8 @@ if __name__ == "__main__":
 
     # define the map
     worldMap = Map(D=15.24)
-    # robot = Robot()
+    robotData = RobotData(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+    robot = Robot()
     interface = KinematicHardwareInterface()
 
     # # TESTING FOR PAYLOAD MANAGER
@@ -144,7 +145,7 @@ if __name__ == "__main__":
             Logger.log("Starting loop...")
             autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, VIDEO, errorTolerance,
                        iterationsToAverage, leftCam, rightCam, leftWriter, rightWriter, orb, objectDetectionParams,
-                       worldMap, interface)
+                       worldMap, interface, robotData)
             Logger.log("Shutdown loop...")
             # sleep and then check for keyboardInterrupt will fully kill program
             time.sleep(1)
