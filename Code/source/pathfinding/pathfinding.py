@@ -50,8 +50,5 @@ def big_bezzy(grid, start, goal,route,NUM_OF_POINTS = 100):
     points = [X/NUM_OF_POINTS for X in range(0,NUM_OF_POINTS + 1)]
     smoothened = [[curve.evaluate(i)[0][0],curve.evaluate(i)[1][0]] for i in points]
 
+
     return smoothened
-
-def mini_bezzies(route):
-
-    return None
