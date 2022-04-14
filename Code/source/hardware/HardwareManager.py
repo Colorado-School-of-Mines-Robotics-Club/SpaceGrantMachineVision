@@ -13,6 +13,7 @@ try:
     GPIO.setmode(GPIO.BCM)
     from smbus2 import *
     from digi.xbee.devices import XBeeDevice
+    import board
     from board import SCL, SDA
     import busio
     from adafruit_motor import servo
@@ -96,6 +97,8 @@ class HardwareManager:
         self.accel_reg = accelerometer['register']
         self.accel_poll_rate = poll_rates['accelerometer']
 
+        self.accel = MPU6050(board.I2C())
+
         self.xbee_com = xbee['com_port']
         self.xbee_baudrate = xbee['baudrate']
         self.xbee_poll_rate = poll_rates['xbee']
@@ -168,7 +171,7 @@ class HardwareManager:
             for thread in self.motor_threads:
                 thread.start()
             self.servo_thread.start()
-            #self.accel.start()
+            self.accel_thread.start()
             self.xbee_thread.start()
         self.pwm_thread.start()
         return self
@@ -286,34 +289,13 @@ class HardwareManager:
             self.past_servos = self.curr_servos
             self.curr_servos = [GPIO.input(i) for i in range(8)]
 
-    def init_accelerometer(self):
-        self.bus.write_byte_data(self.accelerometer_address, 0x19, 7)  # set sample rate
-        self.bus.write_byte_data(self.accelerometer_address, 0x6B, 1)  # set power management
-        self.bus.write_byte_data(self.accelerometer_address, 0x1A, 0)  # Set config
-        self.bus.write_byte_data(self.accelerometer_address, 0x1B, 24)  # set gyro config
-        self.bus.write_byte_data(self.accelerometer_address, 0x38, 1)  # interrupt enable register
-        return
-
     def read_accelerometer(self, hz=240.0):
-        # setup the accelerometer
-        self.init_accelerometer()
-        # temp area to store data
-        sized = [0, 0, 0, 0, 0, 0]
         # Read the new accelerometer values, and store in curr_accel array. Save the original value to the past_accel
         while True:
-            data = self.bus.read_i2c_block_data(self.accelerometer_address, self.accel_reg, 12)
-            for i in range(6):
-                sized[i] = (data[(2 * i)] << 8) | (data[(2 * i) + 1])
-
-            # TODO
-            # change from goofy analog numbers to real units (m/s^2 and degress/radians)
-
-            # assign store data to class
             self.past_gyro = self.curr_gyro
-            self.curr_gyro = sized[0:3]
             self.past_accel = self.curr_accel
-            self.curr_accel = sized[3:len(sized)]
-
+            self.curr_accel = self.accel.acceleration
+            self.curr_gyro = self.accel.gyro
             time.sleep(1.0 / hz)
 
     def read_xbee(self, hz=240.0):

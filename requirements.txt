@@ -14,3 +14,4 @@ board
 adafruit-circuitpython-pca9685
 adafruit-circuitpython-motor
 adafruit-circuitpython-mpu6050
+adafruit-circuitpython-busdevice
