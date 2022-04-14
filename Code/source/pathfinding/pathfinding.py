@@ -50,20 +50,6 @@ def big_bezzy(grid, start, goal,route,NUM_OF_POINTS = 100):
     points = [X/NUM_OF_POINTS for X in range(0,NUM_OF_POINTS + 1)]
     smoothened = [[curve.evaluate(i)[0][0],curve.evaluate(i)[1][0]] for i in points]
 
-    justX = [i[0] for i in smoothened]
-    justY = [i[1] for i in smoothened]
-
-    print(smoothened[10])
-
-    plot_graph(grid, start, goal, route)
-
-    fig, ax = plt.subplots(figsize=(12, 12))
-    ax.imshow(grid, cmap='Reds')
-    ax.scatter(start[1], start[0], marker="*", color="blue", s=30)
-    ax.scatter(goal[1], goal[0], marker="*", color="green", s=30)
-    ax.plot(justY, justX, color = "black")
-    plt.show()
-
     return smoothened
 
 def mini_bezzies(route):
