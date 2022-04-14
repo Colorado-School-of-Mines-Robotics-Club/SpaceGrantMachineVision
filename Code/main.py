@@ -135,7 +135,7 @@ if __name__ == "__main__":
     payloads.append(("updateOdometer", updateOdometer, (not HEADLESS, THREADED_DISPLAY), makeOdometer,
                      (leftK, leftDistC, rightK, rightDistC, rectParams, sgbmPs, frameSize), None))
     payloads.append(("hardware", PThardwareCommand, (False,), createHardwareManager, (), None))
-    payloads.append(("clustering", experimental.runClustering, (not HEADLESS, THREADED_DISPLAY), None, None, None))
+    # payloads.append(("clustering", experimental.runClustering, (not HEADLESS, THREADED_DISPLAY), None, None, None))
     PayloadManager.initStart(payloads)
 
     # being primary loop

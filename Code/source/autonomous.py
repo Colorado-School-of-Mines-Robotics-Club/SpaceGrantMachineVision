@@ -39,7 +39,7 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, VIDEO, er
             prevObjectBoundingBoxes = objectBoundingBoxes
 
             # acquire previous segmented image
-            segmentedImage = PayloadManager.getOutput('clustering', timeout=0.0)
+            # segmentedImage = PayloadManager.getOutput('clustering', timeout=0.0)
 
             cameraStartTime = time.perf_counter()
             # Satisfies that read images stage of control flow
@@ -51,8 +51,13 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, VIDEO, er
             if VIDEO:
                 leftFrameData, rightFrameData = PayloadManager.getOutput('cameras')
             else:
-                frameData = PayloadManager.getOutputs('cameras')
-                leftFrameData, rightFrameData = frameData[len(frameData) - 1]
+                leftFrameData, rightFrameData = PayloadManager.getOutput('cameras', timeout=None)
+                while time.perf_counter() - leftFrameData[2] > 0.05:
+                    try:
+                        leftFrameData, rightFrameData = PayloadManager.getOutput('cameras', timeout=0.005)
+                    except TypeError:
+                        break
+
             uncroppedLeftImage, leftImage, leftFrameTime = leftFrameData
             uncroppedRightImage, rightImage, rightFrameTime = rightFrameData
 
@@ -82,7 +87,7 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, VIDEO, er
             im3d = np.nan_to_num(im3d, neginf=0.0, posinf=0.0)
             odometryFTs.append(time.perf_counter() - odometryStartTime)
 
-            PayloadManager.addInputs('clustering', [leftImage, im3d])
+            # PayloadManager.addInputs('clustering', [leftImage, im3d])
 
             # get the real world cordinates and update the map
             box_cords = getBoxesXYZ(im3d, objectBoundingBoxes)
