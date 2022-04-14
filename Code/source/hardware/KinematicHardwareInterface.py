@@ -102,3 +102,12 @@ class KinematicHardwareInterface:
         command = motor_pwms + servo_pwms + led_pwms
         assert len(command) == 16
         return command
+    
+    def getCommandTargets(self) -> List[int]:
+        motor_pwms = [self.ms_to_pwm(com) for com in self.command[0:4]]
+        servo_pwms = [math.floor(com / math.pi * 180) for com in self.command[4:12]]
+        led_pwms = [self.bool_to_pwm(com) for com in self.ledStates]
+        command = motor_pwms + servo_pwms + led_pwms
+        assert len(command) == 16
+        return command
+

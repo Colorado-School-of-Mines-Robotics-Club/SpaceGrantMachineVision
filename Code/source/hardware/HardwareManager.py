@@ -7,8 +7,15 @@ import time
 import cv2
 import numpy as np
 
+from board import SCL, SDA
+import busio
+
+from adafruit_motor import servo
+from adafruit_pca9685 import PCA9685
+
 try:
     import RPi.GPIO as GPIO
+    GPIO.cleanup()
     GPIO.setmode(GPIO.BCM)
     from smbus2 import *
     from digi.xbee.devices import XBeeDevice
@@ -51,7 +58,13 @@ class HardwareManager:
         self.deg_per_click = 360.0 / self.clicks_per_rev
 
         # declare the bus
-        self.bus = SMBus(1)
+        #self.bus = SMBus(1)
+        # busio.I2C.deinit()
+        self.bus = busio.I2C(SCL, SDA)
+
+        self.pca = PCA9685(self.bus)
+
+        self.pca.frequency = 50
 
         # declare the PWM Controller and last sent PWM values
         # TODO
@@ -133,26 +146,26 @@ class HardwareManager:
         # Split encoder reading into 4 threads for speed and accuracy
         self.motor_threads = [threading.Thread(target=self.read_motor, args=(i,), daemon=True) for i in range(4)]
         # one thread for reading servo return data
-        self.servos = threading.Thread(target=self.read_servo, args=(), daemon=True)
+        self.servo_thread = threading.Thread(target=self.read_servo, args=(), daemon=True)
         # one thread for reading accelerometer data
-        self.accel = threading.Thread(target=self.read_accelerometer, args=(self.accel_poll_rate,), daemon=True)
+        self.accel_thread = threading.Thread(target=self.read_accelerometer, args=(self.accel_poll_rate,), daemon=True)
         # thread for writing to the PWM breakout board at a certain HZ
         self.pwm_thread = threading.Thread(target=self.write_pwm_targets, args=(None,), daemon=True)
         # thread for reading the xbee
         self.xbee_thread = threading.Thread(target=self.read_xbee, args=(self.xbee_poll_rate,), daemon=True)
 
         # set the PWM board to 50hz
-        self.bus.write_byte_data(self.pwm_address, 0x00, 0x00)
-        self.bus.write_byte_data(self.pwm_address, 0x01, 0x18)
-        self.bus.write_byte_data(self.pwm_address, 0xFE, 0x7A)
+        # self.bus.write_byte_data(self.pwm_address, 0x00, 0x00)
+        # self.bus.write_byte_data(self.pwm_address, 0x01, 0x18)
+        # self.bus.write_byte_data(self.pwm_address, 0xFE, 0x7A)
 
     def start_threads(self) -> 'HardwareManager':
         # start all data collection threads
         if self.feedback:
             for thread in self.motor_threads:
                 thread.start()
-            self.servos.start()
-            self.accel.start()
+            self.servo_thread.start()
+            #self.accel.start()
             self.xbee_thread.start()
         self.pwm_thread.start()
         return self
@@ -162,10 +175,13 @@ class HardwareManager:
         if self.feedback:
             for thread in self.motor_threads:
                 thread.join()
-            self.servos.join()
-            self.accel.join()
+            self.servo_thread.join()
+            self.accel_thread.join()
             self.xbee_thread.join()
         self.pwm_thread.join()
+
+        self.pca.deinit()
+
         return self
 
     @staticmethod
@@ -185,6 +201,10 @@ class HardwareManager:
         self.write_pwm(writes)
 
     def write_pwm_targets(self, hz: Union[float, None] = None):
+        self.servos = []
+        for i in range(8):
+            self.servos[i] = servo.Servo(self.pca.channels[i + 4])
+
         while True:
             _, _, self.curr_led_pwm = self.pid.get_targets_split()  # assume leds are at target always
             self.write_pwm(self.pid.get_pwm(self.curr_motor_pwm + self.curr_servo_pwm + self.curr_led_pwm))
@@ -200,54 +220,32 @@ class HardwareManager:
 
         # Write PWM for each motor
         writes_counter = self.write_pwm_helper(self.motor_reg, writes_counter, writes)
-        # Write PWM for each servo
-        writes_counter = self.write_pwm_helper(self.servo_reg, writes_counter, writes)
+        # Write angle for each servo
+        writes_counter = self.write_servos(writes_counter, writes)
         # Write PWM for each LED
-        writes_counter = self.write_pwm_helper(self.led_reg, writes_counter, writes)
+        # writes_counter = self.write_pwm_helper(self.led_reg, writes_counter, writes)
 
         self.write_gpio()
 
     # writes the registers, then returns the current value of the writes_counter for later use
     def write_pwm_helper(self, reg_list, writes_counter, writes):
-        for reg in reg_list:
-            # four writes for each register
-            # writes holds time high, use it to calculate time low
-            high = writes[writes_counter]
-            low = 4095 - high
 
-            # calculate 1st byte for high, high is a number between 0-4095 (which takes up 12 bits max)
-            # 1st bit holds biggest 4 bits of high, 2nd bit holds last 8 (4 + 8 = 12 bits stored)
-            # an int is stored using 4 bits, so to isolate those 4, shift 20 left, then 28 right
-            high1 = high
-            high1 = (high1 << 20) >> 28
-            # high1 is now the first 4 isolated bits
-            # high2 needs to be the last 8 bits isolated, so shift left 24, right 24 to get rid of all leading bits
-            high2 = high
-            high2 = (high2 << 24) >> 24
-
-            # same process for calculating the low data
-            low1 = low
-            low1 = (low1 << 20) >> 28
-
-            low2 = low
-            low2 = (low2 << 24) >> 24
-
-            # write the 4 registers, data = [reg, byte_to_write]
-            # first register is the first byte of high
-            self.bus.write_i2c_block_data(self.pwm_address, reg[0], [high1])
-            # second register is the second byte of high
-            self.bus.write_i2c_block_data(self.pwm_address, reg[1], [high2])
-            # 3rd register is the first byte of low
-            self.bus.write_i2c_block_data(self.pwm_address, reg[2], [low1])
-            # 4th register is the second byte of low
-            self.bus.write_i2c_block_data(self.pwm_address, reg[3], [low2])
-
-            # increment the writes_counter by one; only one value in the writes array was used
+        for i in range(0, 4):
+            self.pca.channels[i].duty_cycle = writes[writes_counter]
             writes_counter += 1
-            # finished loop, continue to next register
 
         # return the updated writes_counter for use in the other calls
         return writes_counter
+    
+    def write_servos(self, writes_counter, writes):
+
+        for i in range(0, 8):
+            self.servos[i].angle = writes[writes_counter]
+            writes_counter += 1
+        
+        return writes_counter
+
+
 
     def write_gpio(self):
         # iterate over the directions
@@ -262,6 +260,8 @@ class HardwareManager:
             GPIO.output(pin2, dir2)
 
     def read_motor(self, thread):
+        GPIO.setup(self.motor_pins[thread][0], GPIO.IN)
+        GPIO.setup(self.motor_pins[thread][1], GPIO.IN)
         # read current edge value before starting the loop
         self.past_encoders[thread] = GPIO.input(self.motor_pins[thread][0])
 
@@ -282,17 +282,20 @@ class HardwareManager:
             self.motor_time_slices[thread] = time.perf_counter() - self.motor_time_slices[thread]
 
     def read_servo(self):
+        for i in range(8):
+            GPIO.setup(i, GPIO.IN)
         # Read the new servo values, and store in curr_servo array. Save the original value to the past_servo
         while True:
             self.past_servos = self.curr_servos
             self.curr_servos = [GPIO.input(i) for i in range(8)]
 
     def init_accelerometer(self):
-        self.bus.write_byte_data(self.accelerometer_address, 0x19, 7)  # set sample rate
-        self.bus.write_byte_data(self.accelerometer_address, 0x6B, 1)  # set power management
-        self.bus.write_byte_data(self.accelerometer_address, 0x1A, 0)  # Set config
-        self.bus.write_byte_data(self.accelerometer_address, 0x1B, 24)  # set gyro config
-        self.bus.write_byte_data(self.accelerometer_address, 0x38, 1)  # interrupt enable register
+        # self.bus.write_byte_data(self.accelerometer_address, 0x19, 7)  # set sample rate
+        # self.bus.write_byte_data(self.accelerometer_address, 0x6B, 1)  # set power management
+        # self.bus.write_byte_data(self.accelerometer_address, 0x1A, 0)  # Set config
+        # self.bus.write_byte_data(self.accelerometer_address, 0x1B, 24)  # set gyro config
+        # self.bus.write_byte_data(self.accelerometer_address, 0x38, 1)  # interrupt enable register
+        return
 
     def read_accelerometer(self, hz=240.0):
         # setup the accelerometer
