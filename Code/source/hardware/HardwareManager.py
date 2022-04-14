@@ -66,6 +66,8 @@ class HardwareManager:
 
         self.pca.frequency = 50
 
+        self.servos = [servo.Servo(self.pca.channels[i + 4]) for i in range(8)]
+
         # declare the PWM Controller and last sent PWM values
         # TODO
         # load constraint and setpoint data from config file for the PID controller
@@ -201,10 +203,6 @@ class HardwareManager:
         self.write_pwm(writes)
 
     def write_pwm_targets(self, hz: Union[float, None] = None):
-        self.servos = []
-        for i in range(8):
-            self.servos[i] = servo.Servo(self.pca.channels[i + 4])
-
         while True:
             _, _, self.curr_led_pwm = self.pid.get_targets_split()  # assume leds are at target always
             self.write_pwm(self.pid.get_pwm(self.curr_motor_pwm + self.curr_servo_pwm + self.curr_led_pwm))
@@ -244,8 +242,6 @@ class HardwareManager:
             writes_counter += 1
         
         return writes_counter
-
-
 
     def write_gpio(self):
         # iterate over the directions
@@ -290,11 +286,11 @@ class HardwareManager:
             self.curr_servos = [GPIO.input(i) for i in range(8)]
 
     def init_accelerometer(self):
-        # self.bus.write_byte_data(self.accelerometer_address, 0x19, 7)  # set sample rate
-        # self.bus.write_byte_data(self.accelerometer_address, 0x6B, 1)  # set power management
-        # self.bus.write_byte_data(self.accelerometer_address, 0x1A, 0)  # Set config
-        # self.bus.write_byte_data(self.accelerometer_address, 0x1B, 24)  # set gyro config
-        # self.bus.write_byte_data(self.accelerometer_address, 0x38, 1)  # interrupt enable register
+        self.bus.write_byte_data(self.accelerometer_address, 0x19, 7)  # set sample rate
+        self.bus.write_byte_data(self.accelerometer_address, 0x6B, 1)  # set power management
+        self.bus.write_byte_data(self.accelerometer_address, 0x1A, 0)  # Set config
+        self.bus.write_byte_data(self.accelerometer_address, 0x1B, 24)  # set gyro config
+        self.bus.write_byte_data(self.accelerometer_address, 0x38, 1)  # interrupt enable register
         return
 
     def read_accelerometer(self, hz=240.0):
