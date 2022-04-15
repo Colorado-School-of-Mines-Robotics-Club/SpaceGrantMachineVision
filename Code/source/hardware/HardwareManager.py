@@ -2,6 +2,7 @@
 import threading
 from typing import List, Tuple, Union
 import time
+from queue import Queue
 
 # Additional libs
 import cv2
@@ -45,6 +46,10 @@ class HardwareManager:
         poll_rates = electronics['poll_rates']
         utility = electronics['utility']
         pwm_board = electronics['pwm_board']
+
+        # queue for commands to be in
+        self.commandList = list()
+        self.commandsUpdated = False
 
         # clicks per rev for motor
         self.clicks_per_rev = utility['clicks_per_rev']
@@ -154,7 +159,6 @@ class HardwareManager:
             self.servos.start()
             self.accel.start()
             self.xbee_thread.start()
-        self.pwm_thread.start()
         return self
 
     def join_threads(self) -> 'HardwareManager':
@@ -165,8 +169,18 @@ class HardwareManager:
             self.servos.join()
             self.accel.join()
             self.xbee_thread.join()
-        self.pwm_thread.join()
         return self
+
+    def run_pwm_commands(self):
+        self.pwm_thread = threading.Thread(target=self.write_pwm_targets, args=(None,), daemon=True)
+
+    def stop_pwm_commands(self):
+        self.commandsUpdated = True
+        self.pwm_thread.join()
+
+    def reset_pwm_commands(self):
+        self.stop_pwm_commands()
+        self.run_pwm_commands()
 
     @staticmethod
     def writes_convert(writes: List[int], dirs=None) -> Tuple[List[int], List[int]]:
@@ -184,12 +198,23 @@ class HardwareManager:
         self.directions, writes = HardwareManager.writes_convert(writes)
         self.write_pwm(writes)
 
-    def write_pwm_targets(self, hz: Union[float, None] = None):
-        while True:
-            _, _, self.curr_led_pwm = self.pid.get_targets_split()  # assume leds are at target always
-            self.write_pwm(self.pid.get_pwm(self.curr_motor_pwm + self.curr_servo_pwm + self.curr_led_pwm))
-            if hz is not None:
-                time.sleep(1.0 / hz)
+    def write_pwm_targets(self, hz=240.0):
+        for command in self.commandList:
+            command_pwm, command_time = command
+            self.pid.update_targets(command_pwm)
+            _, _, self.curr_led_pwm = self.pid.get_targets_split()
+            commandStartTime = time.perf_counter()
+            while time.perf_counter() - commandStartTime < command_time * 0.98:
+                if not self.commandsUpdated:
+                    self.directions, self.targets = HardwareManager.writes_convert(command_pwm)
+                    self.pid.update_targets(self.targets)
+                    self.write_pwm(self.pid.get_pwm(self.curr_motor_pwm + self.curr_servo_pwm + self.curr_led_pwm))
+                    time.sleep(1.0 / hz)
+                else:
+                    break
+            if not self.commandsUpdated:
+                self.commandsUpdated = False
+                break
 
     # writes is a List[m1, m2, m3, m4, s1, s2, s3, s4, s5, s6, s7, s8, l1, l2, l3, l4]
     # motors are constrained to: [0, 4095]
@@ -370,6 +395,6 @@ class HardwareManager:
 
     # PID methods
     # method to expose PIDController function update_targets
-    def update_pwm_targets(self, targets: List[int]):
-        self.directions, self.targets = HardwareManager.writes_convert(targets)
-        self.pid.update_targets(self.targets)
+    def update_pwm_targets(self, targets: Tuple[List[int], float]):
+        self.commandList = targets
+        self.reset_pwm_commands()
