@@ -1,5 +1,6 @@
 # Built in python libs
 import threading
+from threading import Lock
 from typing import List, Tuple, Union
 import time
 from collections import deque
@@ -33,19 +34,24 @@ try:
     from source.logger.Logger import Logger
     from .PIDController import PIDController
     from source.utilities.Config import Config
-except ModuleNotFoundError as e:
+except ModuleNotFoundError as importException:
     try:
         from Code.source.logger.Logger import Logger
         from .PIDController import PIDController
         from Code.source.utilities.Config import Config
     except ModuleNotFoundError:
-        raise e
+        raise importException
 
 
 class HardwareManager:
-    def __init__(self, motor_feedback=True, servo_feedback=True, accel_feedback=True, xbee_feedback=True,
+    def __init__(self, motor_feedback=True, servo_feedback=True, accel_feedback=False, xbee_feedback=True,
                  instant_encoder_reads=True):
+        # flag for stopping all threads gracefully
         self.stopped = False
+
+        # lock for doing any operations on the I2C bus
+        self.i2c_lock = Lock()
+
         Config.init()
         electronics = Config.getElectronicPortsDict()
         motors = electronics['motors']
@@ -64,7 +70,8 @@ class HardwareManager:
         # clicks per rev for motor
 
         # define the PWM control board
-        self.pca = PCA9685(busio.I2C(SCL, SDA))
+        with self.i2c_lock:
+            self.pca = PCA9685(busio.I2C(SCL, SDA))  # IDK if we should do any cleanup if this fails??
         self.pca.frequency = electronics['pwm_board']['hz']
 
         # declare the PWM Controller and last sent PWM values
@@ -77,7 +84,10 @@ class HardwareManager:
 
         # setup the accel device
         try:
-            self.accel = MPU6050(board.I2C())
+            if not accel_feedback:  # if we turn accel off we should just do nothing
+                raise IOError
+            with self.i2c_lock:
+                self.accel = MPU6050(board.I2C())
         except IOError:
             self.accel = None
         finally:
@@ -90,7 +100,10 @@ class HardwareManager:
 
         # setup the xbee device
         try:
-            self.xbee = XBeeDevice(xbee['com_port'], xbee['baudrate'])
+            if not xbee_feedback:  # if we turn xbee off we should just do nothing
+                raise IOError
+            with self.i2c_lock:
+                self.xbee = XBeeDevice(xbee['com_port'], xbee['baudrate'])
         except IOError:
             self.xbee = None
         finally:
@@ -109,7 +122,7 @@ class HardwareManager:
         self.num_motors = len(self.motor_pins)
         self.motor_feedback = motor_feedback
         self.curr_encoders = [[0, 0] for i in range(self.num_motors)]
-        self.past_encoders = [[0, 0] for i in range(self.num_motors)]
+        self.past_encoders = [0 for i in range(self.num_motors)]
         self.clicks_per_rev = utility['clicks_per_rev']
         self.deg_per_click = 360.0 / self.clicks_per_rev
         self.init_time = time.perf_counter()
@@ -129,7 +142,8 @@ class HardwareManager:
                           servos['back_left_wheel']['registers'], servos['back_left_suspension']['registers'],
                           servos['back_right_wheel']['registers'], servos['back_right_suspension']['registers']]
         self.num_servos = len(self.servo_pins)
-        self.servos = [servo.Servo(self.pca.channels[i + 4]) for i in range(self.num_servos)]
+        with self.i2c_lock:
+            self.servos = [servo.Servo(self.pca.channels[i + 4]) for i in range(self.num_servos)]
         self.servo_feedback = servo_feedback
         self.curr_servo_pwm = [0 for i in range(self.num_servos)]  # TODO update from curr and past data
         self.curr_servos = [0 for i in range(self.num_servos)]
@@ -218,7 +232,7 @@ class HardwareManager:
             while time.perf_counter() - commandStartTime < command_time and not self.stopped:
                 self.directions, self.targets = self.writes_convert(command_pwm)
                 self.pid.update_targets(self.targets)
-                self.write_pwm(self.pid.get_pwm(self.curr_motor_pwm + self.curr_servo_pwm + led_target))
+                self.write_pwm(self.pid.get_pwm(self.curr_motor_pwm + self.curr_servo_pwm + led_target))  # writes gpio
 
                 if hz is not None:
                     time.sleep(1.0 / hz)
@@ -240,7 +254,8 @@ class HardwareManager:
     def write_motors(self, writes_counter, writes):
         # iterate over the motors setting up the write
         for i in range(self.num_motors):
-            self.pca.channels[i].duty_cycle = writes[writes_counter]
+            with self.i2c_lock:
+                self.pca.channels[i].duty_cycle = writes[writes_counter]
             writes_counter += 1
 
         # return the updated writes_counter for use in the other calls
@@ -250,7 +265,8 @@ class HardwareManager:
     def write_servos(self, writes_counter, writes):
         # iterate over the servos setting up the writes
         for i in range(self.num_servos):
-            self.servos[i].angle = writes[writes_counter]
+            with self.i2c_lock:
+                self.servos[i].angle = writes[writes_counter]
             writes_counter += 1
 
         return writes_counter
@@ -304,8 +320,9 @@ class HardwareManager:
         while not self.stopped:
             self.past_gyro = self.curr_gyro
             self.past_accel = self.curr_accel
-            self.curr_accel = self.accel.acceleration
-            self.curr_gyro = self.accel.gyro
+            with self.i2c_lock:
+                self.curr_accel = self.accel.acceleration
+                self.curr_gyro = self.accel.gyro
 
             if hz is not None:
                 time.sleep(1.0 / hz)
@@ -314,7 +331,8 @@ class HardwareManager:
         # read data from the xbee
         while True:
             self.past_xbee.append(self.curr_xbee)
-            xbee_message = self.xbee.read_data()
+            with self.i2c_lock:
+                xbee_message = self.xbee.read_data()
             remote = xbee_message.remote_device
             data = xbee_message.data
             is_broadcast = xbee_message.is_broadcast
