@@ -55,6 +55,9 @@ class KinematicHardwareInterface:
         servo_dev = servo_dev if abs(servo_dev) <= self.max_servo_dev else sign * self.max_servo_dev
         return self.servo_center + servo_dev
 
+    def radians_to_deg(self, rad: float) -> int:
+        return int(rad * 180.0 / math.pi)
+
     @staticmethod
     def bool_to_pwm(boolean: bool) -> int:
         if boolean:
@@ -102,3 +105,12 @@ class KinematicHardwareInterface:
         command = motor_pwms + servo_pwms + led_pwms
         assert len(command) == 16
         return command
+    
+    def getCommandTargets(self) -> List[int]:
+        motor_pwms = [self.ms_to_pwm(com) for com in self.command[0:4]]
+        servo_pwms = [self.radians_to_deg(com) for com in self.command[4:12]]
+        led_pwms = [self.bool_to_pwm(com) for com in self.ledStates]
+        command = motor_pwms + servo_pwms + led_pwms
+        assert len(command) == 16
+        return command
+

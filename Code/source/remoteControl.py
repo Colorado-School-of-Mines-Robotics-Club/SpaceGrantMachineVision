@@ -20,8 +20,8 @@ from .logger import Logger
 vel_data = RobotData(linear=0.0, angular=0.0, fl_height=0.0, fr_height=0.0, bl_height=0.0, br_height=0.0)
 global_shutdown = False
 
-hardware = None
-interface = None
+hardware: HardwareManager = None
+interface: KinematicHardwareInterface = None
 
 def incomingDataLoop(tcp_port: int = 9500):
     server_address = ('', tcp_port)
