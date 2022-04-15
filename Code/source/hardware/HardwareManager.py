@@ -205,7 +205,6 @@ class HardwareManager:
         self.directions, writes = self.writes_convert(writes)
         self.write_pwm(writes)
 
-    # TODO have this write the direction pins
     def write_pwm_targets(self, hz=240.0):
         while not self.stopped:
             try:
