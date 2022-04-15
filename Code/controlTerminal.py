@@ -271,7 +271,7 @@ def handle_sigterm_signal(cls, sig, frame):
 def run_controller():
     hz = 60.0
 
-    ip_address = "138.67.11.112"
+    ip_address = "192.168.1.100"
 
     viewer_thread = Thread(target=remoteViewer, args=(ip_address,), name="Remote_Viewer", daemon=True)
     # viewer_thread.start()
