@@ -97,7 +97,8 @@
         "registers": [7, 6, 9, 8],
         "enc_pins": [23, 24],
         "dir_pins": [14, 15]
-      }
+      },
+      "dir_setpoints":  [0, 1, 0, 1]
     },
     "servos": {
       "front_left_wheel": {
