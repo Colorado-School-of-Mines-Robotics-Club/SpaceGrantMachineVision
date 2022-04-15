@@ -80,57 +80,57 @@
     "motors": {
       "front_left": {
         "registers": [15, 14, 17, 16],
-        "enc_pins": [31, 33],
-        "dir_pins": [27, 29]
+        "enc_pins": [6, 13],
+        "dir_pins": [0, 5]
       },
       "front_right": {
         "registers": [11, 10, 13, 12],
-        "enc_pins": [11, 13],
-        "dir_pins": [19, 21]
+        "enc_pins": [17, 27],
+        "dir_pins": [10, 9]
       },
       "back_left": {
         "registers": [19, 18, 21, 20],
-        "enc_pins": [36, 38],
-        "dir_pins": [22, 24]
+        "enc_pins": [16, 20],
+        "dir_pins": [25, 8]
       },
       "back_right": {
         "registers": [7, 6, 9, 8],
-        "enc_pins": [16, 18],
-        "dir_pins": [8, 10]
+        "enc_pins": [23, 24],
+        "dir_pins": [14, 15]
       }
     },
     "servos": {
       "front_left_wheel": {
         "registers": [43, 42, 45, 44],
-        "pin": 35
+        "pin": 19
       },
       "front_left_suspension": {
         "registers": [51, 50, 53, 52],
-        "pin": 37
+        "pin": 26
       },
       "front_right_wheel": {
         "registers": [31, 30, 33, 32],
-        "pin": 15
+        "pin": 22
       },
       "front_right_suspension": {
         "registers": [27, 26, 29, 28],
-        "pin": 7
+        "pin": 4
       },
       "back_left_wheel": {
         "registers": [39, 38, 41, 40],
-        "pin": 26
+        "pin": 7
       },
       "back_left_suspension": {
         "registers": [47, 46, 49, 48],
-        "pin": 28
+        "pin": 1
       },
       "back_right_wheel": {
         "registers": [35, 34, 37, 36],
-        "pin": 23
+        "pin": 11
       },
       "back_right_suspension": {
         "registers": [23, 22, 25, 24],
-        "pin": 12
+        "pin": 18
       }
     },
     "leds": {
