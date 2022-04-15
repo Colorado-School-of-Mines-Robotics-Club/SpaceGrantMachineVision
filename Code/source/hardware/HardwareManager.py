@@ -44,7 +44,7 @@ except ModuleNotFoundError as importException:
 
 
 class HardwareManager:
-    def __init__(self, motor_feedback=True, servo_feedback=True, accel_feedback=False, xbee_feedback=True,
+    def __init__(self, motor_feedback=True, servo_feedback=True, accel_feedback=False, xbee_feedback=False,
                  instant_encoder_reads=True):
         # flag for stopping all threads gracefully
         self.stopped = False
@@ -310,7 +310,7 @@ class HardwareManager:
         # Read the new servo values, and store in curr_servo array. Save the original value to the past_servo
         while not self.stopped:
             self.past_servos = self.curr_servos
-            self.curr_servos = [GPIO.input(i) for i in range(self.num_servos)]
+            self.curr_servos = [GPIO.input(pin) for pin in self.servo_pins]
 
             if hz is not None:
                 time.sleep(1.0 / hz)
@@ -385,3 +385,5 @@ class HardwareManager:
     def stop(self):
         self.stopped = True
         self.join_threads()
+        time.sleep(1)
+        GPIO.cleanup()
