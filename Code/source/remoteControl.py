@@ -5,6 +5,7 @@ import sys
 from dataclasses import dataclass
 import keyboard
 import socket
+from typing import Union
 
 try:
     from .hardware import RobotData, HardwareManager, KinematicHardwareInterface
@@ -20,8 +21,9 @@ from .logger import Logger
 vel_data = RobotData(linear=0.0, angular=0.0, fl_height=0.0, fr_height=0.0, bl_height=0.0, br_height=0.0)
 global_shutdown = False
 
-hardware: HardwareManager = None
-interface: KinematicHardwareInterface = None
+hardware: Union[HardwareManager, None] = None
+interface: Union[KinematicHardwareInterface, None] = None
+
 
 def incomingDataLoop(tcp_port: int = 9500):
     server_address = ('', tcp_port)
@@ -54,8 +56,9 @@ def incomingDataLoop(tcp_port: int = 9500):
         # Update the robot
         global interface
         global hardware
+        print(f"Received command: {vel_data}")
         interface.updateFromRobotData(robotData=vel_data)
-        hardware.update_pwm_targets([(interface.getCommandPWM(), 2)])
+        hardware.update_pwm_targets([(interface.getCommandTargets(), 2)])
 
     return
 
