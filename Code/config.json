@@ -143,19 +143,26 @@
     "sensors": {
       "accelerometer": {
         "address": 104,
-        "register": 59
+        "register": 59,
+        "accel_data": [0, 0, 0],
+        "gyro_data": [0, 0, 0]
       },
       "xbee": {
         "com_port": "COM3",
-        "baudrate": 9600
+        "baudrate": 9600,
+        "data": []
       }
     },
     "pwm_board": {
-      "address": 64
+      "address": 64,
+      "hz": 50
     },
     "poll_rates": {
       "accelerometer": 240.0,
-      "xbee": 240.0
+      "xbee": 240.0,
+      "motors": 240.0,
+      "servos": 240.0,
+      "writes": 240.0
     },
     "utility": {
       "clicks_per_rev": 48.0,

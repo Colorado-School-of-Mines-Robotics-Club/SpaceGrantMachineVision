@@ -41,53 +41,56 @@ except ModuleNotFoundError as e:
 
 
 class HardwareManager:
-    def __init__(self, motor_feedback=True, servo_feedback=True, accel_feedback=True, xbee_feedback=True):
+    def __init__(self, motor_feedback=True, servo_feedback=True, accel_feedback=True, xbee_feedback=True,
+                 instant_encoder_reads=True):
         Config.init()
         electronics = Config.getElectronicPortsDict()
         motors = electronics['motors']
         servos = electronics['servos']
         leds = electronics['leds']
         sensors = electronics['sensors']
-        accelerometer = sensors['accelerometer']
         xbee = sensors['xbee']
+        accel = sensors['accelerometer']
         poll_rates = electronics['poll_rates']
         utility = electronics['utility']
-        pwm_board = electronics['pwm_board']
 
         # clicks per rev for motor
-        self.clicks_per_rev = utility['clicks_per_rev']
-        self.deg_per_click = 360.0 / self.clicks_per_rev
-
-        # declare the bus
-        #self.bus = SMBus(1)
-        # busio.I2C.deinit()
 
         # define the PWM control board
         self.pca = PCA9685(busio.I2C(SCL, SDA))
-        self.pca.frequency = 50
+        self.pca.frequency = electronics['pwm_board']['hz']
 
         # declare the PWM Controller and last sent PWM values
         # TODO
         # load constraint and setpoint data from config file for the PID controller
         self.pid: PIDController = PIDController(passthrough=True)
         self.targets = self.pid.get_targets()
-        self.directions = [0, 0, 0, 0]
+        self.directions = motors['dir_setpoints']  # the default directions setup for forward
+        self.pwm_write_poll_rate = poll_rates['writes']
 
         # setup the accel device
         try:
             self.accel = MPU6050(board.I2C())
         except IOError:
             self.accel = None
-        self.accel_poll_rate = poll_rates['accelerometer']
-        self.accel_feedback = accel_feedback
+        finally:
+            self.accel_poll_rate = poll_rates['accelerometer']
+            self.accel_feedback = accel_feedback
+            self.curr_accel = accel['accel_data']
+            self.past_accel = accel['accel_data']
+            self.curr_gyro = accel['gyro_data']
+            self.past_gyro = accel['gyro_data']
 
         # setup the xbee device
         try:
             self.xbee = XBeeDevice(xbee['com_port'], xbee['baudrate'])
         except IOError:
             self.xbee = None
-        self.xbee_poll_rate = poll_rates['xbee']
-        self.xbee_feedback = xbee_feedback
+        finally:
+            self.xbee_poll_rate = poll_rates['xbee']
+            self.xbee_feedback = xbee_feedback
+            self.past_xbee = xbee['data']
+            self.curr_xbee = xbee['data']
 
         # pins for motor encoders and direction setting
         self.motor_pins = [motors['front_left']['enc_pins'], motors['front_right']['enc_pins'],
@@ -100,10 +103,14 @@ class HardwareManager:
         self.motor_feedback = motor_feedback
         self.curr_encoders = [[0, 0] for i in range(self.num_motors)]
         self.past_encoders = [[0, 0] for i in range(self.num_motors)]
+        self.clicks_per_rev = utility['clicks_per_rev']
+        self.deg_per_click = 360.0 / self.clicks_per_rev
         self.init_time = time.perf_counter()
         self.motor_time_slices: List[float] = [self.init_time, self.init_time, self.init_time, self.init_time]
-        self.curr_motor_pwm = [0 for i in range(self.num_motors)]
+        self.curr_motor_pwm = [0 for i in range(self.num_motors)]  # TODO update from curr and past data
+        self.curr_motor_enc = [0 for i in range(self.num_motors)]
         self.direction_setpoints = motors['dir_setpoints']
+        self.motor_poll_rate = poll_rates['motors'] if not instant_encoder_reads else None
 
         # servo feedback pins
         self.servo_pins = [servos['front_left_wheel']['pin'], servos['front_left_suspension']['pin'],
@@ -117,36 +124,31 @@ class HardwareManager:
         self.num_servos = len(self.servo_pins)
         self.servos = [servo.Servo(self.pca.channels[i + 4]) for i in range(self.num_servos)]
         self.servo_feedback = servo_feedback
+        self.curr_servo_pwm = [0 for i in range(self.num_servos)]  # TODO update from curr and past data
         self.curr_servos = [0 for i in range(self.num_servos)]
         self.past_servos = [0 for i in range(self.num_servos)]
+        self.servo_poll_rate = poll_rates['servos']
+
+        # setup the registers for the leds
+        self.led_reg = [leds['one'], leds['two'], leds['three'], leds['four']]
 
         for pin in self.dir_pins:
             GPIO.setup(pin, GPIO.OUT)
         for pin in self.servo_pins:
             GPIO.setup(pin, GPIO.IN)
-        for pin in self.motor_pins:
-            GPIO.setup(pin, GPIO.IN)
+        for pins in self.motor_pins:
+            GPIO.setup(pins[0], GPIO.IN)
+            GPIO.setup(pins[1], GPIO.IN)
 
-        self.led_reg = [leds['one'], leds['two'], leds['three'], leds['four']]
-
-        self.curr_accel = [0, 0, 0]
-        self.past_accel = [0, 0, 0]
-
-        self.curr_gyro = [0, 0, 0]
-        self.past_gyro = [0, 0, 0]
-
-        self.past_xbee = None
-        self.curr_xbee = None
-
-        # Split encoder reading into 4 threads for speed and accuracy
-        self.motor_threads = [threading.Thread(target=self.read_motor, args=(i,), daemon=True) for i in range(4)]
-        # one thread for reading servo return data
-        self.servo_thread = threading.Thread(target=self.read_servo, args=(), daemon=True)
-        # one thread for reading accelerometer data
+        # Split encoder reading into 4 threads for speed and accuracy at a certain HZ
+        self.motor_threads = [threading.Thread(target=self.read_motor, args=(i, self.motor_poll_rate,), daemon=True) for i in range(self.num_motors)]
+        # one thread for reading servo return data at a certain HZ
+        self.servo_thread = threading.Thread(target=self.read_servo, args=(self.servo_poll_rate,), daemon=True)
+        # one thread for reading accelerometer data at a certain HZ
         self.accel_thread = threading.Thread(target=self.read_accelerometer, args=(self.accel_poll_rate,), daemon=True)
         # thread for writing to the PWM breakout board at a certain HZ
-        self.pwm_thread = threading.Thread(target=self.write_pwm_targets, args=(), daemon=True)
-        # thread for reading the xbee
+        self.pwm_thread = threading.Thread(target=self.write_pwm_targets, args=(self.pwm_write_poll_rate,), daemon=True)
+        # thread for reading the xbee at a certain HZ
         self.xbee_thread = threading.Thread(target=self.read_xbee, args=(self.xbee_poll_rate,), daemon=True)
 
     def start_threads(self) -> 'HardwareManager':
@@ -188,7 +190,8 @@ class HardwareManager:
                 dirs[i] = 1 if dirs[i] == 0 else 0
             elif writes[i] == 0:
                 dirs[i] = 2
-        writes = [abs(x) for x in writes]
+            writes[i] = abs(writes[i])  # only motors should be given a strictly positive value
+        # writes = [abs(x) for x in writes]
         return dirs, writes
 
     def write_pwm_autodir(self, writes: List[int]):
@@ -209,29 +212,27 @@ class HardwareManager:
     # leds are constrained to: [0, 4095]
     def write_pwm(self, writes: List[int]):
         writes_counter = 0
-
         # Write PWM for each motor
-        writes_counter = self.write_pwm_helper(self.motor_reg, writes_counter, writes)
+        writes_counter = self.write_motors(writes_counter, writes)
         # Write angle for each servo
-        writes_counter = self.write_servos(writes_counter, writes)
-        # Write PWM for each LED
-        # writes_counter = self.write_pwm_helper(self.led_reg, writes_counter, writes)
-
+        _ = self.write_servos(writes_counter, writes)
+        # write the GPIO pins for directions
         self.write_gpio()
 
     # writes the registers, then returns the current value of the writes_counter for later use
-    def write_pwm_helper(self, reg_list, writes_counter, writes):
-
-        for i in range(0, 4):
+    def write_motors(self, writes_counter, writes):
+        # iterate over the motors setting up the write
+        for i in range(self.num_motors):
             self.pca.channels[i].duty_cycle = writes[writes_counter]
             writes_counter += 1
 
         # return the updated writes_counter for use in the other calls
         return writes_counter
-    
-    def write_servos(self, writes_counter, writes):
 
-        for i in range(0, 8):
+    # writes the registers, then returns the current value of the writes_counter for later use
+    def write_servos(self, writes_counter, writes):
+        # iterate over the servos setting up the writes
+        for i in range(self.num_servos):
             self.servos[i].angle = writes[writes_counter]
             writes_counter += 1
         
@@ -249,9 +250,7 @@ class HardwareManager:
             GPIO.output(pin1, dir1)
             GPIO.output(pin2, dir2)
 
-    def read_motor(self, thread):
-        GPIO.setup(self.motor_pins[thread][0], GPIO.IN)
-        GPIO.setup(self.motor_pins[thread][1], GPIO.IN)
+    def read_motor(self, thread, hz=60.0):
         # read current edge value before starting the loop
         self.past_encoders[thread] = GPIO.input(self.motor_pins[thread][0])
 
@@ -264,45 +263,49 @@ class HardwareManager:
             if self.curr_encoders[thread][0] == self.past_encoders[thread]:
                 if self.curr_encoders[thread][1] == self.curr_encoders[thread][0]:
                     # increment motor angle by angular distance of one click
-                    self.curr_motors[thread] += self.deg_per_click
+                    self.curr_motor_enc[thread] += self.deg_per_click
                 else:
-                    self.curr_motors[thread] -= self.deg_per_click
+                    self.curr_motor_enc[thread] -= self.deg_per_click
 
             self.past_encoders[thread] = self.curr_encoders[thread][0]
             self.motor_time_slices[thread] = time.perf_counter() - self.motor_time_slices[thread]
 
-    def read_servo(self):
+            if hz is not None:
+                time.sleep(1.0 / hz)
+
+    def read_servo(self, hz=60.0):
         # Read the new servo values, and store in curr_servo array. Save the original value to the past_servo
         while True:
             self.past_servos = self.curr_servos
             self.curr_servos = [GPIO.input(i) for i in range(self.num_servos)]
 
-    def read_accelerometer(self, hz=240.0):
+            if hz is not None:
+                time.sleep(1.0 / hz)
+
+    def read_accelerometer(self, hz=60.0):
         # Read the new accelerometer values, and store in curr_accel array. Save the original value to the past_accel
         while True:
             self.past_gyro = self.curr_gyro
             self.past_accel = self.curr_accel
             self.curr_accel = self.accel.acceleration
             self.curr_gyro = self.accel.gyro
-            time.sleep(1.0 / hz)
 
-    def read_xbee(self, hz=240.0):
-        try:
-            while True:
-                self.past_xbee.append(self.curr_xbee)
-
-                xbee_message = self.xbee.read_data()
-
-                remote = xbee_message.remote_device
-                data = xbee_message.data
-                is_broadcast = xbee_message.is_broadcast
-                timestamp = xbee_message.timestamp
-                self.curr_xbee = (remote, data, is_broadcast, timestamp)
-
+            if hz is not None:
                 time.sleep(1.0 / hz)
 
-        except Exception:  # TODO well define the exception and test above code
-            pass
+    def read_xbee(self, hz=60.0):
+        # read data from the xbee
+        while True:
+            self.past_xbee.append(self.curr_xbee)
+            xbee_message = self.xbee.read_data()
+            remote = xbee_message.remote_device
+            data = xbee_message.data
+            is_broadcast = xbee_message.is_broadcast
+            timestamp = xbee_message.timestamp
+            self.curr_xbee = (remote, data, is_broadcast, timestamp)
+
+            if hz is not None:
+                time.sleep(1.0 / hz)
 
     ''' 
     Decided to break this method into several different methods
@@ -313,7 +316,7 @@ class HardwareManager:
 
     # Get the information on the motors
     def get_curr_motors(self):
-        return self.curr_motors
+        return self.curr_motor_pwm
 
     # Get the information on the servos
     def get_past_servos(self):
@@ -339,5 +342,5 @@ class HardwareManager:
     # PID methods
     # method to expose PIDController function update_targets
     def update_pwm_targets(self, targets: List[int]):
-        self.directions, self.targets = HardwareManager.writes_convert(targets)
+        self.directions, self.targets = self.writes_convert(targets)
         self.pid.update_targets(self.targets)
