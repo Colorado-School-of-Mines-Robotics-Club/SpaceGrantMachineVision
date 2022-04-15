@@ -64,7 +64,41 @@ class Map:
         else:
             return operatives
     
-    def bezier_to_PID(route):
+    #UNFINISHED
+    def bezier_to_PID(route, curr_pos, curr_ang, Kp = 1, Kd = 1, Ki = 1, Kh = 1, Khe = 1, max_v = 2, max_ang = 0.25, num_slices = 50):
+        csum = 0
+        for i in range(num_slices):
+            dist = 1000000000000
+            point = 0
+            for i in range(len(route)):
+                euc = (curr_pos[1] - route[i][1])**2 + (curr_pos[0] - route[i][0]) ** 2
+                if euc < dist:
+                    dist = euc
+                    point = i
+            
+            segment = [route[point], route[point+1]]
+
+            vs = np.array([segment[1][0] - segment[0][0], segment[1][1] - segment[0][1]])
+            vr = np.array([curr_pos[0] - segment[0][0], curr_pos[1] - segment[0][1]])
+
+            theta_p = math.atan2((segment[1][1] - segment[0][1])/(segment[1][0] - segment[0][0]))
+            theta_pr = theta_p + math.pi
+
+            R = np.array([[math.cos(theta_pr), -math.sin(theta_pr)], [math.sin(theta_pr), math.cos(theta_pr)]])
+
+            vr_rot = np.matmul(R,vr)
+
+            cte = vr_rot[1]
+            cte = max(cte, -Kh)
+            cte = min(cte, Kh)
+
+            theta_setpoint = theta_p + ((cte/Kh) * (math.pi/2))
+            theta_err = theta_setpoint - curr_ang
+            v_setpoint = v_max - Khe * theta_err
+
+            csum += theta_err
+
+
         return None
 
     # takes an optional color
