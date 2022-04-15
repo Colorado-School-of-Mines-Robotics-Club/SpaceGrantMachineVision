@@ -9,7 +9,6 @@ import numpy as np
 
 # Custom imports
 import matplotlib.pyplot as plt
-from bezier import Curve
 
 # Source for visualization functions:
 # https://www.analytics-link.com/post/2018/09/14/applying-the-a-path-finding-algorithm-in-python-part-1-2d-square-grid
@@ -41,14 +40,3 @@ def node_compress(route):
             operatives.append(route[i])
     
     return operatives
-
-def big_bezzy(grid, start, goal,route,NUM_OF_POINTS = 100):
-    #Input: route consisting of only corners
-    #Output: The mother of all Bezier Curves
-
-    curve = Curve(route.T, degree = len(route) - 1)
-    points = [X/NUM_OF_POINTS for X in range(0,NUM_OF_POINTS + 1)]
-    smoothened = [[curve.evaluate(i)[0][0],curve.evaluate(i)[1][0]] for i in points]
-
-
-    return smoothened

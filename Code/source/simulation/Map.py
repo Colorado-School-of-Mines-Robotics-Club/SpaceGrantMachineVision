@@ -10,7 +10,7 @@ import math
 import random
 
 # Custom imports
-
+from bezier import Curve
 
 class Map:
     def __init__(self, nodeLayout=(100, 51), scaleFactor=9, D=1):
@@ -63,6 +63,9 @@ class Map:
             return compressed
         else:
             return operatives
+    
+    def bezier_to_PID(route):
+        return None
 
     # takes an optional color
     #       0 - blue
@@ -72,7 +75,25 @@ class Map:
         self.grid[x][y][color] += score
 
     def convert_route_to_dist(self, route):
-        return [list(i * self.DPerNode) for i in route]
+        dist = [[i[0] * self.DPerNode, i[1] * self.DPerNode] for i in route]
+        displacement = []
+        center = dist[0]
+        for i in dist:
+            displacement.append([center[0] - i[0], i[1] - center[1]])
+        return displacement
+
+    def big_bezzy(self, route):
+        #Input: route to shorten
+        #Output: The mother of all Bezier Curves
+
+        dist = ((route[-1][1] - route[0][1])**2 + (route[-1][0] - route[0][0])**2)**0.5
+        NUM_OF_POINTS = round(dist) * 2
+
+        curve = Curve(route.T, degree = len(route) - 1)
+        points = [X/NUM_OF_POINTS for X in range(0,NUM_OF_POINTS + 1)]
+        smoothened = [[curve.evaluate(i)[0][0],curve.evaluate(i)[1][0]] for i in points]
+
+        return smoothened
 
     def draw(self) -> np.ndarray:
         display = np.zeros(self.imageSize, dtype='uint8')
