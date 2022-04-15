@@ -2,6 +2,8 @@
 import threading
 from typing import List, Tuple, Union
 import time
+from collections import deque
+import sys
 
 # Additional libs
 import cv2
@@ -43,6 +45,7 @@ except ModuleNotFoundError as e:
 class HardwareManager:
     def __init__(self, motor_feedback=True, servo_feedback=True, accel_feedback=True, xbee_feedback=True,
                  instant_encoder_reads=True):
+        self.stopped = False
         Config.init()
         electronics = Config.getElectronicPortsDict()
         motors = electronics['motors']
@@ -53,6 +56,10 @@ class HardwareManager:
         accel = sensors['accelerometer']
         poll_rates = electronics['poll_rates']
         utility = electronics['utility']
+
+        # queue for commands to be in
+        self.commandList = list()
+        self.commandQueue = deque()
 
         # clicks per rev for motor
 
@@ -141,15 +148,15 @@ class HardwareManager:
             GPIO.setup(pins[1], GPIO.IN)
 
         # Split encoder reading into 4 threads for speed and accuracy at a certain HZ
-        self.motor_threads = [threading.Thread(target=self.read_motor, args=(i, self.motor_poll_rate,), daemon=True) for i in range(self.num_motors)]
+        self.motor_threads = [threading.Thread(name=f"motor_{i}_thread", target=self.read_motor, args=(i, self.motor_poll_rate,), daemon=True) for i in range(self.num_motors)]
         # one thread for reading servo return data at a certain HZ
-        self.servo_thread = threading.Thread(target=self.read_servo, args=(self.servo_poll_rate,), daemon=True)
+        self.servo_thread = threading.Thread(name=f"servo_thread", target=self.read_servo, args=(self.servo_poll_rate,), daemon=True)
         # one thread for reading accelerometer data at a certain HZ
-        self.accel_thread = threading.Thread(target=self.read_accelerometer, args=(self.accel_poll_rate,), daemon=True)
+        self.accel_thread = threading.Thread(name=f"accel_thread", target=self.read_accelerometer, args=(self.accel_poll_rate,), daemon=True)
         # thread for writing to the PWM breakout board at a certain HZ
-        self.pwm_thread = threading.Thread(target=self.write_pwm_targets, args=(self.pwm_write_poll_rate,), daemon=True)
+        self.pwm_thread = threading.Thread(name=f"pwm_write_thread", target=self.write_pwm_targets, args=(self.pwm_write_poll_rate,), daemon=True)
         # thread for reading the xbee at a certain HZ
-        self.xbee_thread = threading.Thread(target=self.read_xbee, args=(self.xbee_poll_rate,), daemon=True)
+        self.xbee_thread = threading.Thread(name=f"xbee_thread", target=self.read_xbee, args=(self.xbee_poll_rate,), daemon=True)
 
     def start_threads(self) -> 'HardwareManager':
         # start all data collection threads
@@ -199,12 +206,23 @@ class HardwareManager:
         self.write_pwm(writes)
 
     # TODO have this write the direction pins
-    def write_pwm_targets(self, hz: Union[float, None] = None):
-        while True:
-            _, _, led_target = self.pid.get_targets_split()  # assume leds are at target always
-            self.write_pwm(self.pid.get_pwm(self.curr_motor_pwm + self.curr_servo_pwm + led_target))
-            if hz is not None:
-                time.sleep(1.0 / hz)
+    def write_pwm_targets(self, hz=240.0):
+        while not self.stopped:
+            try:
+                commandData = self.commandQueue.popleft()
+            except IndexError:
+                continue
+            command_pwm, command_time = commandData
+            self.pid.update_targets(command_pwm)
+            _, _, led_target = self.pid.get_targets_split()
+            commandStartTime = time.perf_counter()
+            while time.perf_counter() - commandStartTime < command_time and not self.stopped:
+                self.directions, self.targets = self.writes_convert(command_pwm)
+                self.pid.update_targets(self.targets)
+                self.write_pwm(self.pid.get_pwm(self.curr_motor_pwm + self.curr_servo_pwm + led_target))
+
+                if hz is not None:
+                    time.sleep(1.0 / hz)
 
     # writes is a List[m1, m2, m3, m4, s1, s2, s3, s4, s5, s6, s7, s8, l1, l2, l3, l4]
     # motors are constrained to: [0, 4095]
@@ -235,7 +253,7 @@ class HardwareManager:
         for i in range(self.num_servos):
             self.servos[i].angle = writes[writes_counter]
             writes_counter += 1
-        
+
         return writes_counter
 
     def write_gpio(self):
@@ -254,7 +272,7 @@ class HardwareManager:
         # read current edge value before starting the loop
         self.past_encoders[thread] = GPIO.input(self.motor_pins[thread][0])
 
-        while True:
+        while not self.stopped:
             # read current encoder values
             self.curr_encoders[thread][0] = GPIO.input(self.motor_pins[thread][0])
             self.curr_encoders[thread][1] = GPIO.input(self.motor_pins[thread][1])
@@ -275,7 +293,7 @@ class HardwareManager:
 
     def read_servo(self, hz=60.0):
         # Read the new servo values, and store in curr_servo array. Save the original value to the past_servo
-        while True:
+        while not self.stopped:
             self.past_servos = self.curr_servos
             self.curr_servos = [GPIO.input(i) for i in range(self.num_servos)]
 
@@ -284,7 +302,7 @@ class HardwareManager:
 
     def read_accelerometer(self, hz=60.0):
         # Read the new accelerometer values, and store in curr_accel array. Save the original value to the past_accel
-        while True:
+        while not self.stopped:
             self.past_gyro = self.curr_gyro
             self.past_accel = self.curr_accel
             self.curr_accel = self.accel.acceleration
@@ -316,7 +334,7 @@ class HardwareManager:
 
     # Get the information on the motors
     def get_curr_motors(self):
-        return self.curr_motor_pwm
+        return self.curr_motor_enc
 
     # Get the information on the servos
     def get_past_servos(self):
@@ -341,6 +359,12 @@ class HardwareManager:
 
     # PID methods
     # method to expose PIDController function update_targets
-    def update_pwm_targets(self, targets: List[int]):
-        self.directions, self.targets = self.writes_convert(targets)
-        self.pid.update_targets(self.targets)
+    def update_pwm_targets(self, targets: List[Tuple[List[int], float]]):
+        self.commandList = targets
+        self.commandQueue.clear()
+        for command in self.commandList:
+            self.commandQueue.append(command)
+
+    def stop(self):
+        self.stopped = True
+        self.join_threads()
