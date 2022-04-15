@@ -1,4 +1,5 @@
 import sys
+import time
 
 from Code.source.hardware import HardwareManager, KinematicHardwareInterface, RobotData
 
@@ -17,14 +18,7 @@ while val + stepSize * counter <= 3.0:
     interface.updateFromRobotData(robotData=robotData)
     commands = [(interface.getCommandPWM(), 0.1) for i in range(20)]
     hardware.update_pwm_targets(commands)
-
-    # lastLength = len(hardware.commandList)
-    # while len(hardware.commandList) > 0:
-    #     if len(hardware.commandList) != lastLength:
-    #         lastLength = len(hardware.commandList)
-    #         print("Consumed a command")
-    print(hardware.commandList)
-
     counter += 1
 
-hardware.pwm_thread.join()
+time.sleep(5)
+hardware.stop()
