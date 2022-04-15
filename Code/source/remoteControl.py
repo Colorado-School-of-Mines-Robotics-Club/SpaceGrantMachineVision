@@ -55,7 +55,7 @@ def incomingDataLoop(tcp_port: int = 9500):
         global interface
         global hardware
         interface.updateFromRobotData(robotData=vel_data)
-        hardware.update_pwm_targets(interface.getCommandPWM())
+        hardware.update_pwm_targets([(interface.getCommandPWM(), 2)])
 
     return
 

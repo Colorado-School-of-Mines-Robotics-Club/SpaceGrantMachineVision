@@ -377,8 +377,8 @@ class HardwareManager:
     # PID methods
     # method to expose PIDController function update_targets
     def update_pwm_targets(self, targets: List[Tuple[List[int], float]]):
-        self.commandList = targets
         self.commandQueue.clear()
+        self.commandList = targets
         for command in self.commandList:
             self.commandQueue.append(command)
 

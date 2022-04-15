@@ -107,6 +107,7 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, VIDEO, er
                 else:
                     cv2.imshow("World Map", worldMap.draw())
 
+            time_slice = 2  # magic time slice number
             if isinstance(route, np.ndarray):
                 world_route = worldMap.convert_route_to_dist(route)
                 com_route = worldMap.instruction_converter(world_route)
@@ -115,9 +116,9 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, VIDEO, er
                 if com_route[0][0] == "ANG":
                     robotData.angular = com_route[0][1]
                 interface.updateFromRobotData(robotData)
-                PayloadManager.addInputs('hardware', interface.getCommandPWM())
+                PayloadManager.addInputs('hardware', [(interface.getCommandPWM(), time_slice)])
             else:
-                PayloadManager.addInputs('hardware', [0 for i in range(16)])
+                PayloadManager.addInputs('hardware', [([0 for i in range(16)], time_slice)])
 
             # TODO ??
 
