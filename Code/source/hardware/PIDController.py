@@ -35,8 +35,8 @@ class PIDController:
         if targets is not None:
             if len(targets) == self.total_size:
                 motor_targets = targets[0:self._s1]
-                servo_targets = targets[self._s1, self._s2]
-                led_targets = targets[self._s2, self.total_size]
+                servo_targets = targets[self._s1:self._s2]
+                led_targets = targets[self._s2:self.total_size]
                 self._update_targets(motor_targets, servo_targets, led_targets)
         return self.get_targets()
 
