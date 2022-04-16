@@ -97,12 +97,19 @@ class KinematicHardwareInterface:
         final_data[4] = 90
         final_data[5] = 90
         final_data[6] = self.reverse_offset(output_data[4]) # front right
-        final_data[7] = output_data[6] # back right
+        final_data[7] = output_data[6] - 15 # back right
         final_data[8] = output_data[8] # back left
         final_data[9] = self.reverse_offset(output_data[10]) # front left
         final_data[10] = 90
         final_data[11] = 90
-        
+
+        con = 15
+
+        final_data[6] = self.constrain(final_data[6], 90 - con, 90 + con)
+        final_data[7] = self.constrain(final_data[7], 90 - 15 - con, 90 - 15 + con)
+        final_data[8] = self.constrain(final_data[8], 90 - con, 90 + con)
+        final_data[9] = self.constrain(final_data[9], 90 - con, 90 + con)
+
         self.motorServo = final_data
         self.command = self.motorServo + self.ledStates
     
@@ -137,3 +144,8 @@ class KinematicHardwareInterface:
         assert len(command) == 16
         return command
 
+    @staticmethod
+    def constrain(N: float, minN: Union[float, None] = None, maxN: Union[float, None] = None) -> float:
+        if minN is not None and maxN is not None:
+            return minN if N < minN else maxN if N > maxN else N
+        return N
