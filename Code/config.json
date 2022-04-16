@@ -1,17 +1,17 @@
 {
   "run_parameters": {
-    "headless": false,
+    "headless": true,
     "threadeddisplay": false,
     "record": false,
     "clearlog": true,
     "video": "",
-    "remoteControl": false
+    "remoteControl": true
   },
   "logging_options": {
-    "logSystemInfo": true,
-    "logParameters": true,
-    "logVideoInputInfo": true,
-    "logFrameInfo": true,
+    "logSystemInfo": false,
+    "logParameters": false,
+    "logVideoInputInfo": false,
+    "logFrameInfo": false,
     "logIterationStarts": true,
     "logThreadedCaptureSetup": true,
     "logCameraRectification": true
@@ -80,8 +80,8 @@
     "motors": {
       "front_left": {
         "registers": [15, 14, 17, 16],
-        "enc_pins": [6, 13],
-        "dir_pins": [0, 5]
+        "enc_pins": [0, 5],
+        "dir_pins": [6, 13]
       },
       "front_right": {
         "registers": [11, 10, 13, 12],
@@ -98,7 +98,7 @@
         "enc_pins": [23, 24],
         "dir_pins": [14, 15]
       },
-      "dir_setpoints":  [0, 1, 0, 1]
+      "dir_setpoints":  [1, 0, 1, 0]
     },
     "servos": {
       "front_left_wheel": {
@@ -166,7 +166,7 @@
     },
     "utility": {
       "clicks_per_rev": 48.0,
-      "max_pwm": 4095,
+      "max_pwm": 65534,
       "max_vel": 2.0,
       "max_rad": 1.5708,
       "min_servo_pwm": 205,
@@ -178,7 +178,7 @@
       "radius": 75.0,
       "thickness": 45.0,
       "minTheta": -15.0,
-      "maxTheta": 90.0,
+      "maxTheta": 15.0,
       "offset": 10.0
     },
     "suspension" : {

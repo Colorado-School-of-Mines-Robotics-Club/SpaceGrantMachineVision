@@ -6,6 +6,7 @@ from dataclasses import dataclass
 import keyboard
 import socket
 from typing import Union
+import math
 
 try:
     from .hardware import RobotData, HardwareManager, KinematicHardwareInterface
@@ -14,6 +15,25 @@ except ModuleNotFoundError as e:
         from Code.source.hardware import RobotData, HardwareManager, KinematicHardwareInterface
     except ModuleNotFoundError:
         raise e
+
+try:
+    import RPi.GPIO as GPIO
+    GPIO.cleanup()
+    GPIO.setmode(GPIO.BCM)
+    from smbus2 import *
+    from digi.xbee.devices import XBeeDevice
+    import board
+    from board import SCL, SDA
+    import busio
+    from adafruit_motor import servo
+    from adafruit_pca9685 import PCA9685
+    from adafruit_mpu6050 import MPU6050
+except ModuleNotFoundError:
+    pass
+except ImportError:
+    pass
+except NotImplementedError:
+    pass
 
 from .logger import Logger
 
@@ -49,18 +69,26 @@ def incomingDataLoop(tcp_port: int = 9500):
         if not incoming_data:
             Logger.log("Connection closed.")
             break
-        final_data = pickle.loads(incoming_data)
-        global vel_data
-        vel_data.from_list(final_data)
+        try:
+            final_data = pickle.loads(incoming_data)
+            global vel_data
+            vel_data.from_list(final_data)
+        except:
+            Logger.log("Net Exception")
+            continue
 
         # Update the robot
         global interface
         global hardware
-        print(f"Received command: {vel_data}")
+        # print(f"Received command: {vel_data}")
         interface.updateFromRobotData(robotData=vel_data)
-        hardware.update_pwm_targets([(interface.getCommandTargets(), 2)])
+        commandTargets = interface.getCommandTargets()
+        hardware.update_targets([(commandTargets, 2)])
+
 
     return
+
+
 
 
 def remoteControl(hz: float = 60.0) -> None:
@@ -82,4 +110,4 @@ def remoteControl(hz: float = 60.0) -> None:
     
     # Shutdown robot here
     if hardware is not None:
-        hardware.join_threads()
+        hardware.shutdown()
