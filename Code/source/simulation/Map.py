@@ -65,9 +65,9 @@ class Map:
             return operatives
     
     #UNFINISHED
-    def bezier_to_PID(route, curr_pos, curr_ang, Kp = 1, Kd = 1, Ki = 1, Kh = 1, Khe = 1, max_v = 2, max_ang = 0.25, num_slices = 50):
+    def bezier_to_PID(route, curr_pos, curr_ang, Kp = 1, Kd = 1, Ki = 1, Kh = 1, Khe = 1, v_max = 2, ang_max = 0.25, ts = 50):
         csum = 0
-        for i in range(num_slices):
+        for i in range(ts):
             dist = 1000000000000
             point = 0
             for i in range(len(route)):
@@ -94,9 +94,10 @@ class Map:
 
             theta_setpoint = theta_p + ((cte/Kh) * (math.pi/2))
             theta_err = theta_setpoint - curr_ang
-            v_setpoint = v_max - Khe * theta_err
+            v_setpoint = max(v_max - Khe * theta_err, 0)
 
             csum += theta_err
+            ang_setpoint = Kp * (theta_err) + Ki * csum * ts + Kd * ts
 
 
         return None
