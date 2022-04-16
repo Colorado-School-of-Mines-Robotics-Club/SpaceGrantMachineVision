@@ -1,7 +1,7 @@
 numba==0.55.1
 numpy~=1.21.4
 opencv-python
-openVO==0.0.5
+openVO==0.0.6
 smbus2~=0.4.1
 psutil
 keyboard
