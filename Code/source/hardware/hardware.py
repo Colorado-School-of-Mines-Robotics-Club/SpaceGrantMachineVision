@@ -16,7 +16,7 @@ def PThardwareCommand(args: Tuple) -> Union[Dict, None]:
     commands = queue.getInputs()
     if len(commands) != 0:
         command = commands[len(commands) - 1]
-        hardware.update_pwm_targets(command)
+        hardware.update_targets(command)
 
     if feedback:
         return {'motors': hardware.get_curr_motors(), 'servos': hardware.get_curr_servos(),

@@ -16,7 +16,7 @@ from source.hardware.RobotData import RobotData
 import cv2
 
 
-vel_data = RobotData(linear=0.0, angular=0.0, fl_height=0.0, fr_height=0.0, bl_height=0.0, br_height=0.0)
+vel_data = RobotData(linear=0.0, angular=90.0, fl_height=0.0, fr_height=0.0, bl_height=0.0, br_height=0.0)
 DELTA_VEL = 0.1
 DELTA_ANG = 5.0
 DELTA_HEIGHT = 1.0
@@ -87,6 +87,16 @@ def key_press(key):
             vel_data.br_height += DELTA_HEIGHT
         elif k in ['l']:
             vel_data.br_height -= DELTA_HEIGHT
+
+        if vel_data.angular <= 0.0:
+            vel_data.angular = 5.0
+        elif vel_data.angular >= 180.0:
+            vel_data.angular = 175.0
+            
+        if vel_data.linear < -2.0:
+            vel_data.linear = -2.0
+        elif vel_data.linear > 2.0:
+            vel_data.linear = 2.0
 
     return True
 

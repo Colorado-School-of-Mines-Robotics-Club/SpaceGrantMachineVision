@@ -5,18 +5,20 @@ try:
     from .RobotData import RobotData
     from source.utilities.Config import Config
     from source.kinematics.KinematicModel import KinematicModel
+    from source.kinematics.SimpleKinematicModel import SimpleKinematicModel
 except ModuleNotFoundError as e:
     try:
         from .RobotData import RobotData
         from Code.source.utilities.Config import Config
         from Code.source.kinematics.KinematicModel import KinematicModel
+        from Code.source.kinematics.SimpleKinematicModel import SimpleKinematicModel
     except ModuleNotFoundError:
         raise e
 
 
 class KinematicHardwareInterface:
     def __init__(self, robotData: Union[RobotData, None] = None, ledStates: Union[List[bool], None] = None) -> None:
-        self.kinematicModel = KinematicModel()
+        self.kinematicModel = SimpleKinematicModel()# KinematicModel()
         self.robotData = RobotData(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
         if robotData is not None:
             self.robotData = robotData
@@ -74,7 +76,9 @@ class KinematicHardwareInterface:
                                    suspensionHeightTargets=[self.robotData.fl_height + self.trim_values[1], self.robotData.fr_height + self.trim_values[3],
                                                             self.robotData.bl_height + self.trim_values[5], self.robotData.br_height + self.trim_values[7]])
         wheel_speeds = self.kinematicModel.getWheelVelocities()
+        
         swerve_wheel_angles = self.kinematicModel.getSwerveWheelAngles()
+        # print(f"Angles: {swerve_wheel_angles}")
         suspension_angles = self.kinematicModel.getSuspensionAngles()
 
         total_length = len(wheel_speeds) + len(swerve_wheel_angles) + len(suspension_angles)
@@ -84,8 +88,34 @@ class KinematicHardwareInterface:
             output_data[idx] = ws
             output_data[2 * idx + 4] = wa
             output_data[2 * idx + 5] = sa
-        self.motorServo = output_data
+
+        final_data = [0.0 for i in range(total_length)]
+        final_data[0] = output_data[0] * -1 # front
+        final_data[1] = output_data[1] * -1 # front
+        final_data[2] = output_data[2] # back
+        final_data[3] = output_data[3] # back
+        final_data[4] = 90
+        final_data[5] = 90
+        final_data[6] = self.reverse_offset(output_data[4]) # front right
+        final_data[7] = output_data[6] - 15 # back right
+        final_data[8] = output_data[8] # back left
+        final_data[9] = self.reverse_offset(output_data[10]) # front left
+        final_data[10] = 90
+        final_data[11] = 90
+
+        con = 15
+
+        final_data[6] = self.constrain(final_data[6], 90 - con, 90 + con)
+        final_data[7] = self.constrain(final_data[7], 90 - 15 - con, 90 - 15 + con)
+        final_data[8] = self.constrain(final_data[8], 90 - con, 90 + con)
+        final_data[9] = self.constrain(final_data[9], 90 - con, 90 + con)
+
+        self.motorServo = final_data
         self.command = self.motorServo + self.ledStates
+    
+    @staticmethod
+    def reverse_offset(val):
+        return 90 - (val - 90)
 
     def updateFromState(self) -> None:
         # TODO
@@ -108,9 +138,14 @@ class KinematicHardwareInterface:
     
     def getCommandTargets(self) -> List[int]:
         motor_pwms = [self.ms_to_pwm(com) for com in self.command[0:4]]
-        servo_pwms = [self.radians_to_deg(com) for com in self.command[4:12]]
+        servo_angles = self.command[4:12]
         led_pwms = [self.bool_to_pwm(com) for com in self.ledStates]
-        command = motor_pwms + servo_pwms + led_pwms
+        command = motor_pwms + servo_angles + led_pwms
         assert len(command) == 16
         return command
 
+    @staticmethod
+    def constrain(N: float, minN: Union[float, None] = None, maxN: Union[float, None] = None) -> float:
+        if minN is not None and maxN is not None:
+            return minN if N < minN else maxN if N > maxN else N
+        return N
