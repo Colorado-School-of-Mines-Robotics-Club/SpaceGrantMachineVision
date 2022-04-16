@@ -89,15 +89,15 @@ def generate_camera_intrinsics(image_directory, chessboard_size):
 
 
 if __name__ == "__main__":
-    calibrationPath = "Data/Calibration"
+    calibrationPath = "Data/Calibration/competition1"
 
     while not os.path.isdir(calibrationPath):
         calibrationPath = "../" + calibrationPath
 
-    # capture_calibration_images(0, (8, 6), calibrationPath + "/LeftCaptures/")
-    # capture_calibration_images(1, (8, 6), calibrationPath + "/RightCaptures/")
+    #capture_calibration_images(4, (8, 6), calibrationPath + "/LeftCaptures/")
+    #capture_calibration_images(2, (8, 6), calibrationPath + "/RightCaptures/")
     leftK, leftDist = generate_camera_intrinsics(calibrationPath + "/LeftCaptures/", (8, 6))
     pickle.dump({"K": leftK, "dist": leftDist}, open(calibrationPath + "/intrinsics_left.p", "wb"))
     rightK, rightDist = generate_camera_intrinsics(calibrationPath + "/RightCaptures/", (8, 6))
     pickle.dump({"K": rightK, "dist": rightDist}, open(calibrationPath + "/intrinsics_right.p", "wb"))
-    writeKandDistNPZ(leftK, rightK, leftDist, rightDist)
+    writeKandDistNPZ(leftK, rightK, leftDist, rightDist, calibrationPath)

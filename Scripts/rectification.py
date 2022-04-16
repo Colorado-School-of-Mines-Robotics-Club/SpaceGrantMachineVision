@@ -119,8 +119,8 @@ def generate_rectification_parameters(stereo_img_path, calib_file_left, calib_fi
     pickle.dump({"R": R, "T": T, "E": E, "F": F}, open(out_file, "wb"))
 
 if __name__ == "__main__":
-    calibPath = "../Data/Calibration/hotglue/"
-    #capture_rectification_images(2, 4, (8,6), calibPath + "StereoCaptures/")
+    calibPath = "../Data/Calibration/competition1/"
+    #capture_rectification_images(4, 2, (8,6), calibPath + "StereoCaptures/")
     generate_rectification_parameters(
         calibPath + "StereoCaptures/",
         calibPath + "intrinsics_left.p",

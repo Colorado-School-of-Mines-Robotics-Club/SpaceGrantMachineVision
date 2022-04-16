@@ -4,9 +4,7 @@ import os
 
 # Function to write K matrix and dist coeffs to npz files
 # K matrix is a 3x3 and dist coeffs is of length 4
-def writeKandDistNPZ(lk: np.ndarray, rk: np.ndarray, ld: np.ndarray, rd: np.ndarray):
-    # Gets the path to the Calibration folder in data for any computer
-    calibrationPath = "Data/Calibration/"
+def writeKandDistNPZ(lk: np.ndarray, rk: np.ndarray, ld: np.ndarray, rd: np.ndarray, calibrationPath):
     while not os.path.isdir(calibrationPath):
         calibrationPath = "../" + calibrationPath
     # saves the np.arrays inputed to their respective files

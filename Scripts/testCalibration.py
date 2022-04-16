@@ -4,7 +4,7 @@ import pickle
 import numpy as np
 from openVO import StereoCamera
 
-config_path = "../Data/Calibration/hotglue/"
+config_path = "../Data/Calibration/competition1/"
 assert(os.path.exists(config_path))
 intr_left = pickle.load(open(config_path + "intrinsics_left.p", "rb"))
 K_left, dist_left = intr_left["K"], intr_left["dist"]
@@ -12,22 +12,37 @@ intr_right = pickle.load(open(config_path + "intrinsics_right.p", "rb"))
 K_right, dist_right = intr_right["K"], intr_right["dist"]
 rect_params = pickle.load(open(config_path + "rectParams.p", "rb"))
 print("rect params", rect_params)
+
+# Generated with script
+# {'minDisparity': 0, 'numDisparities': 80, 'blockSize': 3, 'P1': 0, 'P2': 675, 'disp12MaxDiff': 2, 'preFilterCap': 0, 'uniquenessRatio': 6, 'speckleWindowSize': 50, 'speckleRange': 2}
+# Existing params
+# "minDisparity": 0,
+# "numDisparities": 48,
+# "blockSize": 3,
+# "P1": 27,
+# "P2": 675,
+# "disp12MaxDiff": 50,
+# "preFilterCap": 0,
+# "uniquenessRatio": 10,
+# "speckleWindowSize": 0,
+# "speckleRange": 4}
+
 sgbm_params = {"minDisparity": 0,
-               "numDisparities": 64, #48,
+               "numDisparities": 80,
                "blockSize": 3,
                "P1": 27,
                "P2": 675,
-               "disp12MaxDiff": 50,
+               "disp12MaxDiff": 2,
                "preFilterCap": 0,
-               "uniquenessRatio": 10,
-               "speckleWindowSize": 0,
-               "speckleRange": 4}
+               "uniquenessRatio": 6,
+               "speckleWindowSize": 50,
+               "speckleRange": 2}
 
 cam_left = cv2.VideoCapture(2)
 cam_right = cv2.VideoCapture(4)
 
 # Adjust to overlay images (depends on distance to object)
-shift = 1 # pixels
+shift = 100 # pixels
 
 while True:
     got_left, left = cam_left.read()
