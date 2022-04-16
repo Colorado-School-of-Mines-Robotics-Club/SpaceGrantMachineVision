@@ -49,15 +49,22 @@
   },
   "sgbm_params": {
     "minDisparity": 0,
-    "numDisparities": 48,
-    "blockSize": 3,
-    "P1": 27,
-    "P2": 675,
-    "disp12MaxDiff": 50,
+    "numDisparities": 80,
+    "blockSize": 1,
+    "P1": 0,
+    "P2": 135,
+    "disp12MaxDiff": 2,
     "preFilterCap": 0,
-    "uniquenessRatio": 10,
-    "speckleWindowSize": 0,
-    "speckleRange": 4
+    "uniquenessRatio": 0,
+    "speckleWindowSize": 50,
+    "speckleRange": 2
+  },
+  "odometer_params": {
+      "nfeatures": 500,
+      "match_threshold": 0.9,
+      "rigidity_threshold": 0.06,
+      "outlier_threshold": 0.02,
+      "preprocessed_frames": true
   },
   "wls_filter_params": {
     "lambda": 8000.0,

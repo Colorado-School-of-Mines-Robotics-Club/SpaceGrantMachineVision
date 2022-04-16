@@ -12,8 +12,8 @@ except ModuleNotFoundError:
 
 
 def makeOdometer(args: Tuple) -> Tuple:
-    return StereoOdometer(StereoCamera(*args)),
-
+    cameraArgs, odometerParams = args
+    return StereoOdometer(StereoCamera(*cameraArgs), **odometerParams),
 
 def updateOdometer(args: Tuple) -> Tuple[np.ndarray, np.ndarray]:
     queue, odometer, show, td = args

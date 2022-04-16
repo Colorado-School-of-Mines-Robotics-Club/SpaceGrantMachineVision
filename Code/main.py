@@ -40,6 +40,8 @@ if __name__ == "__main__":
     featureParams = Config.getFeatureParamsDict()
     objectDetectionParams = Config.getObjectDetectionDict()
     sgbmPs = Config.getSGBMParamsDict()
+    odometerParams = Config.getOdometerParamsDict()
+
     wlsParams = Config.getWLSParamsDict()
     hardwarePorts = Config.getElectronicPortsDict()
 
@@ -101,6 +103,7 @@ if __name__ == "__main__":
 
     # Initialize openVO.StereoCamera for use in ThreadedCapture
     leftK, rightK, leftDistC, rightDistC, rectParams = loadCalibrationFiles(CAMERAS_PATH)
+
     # Need to find image size without ThreadedCapture because we need it to init StereoCamera,
     # which is needed to init ThreadedCapture. Hard coding for now because I'm not sure if we want
     # to read a frame manually or just add a config file
@@ -132,8 +135,9 @@ if __name__ == "__main__":
     payloads = list()
     payloads.append(("cameras", PTframes, (.005, not HEADLESS, THREADED_DISPLAY), frameStaticBuilder,
                      (leftCam, rightCam, leftK, rightK, leftDistC, rightDistC, rectParams, sgbmPs, frameSize), None))
+    cameraArgs = (leftK, leftDistC, rightK, rightDistC, rectParams, sgbmPs, frameSize)
     payloads.append(("updateOdometer", updateOdometer, (not HEADLESS, THREADED_DISPLAY), makeOdometer,
-                     (leftK, leftDistC, rightK, rightDistC, rectParams, sgbmPs, frameSize), None))
+                     (cameraArgs, odometerParams), None))
     payloads.append(("hardware", PThardwareCommand, (False,), createHardwareManager, (), None))
     # payloads.append(("clustering", experimental.runClustering, (not HEADLESS, THREADED_DISPLAY), None, None, None))
     PayloadManager.initStart(payloads)

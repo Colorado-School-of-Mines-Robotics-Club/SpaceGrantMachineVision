@@ -19,6 +19,7 @@ class Config:
     featureParams = dict()
     objectDetectionParams = dict()
     sgbmParams = dict()
+    odometerParams = dict()
     wlsParams = dict()
     filepaths = dict()
     electronicPorts = dict()
@@ -43,6 +44,7 @@ class Config:
             cls.featureParams = cls.data['feature_params']
             cls.objectDetectionParams = cls.data['object_detection_params']
             cls.sgbmParams = cls.data['sgbm_params']
+            cls.odometerParams = cls.data['odometer_params']
             cls.wlsParams = cls.data['wls_filter_params']
             cls.filepaths = cls.data['file_paths']
             cls.trim = cls.data['servo_trim']
@@ -90,6 +92,10 @@ class Config:
     @classmethod
     def getSGBMParamsDict(cls) -> Dict:
         return cls.sgbmParams
+
+    @classmethod
+    def getOdometerParamsDict(cls) -> Dict:
+        return cls.odometerParams
 
     @classmethod
     def getWLSParamsDict(cls) -> Dict:

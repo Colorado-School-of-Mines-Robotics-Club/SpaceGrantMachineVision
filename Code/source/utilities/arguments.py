@@ -28,9 +28,9 @@ def getArguments() -> Namespace:
     parser.add_argument("-CL", "--clearlog", help="Clears the log on running the program", action='store_true',
                         required=False)
     parser.add_argument("-V", "--video", help="Set a video folder which contains a left and right camera feed",
-                        nargs='?', const='Data/Cameras/DefaultVideo/')
+                        nargs='?', const='Data/Cameras/RocksTest/')
     parser.add_argument("-C", "--cameras", help="Set a cameras folder which contains a calibration files",
-                       nargs='?', const='Data/Calibration/bottermellon/')
+                       nargs='?', const='Data/Calibration/competition1/')
     parser.add_argument("-RC", "--remote", help="Run the robot using a remote control system.", action="store_true",
                         required=False)
     args = parser.parse_args()
@@ -58,7 +58,7 @@ def getArgDict() -> Dict:
                 raise Exception("Video Argument: Could not find specified folder")
     argDict['video'] = args.video
     # finds the cameras directory
-    argDict['cameras'] = args.cameras or 'Data/Calibration/bottermellon/'
+    argDict['cameras'] = args.cameras or 'Data/Calibration/competition1/'
     counter = 0
     while not os.path.isdir(argDict['cameras']):
         argDict['cameras'] = "../" + argDict['cameras']
