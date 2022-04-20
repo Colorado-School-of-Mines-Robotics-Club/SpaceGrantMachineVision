@@ -47,22 +47,22 @@ def frameStaticBuilder(args: Tuple) -> Tuple:
 def PTframes(args: Tuple) -> Union[Tuple[Tuple[np.array, np.array, float], Tuple[np.array, np.array, float]], None]:
     queue, stereo, left_capture, right_capture, threshold, show, td = args
 
-    # got_left_frame = left_capture.grab()
-    # left_frame_time = time.perf_counter()
-    #
-    # got_right_frame = right_capture.grab()
-    # right_frame_time = time.perf_counter()
-    #
-    # if right_frame_time - left_frame_time >= threshold:
-    #     return None
-    #
-    # if not got_left_frame or not got_right_frame:
-    #     return None
-    #
-    # left_image = left_capture.retrieve()[1]
-    # right_image = right_capture.retrieve()[1]
-    left_image = left_capture.read()
-    right_image = right_capture.read()
+    got_left_frame = left_capture.grab()
+    left_frame_time = time.perf_counter()
+
+    got_right_frame = right_capture.grab()
+    right_frame_time = time.perf_counter()
+
+    if right_frame_time - left_frame_time >= threshold:
+        return None
+
+    if not got_left_frame or not got_right_frame:
+        return None
+
+    left_image = left_capture.retrieve()[1]
+    right_image = right_capture.retrieve()[1]
+    # left_image = left_capture.read()
+    # right_image = right_capture.read()
 
     left_frame = stereo.undistort_rectify_left(left_image)
     left_frame_cropped = stereo.crop_to_valid_region_left(left_frame)
