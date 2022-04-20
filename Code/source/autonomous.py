@@ -82,6 +82,8 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, VIDEO, er
 
             odometryStartTime = time.perf_counter()
             currentPose, im3d = PayloadManager.getOutput('updateOdometer')
+            if im3d is None:
+                continue
             # as of right now filter out all inf and -inf
             # TODO do this better?? in openVO most likely
             im3d = np.nan_to_num(im3d, neginf=0.0, posinf=0.0)
@@ -107,18 +109,30 @@ def autonomous(HEADLESS, LOG_ITERATION_INFO, THREADED_DISPLAY, RECORD, VIDEO, er
                 else:
                     cv2.imshow("World Map", worldMap.draw())
 
-            time_slice = 2  # magic time slice number
+            time_slice = 1.25  # magic time slice number
+            robot_ms = 0.25  # m/s top speed
             if isinstance(route, np.ndarray):
                 world_route = worldMap.convert_route_to_dist(route)
                 com_route = worldMap.instruction_converter(world_route)
                 robotData.reset()
-                robotData.linear = Config.getMaxVel()
+                robotData.linear = 2.0
                 if com_route[0][0] == "ANG":
-                    robotData.angular = com_route[0][1]
-                interface.updateFromRobotData(robotData)
-                PayloadManager.addInputs('hardware', [(interface.getCommandPWM(), time_slice)])
+                    if com_route[0][1] < 0:
+                        robotData.angular = 0
+                    else:
+                        robotData.angular = 180
+                else:
+                    interface.updateFromRobotData(robotData)
+                    PayloadManager.addInputs('hardware', [(interface.getCommandPWM(), time_slice)])
+                    if com_route[0][1] <= time_slice * robot_ms:
+                        if com_route[1][1] < 0:
+                            robotData.angular = 0
+                        else:
+                            robotData.angular = 180
+                        interface.updateFromRobotData(robotData)
+                        PayloadManager.addInputs('hardware', [(interface.getCommandPWM(), time_slice)])
             else:
-                PayloadManager.addInputs('hardware', [([0 for i in range(16)], time_slice)])
+                PayloadManager.addInputs('hardware', [([0, 0, 0, 0, 90, 90, 90, 90, 90, 90, 90, 90, 0, 0, 0, 0], time_slice)])
 
             # TODO ??
 

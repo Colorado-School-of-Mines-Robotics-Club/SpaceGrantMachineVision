@@ -83,12 +83,9 @@ def incomingDataLoop(tcp_port: int = 9500):
         # print(f"Received command: {vel_data}")
         interface.updateFromRobotData(robotData=vel_data)
         commandTargets = interface.getCommandTargets()
-        hardware.update_targets([(commandTargets, 2)])
-
+        hardware.update_targets([(commandTargets, 0.5)])
 
     return
-
-
 
 
 def remoteControl(hz: float = 60.0) -> None:

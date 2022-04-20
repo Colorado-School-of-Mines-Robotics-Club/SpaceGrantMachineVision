@@ -25,7 +25,7 @@ def waitForFrame(stream: cv2.VideoCapture) -> None:
         got_frame, temp_frame = stream.read()
         if got_frame:
             return
-        if time.time() - startTime > 5:
+        if time.time() - startTime > 60:
             raise Exception("Timed out in camera read")
         time.sleep(0.1)
 
@@ -47,20 +47,22 @@ def frameStaticBuilder(args: Tuple) -> Tuple:
 def PTframes(args: Tuple) -> Union[Tuple[Tuple[np.array, np.array, float], Tuple[np.array, np.array, float]], None]:
     queue, stereo, left_capture, right_capture, threshold, show, td = args
 
-    got_left_frame = left_capture.grab()
-    left_frame_time = time.perf_counter()
-
-    got_right_frame = right_capture.grab()
-    right_frame_time = time.perf_counter()
-
-    if right_frame_time - left_frame_time >= threshold:
-        return None
-
-    if not got_left_frame or not got_right_frame:
-        return None
-
-    left_image = left_capture.retrieve()[1]
-    right_image = right_capture.retrieve()[1]
+    # got_left_frame = left_capture.grab()
+    # left_frame_time = time.perf_counter()
+    #
+    # got_right_frame = right_capture.grab()
+    # right_frame_time = time.perf_counter()
+    #
+    # if right_frame_time - left_frame_time >= threshold:
+    #     return None
+    #
+    # if not got_left_frame or not got_right_frame:
+    #     return None
+    #
+    # left_image = left_capture.retrieve()[1]
+    # right_image = right_capture.retrieve()[1]
+    left_image = left_capture.read()
+    right_image = right_capture.read()
 
     left_frame = stereo.undistort_rectify_left(left_image)
     left_frame_cropped = stereo.crop_to_valid_region_left(left_frame)

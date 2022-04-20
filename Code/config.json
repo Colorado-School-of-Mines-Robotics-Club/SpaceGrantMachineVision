@@ -1,11 +1,11 @@
 {
   "run_parameters": {
-    "headless": true,
+    "headless": false,
     "threadeddisplay": false,
     "record": false,
     "clearlog": true,
     "video": "",
-    "remoteControl": true
+    "remoteControl": false
   },
   "logging_options": {
     "logSystemInfo": false,

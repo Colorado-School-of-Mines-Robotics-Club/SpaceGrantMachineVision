@@ -124,6 +124,7 @@ class HardwareManager:
             try:
                 commandData = self.commandQueue.popleft()
             except IndexError:
+                # commandData = ([0, 0, 0, 0, 90, 90, 90, 90, 90, 90, 90, 90, 0, 0, 0, 0], 0.1)
                 continue
             command_targets, command_time = commandData
             commandStartTime = time.perf_counter()

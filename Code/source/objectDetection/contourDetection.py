@@ -47,7 +47,10 @@ def preProcessImage(image: np.ndarray, gaussianKernelSize=(9, 9)) -> Tuple[np.nd
 def getContourBoundingBoxes(image: np.ndarray, simplify=False, show=True, threadedDisplay=False) -> List:
     _, contours = generateContourImage(image, show=False, threadedDisplay=False)
     _, _, contourBoxes, _ = mabbec(contours)
-    npContourBoxes = cv2RectToNpBoxes(contourBoxes)
+    try:
+        npContourBoxes = cv2RectToNpBoxes(contourBoxes)
+    except Exception:
+        return []
 
     if simplify:
         npContourBoxes = simplifyBoundingBoxes(npContourBoxes)

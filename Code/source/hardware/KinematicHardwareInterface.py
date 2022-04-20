@@ -103,7 +103,7 @@ class KinematicHardwareInterface:
         final_data[10] = 90
         final_data[11] = 90
 
-        con = 15
+        con = 16
 
         final_data[6] = self.constrain(final_data[6], 90 - con, 90 + con)
         final_data[7] = self.constrain(final_data[7], 90 - 15 - con, 90 - 15 + con)

@@ -107,8 +107,8 @@ class Map:
         z = int(z * self.DPerNode)
 
         # want to offset position to a node value
-        x += math.floor(self.nodeLayout[0] / 2) + 1
-        z = self.nodeLayout[1] - z
+        x += math.floor(self.nodeLayout[1] / 2) + 1
+        z = self.nodeLayout[0] - z
 
         return x, z  # final tuple format for current node
 
@@ -119,6 +119,6 @@ class Map:
         for wx, wy, wz in objects:
             x, y = self.poseToNode(wx, wz)
             try:
-                self.updatePoint(x, y, score=5)
+                self.updatePoint(y, x, score=5)
             except IndexError:
                 pass

@@ -34,7 +34,7 @@ from . import experimental
 
 
 def objectDetection(image: np.ndarray, featurePts: np.ndarray, binSize=30.0, featuresPerPixel=0.03,
-                    percentAreaThreshold=0.025, connectedFeaturesThresh=10, simplifyFinalOutput=False, show=True,
+                    percentAreaThreshold=0.025, connectedFeaturesThresh=10, simplifyFinalOutput=False, show=False,
                     threadedDisplay=False) -> List:
     # run the contour detection
     contourBoundingBoxes = getContourBoundingBoxes(image, simplify=True, show=show, threadedDisplay=threadedDisplay)
